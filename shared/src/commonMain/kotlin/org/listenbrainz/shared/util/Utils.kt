@@ -117,6 +117,17 @@ object Utils {
         if (caaReleaseMbid == null || caaId == null) return null
         return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
     }
+
+    fun getArticle(str: String): String {
+        return when (str.first()){
+            'a' -> "an"
+            'e' -> "an"
+            'i' -> "an"
+            'o' -> "an"
+            'u' -> "an"
+            else -> "a"
+        }
+    }
 }
 
 expect object PlatformUtils {

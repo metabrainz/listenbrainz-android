@@ -1,0 +1,25 @@
+package org.listenbrainz.shared.model.search
+
+import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.model.search.userSearch.UserListUiState
+import org.listenbrainz.shared.model.search.albumSearch.AlbumSearchUiState
+import org.listenbrainz.shared.model.search.artistSearch.ArtistSearchUiState
+import org.listenbrainz.shared.model.search.playlistSearch.PlayListSearchUiState
+import org.listenbrainz.shared.model.search.trackSearch.TrackSearchUiState
+import org.listenbrainz.shared.model.Song
+
+data class SearchUiState(
+    val selectedSearchType: SearchType = SearchType.USER,
+    val query: String,
+    val result: SearchData?,
+    val error: ResponseError?
+)
+
+sealed interface SearchData {
+    data class Users(val data: UserListUiState) : SearchData
+    data class Playlists(val data: PlayListSearchUiState) : SearchData
+    data class Artists(val data: ArtistSearchUiState) : SearchData
+    data class Albums(val data : AlbumSearchUiState):SearchData
+    data class Tracks(val data : TrackSearchUiState): SearchData
+    data class Songs(val data: List<Song>) : SearchData
+}

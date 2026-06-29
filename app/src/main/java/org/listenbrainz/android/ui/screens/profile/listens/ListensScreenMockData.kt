@@ -11,8 +11,8 @@ import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.shared.model.user.Artist
-import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
-import org.listenbrainz.android.ui.screens.profile.ProfileUiState
+import org.listenbrainz.shared.ui.screens.profile.ListensTabUiState
+import org.listenbrainz.shared.ui.screens.profile.ProfileUiState
 import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 
 /**

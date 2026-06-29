@@ -1,0 +1,68 @@
+package org.listenbrainz.shared.ui.screens.profile.listens
+
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
+import org.listenbrainz.shared.model.Listen
+import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.repository.listens.ListensRepository
+import org.listenbrainz.shared.util.Resource
+import kotlin.time.Clock
+
+class UserListensPagingSource(
+    private val username: String?,
+    private val onError: (error: ResponseError?) -> Unit,
+    private val listensRepository: ListensRepository,
+    private val ioDispatcher: CoroutineDispatcher,
+) : PagingSource<Long, Listen>() {
+
+    override fun getRefreshKey(state: PagingState<Long, Listen>): Long? {
+        return Clock.System.now().epochSeconds
+    }
+
+    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, Listen> {
+        if (username.isNullOrEmpty()) {
+            val error = ResponseError.BadRequest(
+                actualResponse = "Some error occurred! Username not found"
+            )
+            onError(error)
+            return LoadResult.Error(Exception(error.toast))
+        }
+
+        val result = withContext(ioDispatcher) {
+            listensRepository.fetchUserListens(
+                username = username,
+                count = params.loadSize,
+                maxTs = params.key
+            )
+        }
+
+        return when (result.status) {
+            Resource.Status.SUCCESS -> {
+                val listens = result.data?.payload?.listens ?: emptyList()
+
+                // Get the minimum listened_at timestamp from the current batch
+                // This will be used as maxTs for the next page
+                val nextKey = if (listens.isNotEmpty()) {
+                    listens
+                        .minOfOrNull { it.listenedAt ?: it.insertedAt ?: Long.MAX_VALUE }
+                        .takeIf { it != Long.MAX_VALUE }
+                } else {
+                    null
+                }
+
+                LoadResult.Page(
+                    data = listens,
+                    prevKey = null, // We only support forward pagination
+                    nextKey = nextKey
+                )
+            }
+
+            else -> {
+                onError(result.error)
+                LoadResult.Error(Exception(result.error?.toast))
+            }
+        }
+    }
+}

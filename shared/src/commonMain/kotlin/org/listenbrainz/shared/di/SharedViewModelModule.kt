@@ -10,14 +10,17 @@ import org.listenbrainz.shared.viewmodel.FeaturesViewModel
 import org.listenbrainz.shared.viewmodel.AlbumViewModel
 import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.shared.viewmodel.BPArtistViewModel
+import org.listenbrainz.shared.viewmodel.FeedViewModel
 import org.listenbrainz.shared.viewmodel.LoginViewModel
 import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistViewModel
 import org.listenbrainz.shared.viewmodel.BPAlbumViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
+import org.listenbrainz.shared.viewmodel.SearchViewModel
 import org.listenbrainz.shared.viewmodel.SettingsViewModel
 import org.listenbrainz.shared.viewmodel.SongViewModel
+import org.listenbrainz.shared.viewmodel.UserViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 
 val sharedViewModelModule = module {
@@ -32,8 +35,10 @@ val sharedViewModelModule = module {
     viewModel { PlaylistViewModel(get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { BPAlbumViewModel(get(),get(named(IO_DISPATCHER))) }
     viewModel { BPArtistViewModel(get(),get(named(IO_DISPATCHER))) }
-    viewModel { ListensViewModel(get(),get(),get(),get(),get(named(DEFAULT_DISPATCHER))) }
     viewModel { ListeningNowViewModel(get(),get(),get(),get(named(IO_DISPATCHER))) }
     viewModel { PlaylistDataViewModel(get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER)),get<StringProvider>()) }
     viewModel { SocialViewModel(get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER)),get<StringProvider>()) }
+    viewModel { FeedViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
+    viewModel { SearchViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
+    viewModel { UserViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER))) }
 }

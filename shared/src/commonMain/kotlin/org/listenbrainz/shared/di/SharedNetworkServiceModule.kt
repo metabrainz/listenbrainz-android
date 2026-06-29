@@ -52,6 +52,8 @@ import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.MB_BASE_URL
 import kotlin.time.Duration.Companion.milliseconds
 import org.listenbrainz.shared.service.BlogService
+import org.listenbrainz.shared.service.FeedServiceKtor
+import org.listenbrainz.shared.service.FeedServiceKtorImpl
 import org.listenbrainz.shared.service.createBlogService
 import org.listenbrainz.shared.util.Log
 
@@ -232,6 +234,14 @@ val sharedNetworkServiceModule = module {
             .createPlaylistService()
     }
 
+    single<FeedServiceKtor> {
+        val baseClient = get<HttpClient>(named(SHARED_HTTP_CLIENT)).config {
+            defaultRequest {
+                url(LISTENBRAINZ_API_BASE_URL)
+            }
+        }
+        FeedServiceKtorImpl(baseClient)
+    }
 }
 
 val sharedDispatcherModule = module {

@@ -75,11 +75,12 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.flow.flow
 import org.koin.androidx.compose.koinViewModel
+import org.listenbrainz.android.model.feed.FeedEventContent
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.Metadata
-import org.listenbrainz.android.model.feed.FeedCallbacks
+import org.listenbrainz.shared.model.feed.FeedCallbacks
 import org.listenbrainz.shared.model.feed.FeedEvent
-import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.shared.model.feed.FeedEventType
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.shared.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
@@ -96,8 +97,11 @@ import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
-import org.listenbrainz.android.viewmodel.FeedViewModel
+import org.listenbrainz.shared.viewmodel.FeedViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
+import org.listenbrainz.shared.ui.screens.feed.FeedUiEventData
+import org.listenbrainz.shared.ui.screens.feed.FeedUiEventItem
+import org.listenbrainz.shared.ui.screens.feed.FeedUiState
 
 @Composable
 fun FeedScreen(
@@ -520,7 +524,8 @@ private fun MyFeed(
                         enter = expandVertically(),
                         exit = shrinkVertically()
                     ) {
-                        eventType.Content(
+                        FeedEventContent(
+                            type = eventType,
                             event = event,
                             parentUser = parentUser,
                             isHidden = uiState.isHiddenMap[event.id] == true,
@@ -553,7 +558,7 @@ private fun MyFeed(
                                 uriHandler.openUri(
                                     "https://musicbrainz.org/recording/${
                                         event.metadata.trackMetadata?.mbidMapping?.recordingMbid
-                                            ?: return@Content
+                                            ?: return@FeedEventContent
                                     }"
                                 )
                                 dropdownItemIndex.value = null

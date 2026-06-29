@@ -1,0 +1,67 @@
+package org.listenbrainz.shared.ui.screens.feed
+
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
+import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.repository.feed.FeedRepository
+import org.listenbrainz.shared.util.Resource
+import kotlin.time.Clock
+
+class SimilarListensPagingSource(
+    private val username: suspend () -> String,
+    private val onError: (error: ResponseError?) -> Unit,
+    private val feedRepository: FeedRepository,
+    private val ioDispatcher: CoroutineDispatcher
+): PagingSource<Long, FeedUiEventItem>() {
+    
+    override fun getRefreshKey(state: PagingState<Long, FeedUiEventItem>): Long? {
+        return Clock.System.now().epochSeconds
+    }
+    
+    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, FeedUiEventItem> {
+        
+        val username = username()
+        if (username.isEmpty()) {
+            val error = ResponseError.Unauthorised(actualResponse = "Login to access feed.")
+            onError(error)
+            return LoadResult.Error(Exception(error.toast))
+        }
+        
+        val result = withContext(ioDispatcher) {
+            feedRepository.getFeedSimilarListens(username = username, maxTs = params.key, count = params.loadSize)
+        }
+        
+        return when (result.status) {
+            Resource.Status.SUCCESS -> {
+                
+                val processedEvents = FollowListensPagingSource.processFeedEvents(result.data)
+                val nextKey = processedEvents.lastOrNull()?.event?.created?.let { newKey ->
+                    // Termination condition.
+                    if (params.key != null && newKey >= params.key!!)
+                        return LoadResult.Page(
+                            data = emptyList(),
+                            prevKey = null,
+                            nextKey = null
+                        )
+                    else
+                        newKey
+        
+                }
+                
+                LoadResult.Page(
+                    data = processedEvents,
+                    prevKey = null,
+                    nextKey = nextKey
+                )
+            }
+            else -> {
+                onError(result.error)
+                LoadResult.Error(Exception(result.error?.toast))
+            }
+            
+        }
+        
+    }
+}

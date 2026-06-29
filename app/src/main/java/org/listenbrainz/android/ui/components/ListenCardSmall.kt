@@ -42,7 +42,7 @@ import org.listenbrainz.shared.model.AdditionalInfo
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.TrackMetadata
-import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.shared.model.feed.FeedEventType
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme

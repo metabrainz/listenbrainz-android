@@ -10,7 +10,7 @@ import org.listenbrainz.shared.model.user.TopSongs
 import org.listenbrainz.shared.model.user.UserFeedback
 import org.listenbrainz.shared.model.user.UserListeningActivity
 import org.listenbrainz.shared.model.user.UserSimilarityPayload
-import org.listenbrainz.android.repository.user.UserRepository
+import org.listenbrainz.shared.repository.user.UserRepository
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.allPinsTestData
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.createdForYouPlaylistsTestData

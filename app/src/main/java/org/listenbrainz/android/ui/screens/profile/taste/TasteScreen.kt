@@ -59,16 +59,16 @@ import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SelectionChipBar
 import org.listenbrainz.android.ui.components.SuccessBar
-import org.listenbrainz.android.ui.screens.profile.ProfileUiState
-import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
+import org.listenbrainz.shared.ui.screens.profile.ProfileUiState
+import org.listenbrainz.shared.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.screens.profile.listens.headerTextVerticalPadding
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.viewmodel.FeedViewModel
+import org.listenbrainz.shared.viewmodel.FeedViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
+import org.listenbrainz.shared.viewmodel.UserViewModel
 
 @Composable
 fun TasteScreen(
