@@ -1,3 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_tracks">Lood</string>
+    <string name="releases">Väljalasked</string>
+    <string name="recording_releases">Leidub väljalasetel</string>
+    <string name="app_name">ListenBrainz</string>
+    <string name="search_hint">Otsi ListenBrainzist</string>
+    <string name="search_card">Uuri ListenBrainzis leiduvaid andmeid</string>
+    <string name="search_type_artist">Esitaja</string>
+    <string name="search_type_release">Väljalase</string>
+    <string name="search_type_label">Plaadifirma</string>
+    <string name="search_type_recording">Salvestis</string>
+    <string name="search_type_event">Sündmus</string>
+    <string name="search_name">ListenBrainz</string>
+    <string name="auth_title">Autentimine</string>
+    <string name="no_results">Tulemusi ei leidu</string>
+    <string name="cover_art_front">ESIKAAS</string>
+    <string name="artist_title">Esitaja</string>
+    <string name="about_title">Rakenduse teave</string>
+    <string name="app_name_official">ListenBrainz Androidi jaoks</string>
+    <string name="version_text">Versioon</string>
+    <string name="action_search">Otsi</string>
+    <string name="action_feedback">Tagasiside</string>
+    <string name="action_settings">Seadistused</string>
+    <string name="action_authentication">Autentimine</string>
+    <string name="action_login">Logi sisse</string>
+    <string name="action_logout">Logi välja</string>
+    <string name="loading">Laadin...</string>
+    <string name="noresult">Tulemusi ei leidu</string>
+    <string name="preferences_title">Seadistused</string>
+    <string name="settings_search">Otsi</string>
+    <string name="settings_suggestions">Soovitused</string>
+    <string name="settings_tagger">Sildistaja</string>
+    <string name="settings_tagger_directory">Failide kaust</string>
 </resources>
