@@ -32,4 +32,11 @@
     <string name="settings_suggestions">Soovitused</string>
     <string name="settings_tagger">Sildistaja</string>
     <string name="settings_tagger_directory">Failide kaust</string>
+    <string name="settings_tagger_directory_summary">Vali kaust, kust Picard sinu failid leiab</string>
+    <string name="settings_suggestions_summary">Salvesta ja kuva otsingusoovitusi</string>
+    <string name="settings_private_collections">Privaatsed kogumikud</string>
+    <string name="settings_private_collections_summary">Kasutaja sisselogimisel laadi ka privaatsed kogumikud.</string>
+    <string name="settings_clear">Kustuta otsingute ajalugu</string>
+    <string name="settings_user_data">Kasutajaandmed</string>
+    <string name="settings_ratings_tags">Hinnangud ja sildid</string>
 </resources>
