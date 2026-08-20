@@ -1,13 +1,7 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
-import android.media.MediaMetadata
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
-import org.listenbrainz.android.util.ListenSubmissionState.Companion.DEFAULT_DURATION
-import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractArtist
-import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractDuration
-import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractReleaseName
-import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
+import org.listenbrainz.shared.util.ListenSubmissionStateConstants.DEFAULT_DURATION
 
 /** Track metadata class for Listen service.*/
 @Serializable
@@ -28,32 +22,28 @@ data class PlayingTrack(
         get() = "$title - $artist - $pkgName"
 
     val isValid get() = title != null && artist != null && timestamp != 0L
-    
+
     /** This means there's no track playing.*/
     fun isNothing(): Boolean = artist == null && title == null
-    
+
     fun isSubmitted(): Boolean = submitted
 
     fun isDurationAbsent(): Boolean = duration <= 0L
-    
+
     fun isDurationPresent(): Boolean = !isDurationAbsent()
-    
+
     /** Similar means that the basic metadata matches. A song if replayed will be similar.*/
     fun isSimilarTo(other: Any): Boolean {
         return when (other) {
             is PlayingTrack ->  artist == other.artist
                     && title == other.title
                     && pkgName == other.pkgName
-            is MediaMetadata -> artist == other.extractArtist()
-                    && title == other.extractTitle()
             else -> {
-                throw IllegalStateException(
-                    "${other.javaClass.simpleName} is not supported for use in this function."
-                )
+                this.toSimilarTo(other)
             }
         }
     }
-    
+
     /** Determines if *this* track is outdated in comparison to [newTrack].
      *
      * Covers case where a track being replayed is similar but is actually outdated.*/
@@ -81,19 +71,11 @@ data class PlayingTrack(
             else -> true
         }
     }
-    
+
     companion object {
         val Nothing get() = PlayingTrack()
 
-        fun MediaMetadata.toPlayingTrack(pkgName: String): PlayingTrack {
-            return PlayingTrack(
-                timestamp = System.currentTimeMillis(),
-                artist = extractArtist(),
-                title = extractTitle(),
-                duration = extractDuration(),
-                releaseName = extractReleaseName(),
-                pkgName = pkgName
-            )
-        }
     }
 }
+
+expect fun PlayingTrack.toSimilarTo(other: Any): Boolean

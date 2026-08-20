@@ -1,7 +1,7 @@
 package org.listenbrainz.android.service
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.Manifest
+import android.app.Notification
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -9,6 +9,7 @@ import android.media.session.MediaSessionManager
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
@@ -16,11 +17,13 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import org.koin.android.ext.android.inject
 import org.listenbrainz.android.application.App
-import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.util.ListenSessionListener
-import org.listenbrainz.android.util.ListenSubmissionState.Companion.getListeningNotification
+import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManager
+import org.listenbrainz.shared.util.AndroidNotificationManager
+import org.listenbrainz.shared.util.ListenSessionListener
+import org.listenbrainz.shared.util.ListenSubmissionNotification.NOTIFICATION_ID
 import org.listenbrainz.shared.util.Log
+import org.listenbrainz.shared.util.PlatformNotificationManager
 
 class ListenSubmissionService(
     private val logger:Log = Log
@@ -29,6 +32,7 @@ class ListenSubmissionService(
     private val appPreferences: AppPreferences by inject()
     
     private val serviceManager: ListenServiceManager by inject()
+    private val notificationManager: AndroidNotificationManager by inject()
     
     private val scope = MainScope()
 
@@ -38,13 +42,7 @@ class ListenSubmissionService(
 
     private var listenServiceComponent: ComponentName? = null
     private var isConnected = false
-    
-    private val nm: NotificationManager? by lazy {
-        val manager = ContextCompat.getSystemService(this, NotificationManager::class.java)
-        if (manager == null)
-            logger.e("NotificationManager is not available in this context.")
-        manager
-    }
+
     private val sessionManager: MediaSessionManager? by lazy {
         val manager = ContextCompat.getSystemService(this, MediaSessionManager::class.java)
         if (manager == null)
@@ -52,6 +50,7 @@ class ListenSubmissionService(
         manager
     }
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onCreate() {
         // Koin may not be started if the system binds this NotificationListenerService
         // before App.onCreate() runs (e.g. after a reboot).
@@ -127,32 +126,19 @@ class ListenSubmissionService(
         }
     }
 
-    companion object {
-        const val NOTIFICATION_ID = 420
-        const val CHANNEL_ID = "listen_channel"
-        private const val CHANNEL_NAME = "Listening"
-        private const val CHANNEL_DESCRIPTION = "Determines if the app is listening to notifications."
-    }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_LOW
-            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
-                description = CHANNEL_DESCRIPTION
-            }
-            nm?.createNotificationChannel(channel)
-        }
+        notificationManager.createChannel()
     }
     
     private fun deleteNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            nm?.deleteNotificationChannel(CHANNEL_ID)
-        }
+        notificationManager.deleteChannel()
     }
 
     var isStarted = false
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun startForeground() {
-        val notification = getListeningNotification(null)
+        val notification = notificationManager.createNotification(null)
         if (!isStarted) {
             ServiceCompat.startForeground(
                 this,

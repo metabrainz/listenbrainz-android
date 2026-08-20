@@ -9,6 +9,8 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.shared.di.database.ListensSubmissionDatabase
 import org.listenbrainz.shared.model.dao.PendingListensDao
+import org.listenbrainz.shared.permission.AndroidPermissionEnumHandler
+import org.listenbrainz.shared.permission.PermissionHandler
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.util.ANDROID_LOG_DIR_NAME
 import org.listenbrainz.shared.util.AndroidFileLogWriter
@@ -23,6 +25,12 @@ import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.ListensService
 import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
+import org.listenbrainz.shared.util.AndroidNotificationManager
+import org.listenbrainz.shared.util.ArrayProvider
+import org.listenbrainz.shared.util.DrawableProvider
+import org.listenbrainz.shared.util.NotificationConfig
+import org.listenbrainz.shared.util.PlatformNotificationManager
+import org.listenbrainz.shared.util.StringProvider
 
 actual fun platform() = "Android"
 
@@ -77,4 +85,25 @@ actual fun getListensSubmissionDatabase(): RoomDatabase.Builder<ListensSubmissio
         context = applicationContext,
         name = listensDb.absolutePath
     )
+}
+
+actual fun provideSharedNotificationManager(
+    drawableProvider: DrawableProvider,
+    stringProvider: StringProvider,
+    arrayProvider: ArrayProvider
+): PlatformNotificationManager {
+
+    val targetClass = requireNotNull(NotificationConfig.targetActivityClass){
+        "Notification target Activity is not configured."
+    }
+    return AndroidNotificationManager(
+        targetActivityClass = targetClass,
+        drawableProvider = drawableProvider,
+        stringProvider = stringProvider,
+        arrayProvider = arrayProvider
+    )
+}
+
+actual fun providePermissionHandler(): PermissionHandler {
+    return AndroidPermissionEnumHandler()
 }

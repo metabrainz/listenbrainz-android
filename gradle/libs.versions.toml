@@ -63,7 +63,7 @@ composeRatingbar = "1.3.12"
 loggerAndroid = "1.0.0"
 compileSdk = "36"
 targetSdk = "36"
-minSdk = "23"
+minSdk = "26"
 paletteKtx = "1.0.0"
 chucker = "4.1.0"
 nav3Core = "1.0.1"
@@ -79,10 +79,14 @@ kmp-socketio = "1.4.4"
 coreVersion = "1.18.0"
 buildkonfig = "0.15.2"
 kmpalette = "4.0.0-beta02"
+kmp-workmanager = "3.0.1"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 kmpalette-core = { module = "com.materialkolor.palette:core", version.ref = "kmpalette" }
+kmpworker-core = { module = "dev.brewkits:kmpworkmanager", version.ref = "kmp-workmanager" }
+kmpworker-ksp = { module = "dev.brewkits:kmpworker-ksp",         version.ref = "kmp-workmanager" }
+kmpworker-annotations = { module = "dev.brewkits:kmpworker-annotations", version.ref = "kmp-workmanager" }
 kmpalette-androidx-palette = { module = "com.materialkolor.palette:androidx-palette", version.ref = "kmpalette" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }

@@ -132,4 +132,5 @@ object Utils {
 
 expect object PlatformUtils {
     fun getSHA1(context: PlatformContext, packageName: String): String?
+    suspend fun canShowNotifications(): Boolean
 }

@@ -173,6 +173,9 @@ kotlin {
                 implementation(libs.kmpalette.androidx.palette)
                 // Paging
                 implementation(libs.androidx.paging.common)
+                // KMP Workmanager ( Brewkits )
+                api(libs.kmpworker.core)
+                api(libs.kmpworker.annotations)
             }
         }
 
@@ -242,4 +245,8 @@ dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+
+    add("kspAndroid", libs.kmpworker.ksp)
+    add("kspIosArm64", libs.kmpworker.ksp)
+    add("kspIosSimulatorArm64", libs.kmpworker.ksp)
 }

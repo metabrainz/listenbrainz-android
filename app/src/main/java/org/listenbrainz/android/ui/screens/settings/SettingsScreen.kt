@@ -53,19 +53,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.compose.koinInject
 import org.listenbrainz.shared.model.AppNavigationItem
-import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.shared.permission.AndroidPermissionEnum
+import org.listenbrainz.shared.permission.isPermissionApplicable
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.main.DonateActivity
-import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.model.PermissionStatus
+import org.listenbrainz.shared.permission.PermissionHandler
 import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.SettingsViewModel
@@ -83,7 +86,7 @@ fun SettingsScreen(
     val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val isBatteryOptimizationPermissionGranted =
-        permissions[PermissionEnum.BATTERY_OPTIMIZATION] == PermissionStatus.GRANTED
+        permissions[AndroidPermissionEnum.BATTERY_OPTIMIZATION] == PermissionStatus.GRANTED
     val preferencesUiState by listensViewModel.preferencesUiState.collectAsState()
     val settingsUiState by viewModel.uiState.collectAsState()
     val isSubmittingLogs = settingsUiState.isSubmittingLogs
@@ -121,7 +124,8 @@ fun SettingsScreen(
     isBatteryOptimizationPermissionGranted: Boolean = true,
     topBarActions: TopBarActions,
     submitLogs:(PlatformContext)->Unit,
-    isSubmittingLogs:Boolean= false
+    isSubmittingLogs:Boolean= false,
+    permissionHandler: PermissionHandler = koinInject()
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -223,15 +227,17 @@ fun SettingsScreen(
 
                         HorizontalDivider(modifier = indentedModifier)
 
-                        if (!isBatteryOptimizationPermissionGranted && PermissionEnum.BATTERY_OPTIMIZATION.isPermissionApplicable()) {
+                        if (!isBatteryOptimizationPermissionGranted && AndroidPermissionEnum.BATTERY_OPTIMIZATION.isPermissionApplicable()) {
                             SettingsTextOption(
                                 modifier = Modifier.clickable() {
                                     if (activity != null) {
-                                        //Last two permissions are not required for Battery Optimization permission
-                                        PermissionEnum.BATTERY_OPTIMIZATION.requestPermission(
-                                            activity,
-                                            emptyList()
-                                        ) {}
+                                        scope.launch {
+                                            //Last two permissions are not required for Battery Optimization permission
+                                            permissionHandler.requestPermission(
+                                                permission = AndroidPermissionEnum.BATTERY_OPTIMIZATION,
+                                                activity = activity
+                                            )
+                                        }
                                     }
                                 },
                                 title = "Disable Battery Optimization",

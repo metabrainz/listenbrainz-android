@@ -1,9 +1,9 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.shared.util
 
 import android.os.Handler
 import android.os.SystemClock
-import org.listenbrainz.android.model.OnTimerListener
-import org.listenbrainz.android.model.TimerState
+import org.listenbrainz.shared.model.OnTimerListener
+import org.listenbrainz.shared.model.TimerState
 
 interface Timer {
     val state: TimerState
@@ -38,16 +38,16 @@ abstract class TimerBase: Timer {
 
     private var mListener: OnTimerListener? = null
     private var mResumeTs: Long = 0
-    
+
     override fun setDuration(duration: Long) {
         initialDuration = duration
         durationLeft = duration
     }
-    
+
     override fun setOnTimerListener(listener: OnTimerListener) {
         mListener = listener
     }
-    
+
     protected fun startOrResume(
         delay: Long = 0L,
         postDelayed: (durationLeft: Long, block: () -> Unit) -> Unit
@@ -61,25 +61,25 @@ abstract class TimerBase: Timer {
                     durationLeft,
                     ::end
                 )
-                
+
                 mListener?.onTimerResumed()
                 state = TimerState.RUNNING
             }
             TimerState.ENDED -> {
                 mResumeTs = SystemClock.uptimeMillis()
                 durationLeft += delay
-                
+
                 postDelayed(
                     durationLeft,
                     ::end
                 )
-    
+
                 mListener?.onTimerStarted()
                 state = TimerState.RUNNING
             }
         }
     }
-    
+
     override fun end() {
         if (state == TimerState.ENDED) {
             return
@@ -88,7 +88,7 @@ abstract class TimerBase: Timer {
         mListener?.onTimerEnded()
         reset()
     }
-    
+
     /** Discard current listen post and stop timer.*/
     protected fun stop(removePosts: () -> Unit) {
         if (state == TimerState.ENDED) {
@@ -98,7 +98,7 @@ abstract class TimerBase: Timer {
         removePosts()
         reset()
     }
-    
+
     protected fun extendDuration(
         extensionSeconds: (passedSeconds: Long) -> Long,
         removePosts: () -> Unit,
@@ -108,19 +108,19 @@ abstract class TimerBase: Timer {
         durationLeft = extensionSeconds(/*passedSeconds =*/initialDuration - durationLeft)
         startOrResume(postDelayed = postDelayed)
     }
-    
+
     protected fun pause(removePosts: () -> Unit) {
         if (state == TimerState.PAUSED || state == TimerState.ENDED) {
             return
         }
         state = TimerState.PAUSED
         removePosts()
-        
+
         val durationLeft = durationLeft - (SystemClock.uptimeMillis() - mResumeTs)
         mListener?.onTimerPaused(durationLeft)
         this@TimerBase.durationLeft = durationLeft
     }
-    
+
     private fun reset() {
         mResumeTs = 0L
         durationLeft = 0L
