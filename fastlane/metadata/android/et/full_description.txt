@@ -1,0 +1,3 @@
+ListenBrainz jälgib sinu kuulatud muusikat ja annab ülevaate sinu kuulamisharjumustest.
+Meie visualiseeringute abil saad ListenBrainzi abil jälgida oma muusika kuulamisharjumusi ja jagada oma muusikamaitset teistega.
+Sinu kuulamisajaloo põhjal soovitame sulle muusikat, mis võiks sulle meeldida, lemmikartistide uut muusikat, mis on sulle seni märkamata jäänud, ning seda, mida sarnased kasutajad on kuulanud.
