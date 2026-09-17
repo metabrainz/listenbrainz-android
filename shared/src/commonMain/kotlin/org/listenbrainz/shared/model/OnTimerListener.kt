@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
 interface OnTimerListener {
     fun onTimerStarted() {}

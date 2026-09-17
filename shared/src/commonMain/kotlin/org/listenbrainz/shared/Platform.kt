@@ -13,6 +13,10 @@ import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.ListensService
 import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
+import org.listenbrainz.shared.util.ArrayProvider
+import org.listenbrainz.shared.util.DrawableProvider
+import org.listenbrainz.shared.util.PlatformNotificationManager
+import org.listenbrainz.shared.util.StringProvider
 
 expect fun platform(): String
 
@@ -38,3 +42,9 @@ expect fun provideListensRepositoryImpl(
 
 
 expect fun getListensSubmissionDatabase(): RoomDatabase.Builder<ListensSubmissionDatabase>
+
+expect fun provideSharedNotificationManager(
+    drawableProvider: DrawableProvider,
+    stringProvider: StringProvider,
+    arrayProvider: ArrayProvider
+): PlatformNotificationManager

@@ -1,4 +1,4 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.shared.util
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler

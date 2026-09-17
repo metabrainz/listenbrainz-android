@@ -1,9 +1,9 @@
-package org.listenbrainz.android.repository.listenservicemanager
+package org.listenbrainz.shared.repository.listenservicemanager
 
 import android.media.MediaMetadata
 import android.media.session.PlaybackState
 import android.service.notification.StatusBarNotification
-import org.listenbrainz.android.util.ListenSubmissionState
+import org.listenbrainz.shared.util.ListenSubmissionState
 import java.lang.AutoCloseable
 interface ListenServiceManager {
 

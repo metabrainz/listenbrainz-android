@@ -460,42 +460,42 @@ private fun AllInstalledAppsBottomSheetPreview() {
 
 private fun getSampleApps(): List<AppInfo> {
     return listOf(
-        _root_ide_package_.org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo(
+        AppInfo(
             "YouTube",
             "com.google.android.youtube",
             createSampleBitmap(),
             false,
             false
         ),
-        _root_ide_package_.org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo(
+        AppInfo(
             "Spotify",
             "com.spotify.music",
             createSampleBitmap(),
             false,
             true
         ),
-        _root_ide_package_.org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo(
+       AppInfo(
             "YouTube Music",
             "com.google.android.apps.youtube.music",
             createSampleBitmap(),
             false,
             false
         ),
-        _root_ide_package_.org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo(
+        AppInfo(
             "Amazon Music",
             "com.amazon.mp3",
             createSampleBitmap(),
             false,
             true
         ),
-        _root_ide_package_.org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo(
+        AppInfo(
             "ListenBrainz",
             "org.metabrainz.android",
             createSampleBitmap(),
             false,
             true
         ),
-        _root_ide_package_.org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo(
+        AppInfo(
             "Audiomack",
             "com.audiomack",
             createSampleBitmap(),

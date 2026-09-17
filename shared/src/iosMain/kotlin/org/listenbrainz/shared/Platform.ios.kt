@@ -25,6 +25,12 @@ import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.ListensService
 import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
+import org.listenbrainz.shared.util.ArrayProvider
+import org.listenbrainz.shared.util.DrawableProvider
+import org.listenbrainz.shared.util.IosNotificationManager
+import org.listenbrainz.shared.util.ListenSubmissionNotification
+import org.listenbrainz.shared.util.PlatformNotificationManager
+import org.listenbrainz.shared.util.StringProvider
 import platform.Foundation.NSFileManager
 
 actual fun platform() = "iOS"
@@ -92,5 +98,17 @@ actual fun getListensSubmissionDatabase(): RoomDatabase.Builder<ListensSubmissio
     val listensDB = documentDirectory() + "/listens_scrobble_database.db"
     return Room.databaseBuilder<ListensSubmissionDatabase>(
         name = listensDB
+    )
+}
+
+actual fun provideSharedNotificationManager(
+    drawableProvider: DrawableProvider,
+    stringProvider: StringProvider,
+    arrayProvider: ArrayProvider
+): PlatformNotificationManager {
+
+    return IosNotificationManager(
+        notificationId = ListenSubmissionNotification.NOTIFICATION_ID,
+        listeningTitle = "♫ Listening now",
     )
 }
