@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.0.0"
 navigation = "2.7.7"
-hilt = "2.52"
+hilt = "2.57.2"
 compose = "1.6.8"
 room = "2.6.1"
 accompanist = "0.34.0"
