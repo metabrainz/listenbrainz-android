@@ -19,3 +19,4 @@ sentry.properties
 /app/github
 
 shared/.idea
+gradle/gradle-daemon-jvm.properties
