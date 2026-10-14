@@ -10,7 +10,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.shared.di.database.ListensSubmissionDatabase
 import org.listenbrainz.shared.model.dao.PendingListensDao
-import org.listenbrainz.shared.permission.IosPermissionHandler
+import org.listenbrainz.shared.permission.IOSPermissionHandler
 import org.listenbrainz.shared.permission.PermissionHandler
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.util.BuildInfo
@@ -116,5 +116,5 @@ actual fun provideSharedNotificationManager(
 }
 
 actual fun providePermissionHandler(): PermissionHandler {
-    return IosPermissionHandler()
+    return IOSPermissionHandler()
 }

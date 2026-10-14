@@ -10,19 +10,16 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.createBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.permission.PermissionHandler
 import org.listenbrainz.shared.permission.isPermissionPermanentlyDeclined
 import org.listenbrainz.shared.model.UiMode
@@ -53,7 +50,6 @@ class DashBoardViewModel(
     val appPreferences: AppPreferences,
     application: Application,
     private val remotePlaybackHandler: RemotePlaybackHandler,
-    private val ioDispatcher: CoroutineDispatcher,
     private val logSubmitter: LogSubmitter,
     private val permissionHandler: PermissionHandler,
     private val logger:Log = Log
@@ -142,9 +138,7 @@ class DashBoardViewModel(
     // Sets Ui mode for XML layouts.
     fun setUiMode() {
         viewModelScope.launch {
-            when (withContext(ioDispatcher) {
-                appPreferences.themePreference.get()
-            }) {
+            when (appPreferences.themePreference.get()) {
                 UiMode.DARK -> AppCompatDelegate.setDefaultNightMode(
                     AppCompatDelegate.MODE_NIGHT_YES
                 )
@@ -160,7 +154,7 @@ class DashBoardViewModel(
 
 
     fun updatePermissionStatus(activity: ComponentActivity) {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             val requiredPermissions = permissionHandler.getAllRelevantPermissions()
             val permissionMap = mutableMapOf<AppPermission, PermissionStatus>()
             val permissionsReqeustedOnce = appPreferences.requestedPermissionsList.getFlow().first()
@@ -169,9 +163,10 @@ class DashBoardViewModel(
                     permissionMap[permission] = PermissionStatus.GRANTED
                     //This is to ensure that the permission is marked as requested (for devices which already gave permission before any prompt)
                     markPermissionAsRequested(permission)
-                } else if (permission.isPermissionPermanentlyDeclined(
-                        activity,
-                        permissionsReqeustedOnce
+                } else if (
+                    permission.isPermissionPermanentlyDeclined(
+                        activity = activity,
+                        permissionsRequestedOnce = permissionsReqeustedOnce
                     )
                 ) {
                     permissionMap[permission] = PermissionStatus.DENIED_TWICE
@@ -185,7 +180,7 @@ class DashBoardViewModel(
     }
 
     fun markPermissionAsRequested(permission: AppPermission) {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             val storageKey = permissionHandler.storageKey(permission)
             val permissions =
                 appPreferences.requestedPermissionsList.getFlow().firstOrNull()?.toMutableList()
@@ -323,7 +318,7 @@ class DashBoardViewModel(
     }
 
     fun onAppCheckChange(isChecked: Boolean, appInfo: AppInfo) {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             val whitelist = appPreferences.listeningWhitelist.getFlow().first().toMutableList()
             if (isChecked) {
                 if (!whitelist.contains(appInfo.packageName)) {
@@ -346,7 +341,7 @@ class DashBoardViewModel(
     }
 
     fun onListeningStatusChange(boolean: Boolean) {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             appPreferences.isListeningAllowed.set(boolean)
         }
     }
@@ -356,14 +351,14 @@ class DashBoardViewModel(
             consentScreenUIState
         }
         if(consentScreenUIState.data?.isNotEmpty() == true) {
-            viewModelScope.launch(ioDispatcher) {
+            viewModelScope.launch {
                 appPreferences.consentScreenDataCache.set(consentScreenUIState.data)
             }
         }
     }
 
     private fun setOnboardingCompleted(completed: Boolean) {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch {
             appPreferences.onboardingCompleted.set(completed)
         }
     }
@@ -388,12 +383,10 @@ class DashBoardViewModel(
         _consentScreenUIState.value.webView?.loadUrl("https://listenbrainz.org/login")
     }
 
-    suspend fun isNotificationListenerServiceAllowed(): Boolean {
-        return withContext(ioDispatcher) {
-            appPreferences.isNotificationServiceAllowed
-                    && appPreferences.isListeningAllowed.get()
-        } && appPreferences.lbAccessToken.get().isNotEmpty()
-    }
+    suspend fun isNotificationListenerServiceAllowed() =
+        appPreferences.isNotificationServiceAllowed
+                && appPreferences.isListeningAllowed.get()
+                && appPreferences.lbAccessToken.get().isNotEmpty()
 
 
     fun connectToSpotify() {

@@ -76,18 +76,16 @@ fun AppPermission.isPermissionPermanentlyDeclined(
     activity: Activity,
     permissionsRequestedOnce: List<String>
 ): Boolean {
-    if (!isPermissionApplicable()) return false
-    return when (this) {
+    return isPermissionApplicable() && when (this) {
         AndroidPermissionEnum.READ_NOTIFICATIONS, AndroidPermissionEnum.BATTERY_OPTIMIZATION -> false
-
         else -> {
-            if (permissionsRequestedOnce.contains(systemPermission) && Build.VERSION_CODES.M <= Build.VERSION.SDK_INT)
-                //If the permission was requested once, then we can check if it is permanently declined
-                !activity.shouldShowRequestPermissionRationale(systemPermission) && ContextCompat.checkSelfPermission(
+            //If the permission was requested once, then we can check if it is permanently declined
+            permissionsRequestedOnce.contains(systemPermission)
+                    && !activity.shouldShowRequestPermissionRationale(systemPermission)
+                    && ContextCompat.checkSelfPermission(
                     activity,
                     systemPermission
                 ) != PackageManager.PERMISSION_GRANTED
-            else false
         }
     }
 }

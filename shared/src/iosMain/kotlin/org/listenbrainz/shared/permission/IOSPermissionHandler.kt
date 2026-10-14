@@ -10,7 +10,7 @@ import platform.UserNotifications.UNAuthorizationOptionSound
 import platform.UserNotifications.UNUserNotificationCenter
 import kotlin.coroutines.resume
 
-class IosPermissionHandler : PermissionHandler {
+class IOSPermissionHandler : PermissionHandler {
 
     override fun getAllRelevantPermissions(): List<AppPermission> = SharedPermissionEnum.entries
 

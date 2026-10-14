@@ -1,7 +1,6 @@
 package org.listenbrainz.android.di
 
 import android.content.Context
-import androidx.work.WorkManager
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import de.jensklingenberg.ktorfit.Ktorfit
 import dev.brewkits.kmpworkmanager.KmpWorkManager
@@ -257,7 +256,7 @@ val repositoryModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { DashBoardViewModel(get(), get(), get(), get(named(IO_DISPATCHER)),get(),get()) }
+    viewModel { DashBoardViewModel(get(), get(), get(), get(),get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
     viewModel { YimViewModel(get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { Yim23ViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
