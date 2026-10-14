@@ -18,27 +18,28 @@ class AndroidPermissionEnumHandler(
     private val context: PlatformContext = applicationContext
 ) : PermissionHandler {
 
-    /// Function to get the list of required permissions based on the current Android version
+    // Function to get the list of required permissions based on the current Android version
     override fun getAllRelevantPermissions(): List<AppPermission> =
         allPermissions.filter { it.isPermissionApplicable() }
 
     override fun getPermissionsForPermissionScreen(): List<AppPermission> =
         getAllRelevantPermissions().filter {
             it != AndroidPermissionEnum.READ_NOTIFICATIONS && // READ_NOTIFICATIONS is handled separately
-            it != AndroidPermissionEnum.BATTERY_OPTIMIZATION // BATTERY_OPTIMIZATION is handled separately
+                    it != AndroidPermissionEnum.BATTERY_OPTIMIZATION // BATTERY_OPTIMIZATION is handled separately
         }
 
     override fun isPermissionApplicable(permission: AppPermission): Boolean =
         permission.isPermissionApplicable()
 
-    //This function checks if the permission is granted or not
-    //If a permission is not applicable for the current Android version, it will return true
+    // This function checks if the permission is granted or not
+    // If a permission is not applicable for the current Android version, it will return true
     override suspend fun isGranted(permission: AppPermission): Boolean {
         if (!permission.isPermissionApplicable()) return true
         return when (permission) {
             AndroidPermissionEnum.READ_NOTIFICATIONS -> {
                 //If permission is granted, the string will contain "org.listenbrainz.android.service.ListenSubmissionService", so we'll check if the package name is present in the string
-                Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")?.contains(context.packageName) == true
+                Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
+                    ?.contains(context.packageName) == true
             }
 
             AndroidPermissionEnum.BATTERY_OPTIMIZATION -> {
@@ -67,22 +68,27 @@ class AndroidPermissionEnumHandler(
         dangerousPermissionLauncher: (permission: String) -> Unit
     ): Boolean? {
         val activity = activity as? Activity
-        if(!permission.isPermissionApplicable()) return true
+        if (!permission.isPermissionApplicable()) return true
 
-        when(permission){
-            SharedPermissionEnum.SEND_NOTIFICATIONS ->{
-                if(activity != null && permission.isPermissionPermanentlyDeclined(activity,permissionRequestedOnce)){
+        when (permission) {
+            SharedPermissionEnum.SEND_NOTIFICATIONS -> {
+                if (activity != null && permission.isPermissionPermanentlyDeclined(
+                        activity,
+                        permissionRequestedOnce
+                    )
+                ) {
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                         data = "package:${activity.packageName}".toUri()
                     }
-                    startActivitySafely(activity,intent)
-                }else {
+                    startActivitySafely(activity, intent)
+                } else {
                     dangerousPermissionLauncher(permission.systemPermission)
                 }
             }
+
             AndroidPermissionEnum.READ_NOTIFICATIONS -> {
                 val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                startActivitySafely(activity,intent)
+                startActivitySafely(activity, intent)
             }
 
             AndroidPermissionEnum.BATTERY_OPTIMIZATION -> {
@@ -90,18 +96,17 @@ class AndroidPermissionEnumHandler(
                     data = "package:${context.packageName}".toUri()
                 }
                 if (intent.resolveActivity(context.packageManager) != null) {
-                    startActivitySafely(activity,intent)
+                    startActivitySafely(activity, intent)
                 }
             }
         }
         return null
     }
 
-    private fun startActivitySafely(activity: Activity?, intent: Intent){
-        if(activity!=null){
+    private fun startActivitySafely(activity: Activity?, intent: Intent) {
+        if (activity != null) {
             activity.startActivity(intent)
-        }
-        else{
+        } else {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }
