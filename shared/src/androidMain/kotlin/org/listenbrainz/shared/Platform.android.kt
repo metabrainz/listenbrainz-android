@@ -28,7 +28,6 @@ import org.listenbrainz.shared.service.YouTubeApiService
 import org.listenbrainz.shared.util.AndroidNotificationManager
 import org.listenbrainz.shared.util.ArrayProvider
 import org.listenbrainz.shared.util.DrawableProvider
-import org.listenbrainz.shared.util.NotificationConfig
 import org.listenbrainz.shared.util.PlatformNotificationManager
 import org.listenbrainz.shared.util.StringProvider
 
@@ -92,12 +91,7 @@ actual fun provideSharedNotificationManager(
     stringProvider: StringProvider,
     arrayProvider: ArrayProvider
 ): PlatformNotificationManager {
-
-    val targetClass = requireNotNull(NotificationConfig.targetActivityClass){
-        "Notification target Activity is not configured."
-    }
     return AndroidNotificationManager(
-        targetActivityClass = targetClass,
         drawableProvider = drawableProvider,
         stringProvider = stringProvider,
         arrayProvider = arrayProvider

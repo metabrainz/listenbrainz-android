@@ -33,15 +33,10 @@ data class PlayingTrack(
     fun isDurationPresent(): Boolean = !isDurationAbsent()
 
     /** Similar means that the basic metadata matches. A song if replayed will be similar.*/
-    fun isSimilarTo(other: Any): Boolean {
-        return when (other) {
-            is PlayingTrack ->  artist == other.artist
-                    && title == other.title
-                    && pkgName == other.pkgName
-            else -> {
-                this.toSimilarTo(other)
-            }
-        }
+    fun isSimilarTo(other: PlayingTrack): Boolean {
+        return artist == other.artist
+                && title == other.title
+                && pkgName == other.pkgName
     }
 
     /** Determines if *this* track is outdated in comparison to [newTrack].
@@ -77,5 +72,3 @@ data class PlayingTrack(
 
     }
 }
-
-expect fun PlayingTrack.toSimilarTo(other: Any): Boolean

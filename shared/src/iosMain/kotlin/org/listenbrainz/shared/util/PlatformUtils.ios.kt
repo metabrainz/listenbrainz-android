@@ -16,16 +16,12 @@ actual object PlatformUtils {
         return suspendCancellableCoroutine{
             val center = UNUserNotificationCenter.currentNotificationCenter()
             center.getNotificationSettingsWithCompletionHandler { settings->
-                if(!it.isActive){
-                    return@getNotificationSettingsWithCompletionHandler
-                }
-                if(settings!=null){
-                    val status = settings.authorizationStatus
-                    val isGranted = status == UNAuthorizationStatusAuthorized || status == UNAuthorizationStatusProvisional || status == UNAuthorizationStatusEphemeral
-                    it.resume(isGranted)
-                } else{
-                    it.resume(false)
-                }
+                val status = settings?.authorizationStatus
+                it.resume(
+                    status == UNAuthorizationStatusAuthorized ||
+                            status == UNAuthorizationStatusProvisional ||
+                            status == UNAuthorizationStatusEphemeral
+                )
             }
         }
     }

@@ -79,7 +79,7 @@ kotlin {
     // Target declarations - add or remove as needed below. These define
     // which platforms this KMP module supports.
     // See: https://kotlinlang.org/docs/multiplatform-discover-project.html#targets
-    androidLibrary {
+    android {
         namespace = "org.listenbrainz.shared"
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
@@ -116,12 +116,16 @@ kotlin {
     iosArm64 {
         binaries.framework {
             baseName = xcfName
+            export(libs.kmpnotifier.core)
+            export(libs.kmpnotifier.local)
         }
     }
 
     iosSimulatorArm64 {
         binaries.framework {
             baseName = xcfName
+            export(libs.kmpnotifier.core)
+            export(libs.kmpnotifier.local)
         }
     }
 
@@ -176,6 +180,8 @@ kotlin {
                 // KMP Workmanager ( Brewkits )
                 api(libs.kmpworker.core)
                 api(libs.kmpworker.annotations)
+                api(libs.kmpnotifier.core)
+                api(libs.kmpnotifier.local)
             }
         }
 

@@ -64,6 +64,8 @@ import org.listenbrainz.shared.di.sharedNetworkServiceModule
 import org.listenbrainz.shared.di.sharedRepositoryModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.util.AndroidNotificationManager
+import org.listenbrainz.shared.util.PlatformNotificationManager
 import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.shared.util.ArrayProvider
 import org.listenbrainz.shared.util.DrawableProvider
@@ -215,6 +217,8 @@ val appModule = module {
     single<BackgroundTaskScheduler> {
         KmpWorkManager.getInstance().backgroundTaskScheduler
     }
+
+    single { get<PlatformNotificationManager>() as AndroidNotificationManager }
 
     single<ListenServiceManager> {
         ListenServiceManagerImpl(scheduler = get(), get(), androidContext())

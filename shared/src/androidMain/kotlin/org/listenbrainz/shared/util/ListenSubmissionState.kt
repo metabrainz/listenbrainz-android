@@ -5,6 +5,7 @@ import android.os.Handler
 import dev.brewkits.kmpworkmanager.background.domain.BackgroundTaskScheduler
 import dev.brewkits.kmpworkmanager.background.domain.Constraints
 import dev.brewkits.kmpworkmanager.background.domain.TaskTrigger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,6 +26,7 @@ import org.listenbrainz.shared.util.ListenSubmissionStateConstants.SUBMISSION_TI
 import org.listenbrainz.shared.util.ListenSubmissionStateConstants.TRACK_COMPLETION_TIMER_TOKEN
 import org.listenbrainz.shared.util.PlatformUtils.canShowNotifications
 
+// TODO: This can be multiplatform for desktop in future
 open class ListenSubmissionState : KoinComponent {
     var playingTrack: PlayingTrack = PlayingTrack()
         private set
@@ -36,6 +38,10 @@ open class ListenSubmissionState : KoinComponent {
     private val notificationManager: PlatformNotificationManager by inject()
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    // We want operations to be serial, even though most platforms have 1 thread in main, never hurts
+    // to ensure we only run on 1 thread.
+    private val notificationScope = CoroutineScope(Dispatchers.Main.limitedParallelism(1) + SupervisorJob())
 
     constructor(jobQueue: JobQueue = JobQueue(Dispatchers.Default), scheduler: BackgroundTaskScheduler, context: PlatformContext, logger:Log = Log) {
         this.submissionTimer = TimerJQ(jobQueue, SUBMISSION_TIMER_TOKEN)
@@ -70,9 +76,10 @@ open class ListenSubmissionState : KoinComponent {
         @SuppressLint("MissingPermission")
         trackCompletionTimer.setOnTimerListener(listener = object : OnTimerListener {
             override fun onTimerStarted() {
-                scope.launch {
+                val track = playingTrack
+                notificationScope.launch {
                     if (canShowNotifications()) {
-                        notificationManager.postListeningNotification(playingTrack)
+                        notificationManager.postListeningNotification(track)
                     }
                 }
             }
@@ -82,7 +89,7 @@ open class ListenSubmissionState : KoinComponent {
             override fun onTimerEnded() {
                 // Make notification null
                 logger.d("Track completion timer ended: ${playingTrack.id}")
-                scope.launch {
+                notificationScope.launch {
                     if (canShowNotifications()) {
                         notificationManager.postListeningNotification(null)
                     }
@@ -147,8 +154,9 @@ open class ListenSubmissionState : KoinComponent {
 
     @SuppressLint("MissingPermission")
     fun alertMediaPlayerRemoved(packageName: String) {
-        scope.launch {
-            if (canShowNotifications() && packageName == playingTrack.pkgName) {
+        val track = playingTrack
+        notificationScope.launch {
+            if (canShowNotifications() && packageName == track.pkgName) {
                 logger.d("Media player for $packageName removed, cleaning up notification.")
                 notificationManager.postListeningNotification(null)
             }
@@ -204,38 +212,56 @@ open class ListenSubmissionState : KoinComponent {
         (duration / 1000) * 1000
 
     private fun submitPlayingNow() {
-        if (!playingTrack.playingNowSubmitted) {
-            val track = playingTrack
-            scope.launch {
-                scheduler.enqueue(
-                    id = "playing-now-${track.pkgName}-${System.currentTimeMillis()}",
-                    trigger = TaskTrigger.OneTime(initialDelayMs = 0),
-                    workerClassName = "ListenSubmissionWorker",
-                    inputJson = Json.encodeToString(
-                        ListenWorkerInput(track, ListenType.PLAYING_NOW)
-                    ),
-                    constraints = Constraints(requiresNetwork = true)
-                )
-            }
-            track.playingNowSubmitted = true
-        }
+        val track = playingTrack
+        if (track.playingNowSubmitted) return
+        track.playingNowSubmitted = true
+        enqueueSubmission(
+            id = "playing-now-${track.pkgName}-${System.currentTimeMillis()}",
+            track = track,
+            listenType = ListenType.PLAYING_NOW,
+            // No network constraint: offline, a deferred playing-now would go stale
+            // and overwrite the current one. The worker simply fails without saving it.
+            constraints = Constraints(),
+            onFailure = { track.playingNowSubmitted = false }
+        )
     }
 
     private fun submitListen() {
-        if (!playingTrack.submitted) {
-            val track = playingTrack
-           scope.launch {
-               scheduler.enqueue(
-                   id = "listen-${track.id}-${System.currentTimeMillis()}",
-                   trigger = TaskTrigger.OneTime(initialDelayMs = 0),
-                   workerClassName = "ListenSubmissionWorker",
-                   inputJson = Json.encodeToString(
-                       ListenWorkerInput(track, ListenType.SINGLE)
-                   ),
-                   constraints = Constraints(requiresNetwork = true)
-               )
-           }
-            track.submitted = true
+        val track = playingTrack
+        if (track.submitted) return
+        track.submitted = true
+        enqueueSubmission(
+            id = "listen-${track.id}-${System.currentTimeMillis()}",
+            track = track,
+            listenType = ListenType.SINGLE,
+            constraints = Constraints(requiresNetwork = true),
+            onFailure = { track.submitted = false }
+        )
+    }
+
+    private fun enqueueSubmission(
+        id: String,
+        track: PlayingTrack,
+        listenType: ListenType,
+        constraints: Constraints,
+        onFailure: () -> Unit
+    ) {
+        val inputJson = Json.encodeToString(ListenWorkerInput(track, listenType))
+        scope.launch {
+            try {
+                scheduler.enqueue(
+                    id = id,
+                    trigger = TaskTrigger.OneTime(initialDelayMs = 0),
+                    workerClassName = "ListenSubmissionWorker",
+                    inputJson = inputJson,
+                    constraints = constraints
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.e("Could not enqueue ${listenType.code} submission: ${e.message}")
+                onFailure()
+            }
         }
     }
 
