@@ -26,6 +26,7 @@ import org.listenbrainz.shared.util.ListenSubmissionStateConstants.SUBMISSION_TI
 import org.listenbrainz.shared.util.ListenSubmissionStateConstants.TRACK_COMPLETION_TIMER_TOKEN
 import org.listenbrainz.shared.util.PlatformUtils.canShowNotifications
 
+// TODO: This can be multiplatform for desktop in future
 open class ListenSubmissionState : KoinComponent {
     var playingTrack: PlayingTrack = PlayingTrack()
         private set
@@ -38,8 +39,9 @@ open class ListenSubmissionState : KoinComponent {
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    // Serial, so notification updates are applied in the order they were issued
-    private val notificationScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1) + SupervisorJob())
+    // We want operations to be serial, even though most platforms have 1 thread in main, never hurts
+    // to ensure we only run on 1 thread.
+    private val notificationScope = CoroutineScope(Dispatchers.Main.limitedParallelism(1) + SupervisorJob())
 
     constructor(jobQueue: JobQueue = JobQueue(Dispatchers.Default), scheduler: BackgroundTaskScheduler, context: PlatformContext, logger:Log = Log) {
         this.submissionTimer = TimerJQ(jobQueue, SUBMISSION_TIMER_TOKEN)
