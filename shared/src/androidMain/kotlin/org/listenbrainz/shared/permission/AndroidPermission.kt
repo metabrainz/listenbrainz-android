@@ -26,7 +26,7 @@ enum class AndroidPermissionEnum(
         rationaleText = "Allows ListenBrainz to detect songs from other apps and submit them automatically.",
         image = DrawableResource.IC_NOTIFICATION_READ,
         systemPermission = "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
-        minSdk = 33,
+        minSdk = 21,
     ),
 
     BATTERY_OPTIMIZATION(
