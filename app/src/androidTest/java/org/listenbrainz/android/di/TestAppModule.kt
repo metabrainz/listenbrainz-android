@@ -10,8 +10,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
-import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
+import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManager
+import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
 import org.listenbrainz.shared.di.IO_DISPATCHER

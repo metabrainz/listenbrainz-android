@@ -51,7 +51,8 @@ object Utils {
                             .body<ApiError>(errorType)
                             .error
                     }.getOrElse {
-                        throw IllegalArgumentException("Unexpected errorType passed in parseResponse")
+                        Log.e("Unexpected errorType passed in parseResponse: $error")
+                        null
                     }
                     val responseError = when (code) {
                         HttpStatusCode.BadRequest -> ResponseError.BadRequest(actualResponse)
@@ -132,4 +133,5 @@ object Utils {
 
 expect object PlatformUtils {
     fun getSHA1(context: PlatformContext, packageName: String): String?
+    suspend fun canShowNotifications(): Boolean
 }

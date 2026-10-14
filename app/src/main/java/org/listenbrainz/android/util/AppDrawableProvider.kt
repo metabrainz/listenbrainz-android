@@ -1,14 +1,12 @@
 package org.listenbrainz.android.util
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import org.listenbrainz.android.R
+import org.listenbrainz.shared.util.DrawableProvider
 import org.listenbrainz.shared.util.DrawableResource
 
-@Composable
-fun DrawableResource.toDrawableRes(): Int{
-    return remember(this){
-        when(this){
+class AppDrawableProvider (): DrawableProvider {
+    override fun getDrawable(res: DrawableResource): Int {
+        return when (res) {
             DrawableResource.FEED_SEND -> R.drawable.feed_send
             DrawableResource.FEED_PIN -> R.drawable.feed_pin
             DrawableResource.FEED_LOVE -> R.drawable.feed_love
@@ -17,6 +15,7 @@ fun DrawableResource.toDrawableRes(): Int{
             DrawableResource.FEED_NOTIFICATION -> R.drawable.feed_notification
             DrawableResource.FEED_REVIEW -> R.drawable.feed_review
             DrawableResource.FEED_UNKNOWN -> R.drawable.feed_unknown
+            DrawableResource.IC_LISTENBRAINZ_LOGO_NO_TEXT -> R.drawable.ic_listenbrainz_logo_no_text
         }
     }
 }

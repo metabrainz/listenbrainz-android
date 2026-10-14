@@ -1,7 +1,6 @@
-package org.listenbrainz.android.repository.listenservicemanager
+package org.listenbrainz.shared.repository.listenservicemanager
 
 import android.app.Notification
-import android.content.Context
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSession
@@ -10,18 +9,20 @@ import android.os.Handler
 import android.os.Looper
 import android.service.notification.StatusBarNotification
 import android.text.SpannableString
-import androidx.work.WorkManager
+import dev.brewkits.kmpworkmanager.background.domain.BackgroundTaskScheduler
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import org.listenbrainz.android.model.PlayingTrack
-import org.listenbrainz.android.model.PlayingTrack.Companion.toPlayingTrack
+import org.listenbrainz.shared.applicationContext
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.util.ListenSessionListener.Companion.isPlaying
-import org.listenbrainz.android.util.ListenSubmissionState
-import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
+import org.listenbrainz.shared.util.ListenSessionListener.Companion.isPlaying
+import org.listenbrainz.shared.model.PlayingTrack
+import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.util.ListenSubmissionState
 import org.listenbrainz.shared.util.Log
+import org.listenbrainz.shared.util.extractTitle
+import org.listenbrainz.shared.util.toPlayingTrack
 
 /**
  * The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and
@@ -29,13 +30,13 @@ import org.listenbrainz.shared.util.Log
  * listening.
  */
 class ListenServiceManagerImpl(
-    workManager: WorkManager,
+    scheduler: BackgroundTaskScheduler,
     appPreferences: AppPreferences,
-    private val context: Context,
+    private val context: PlatformContext = applicationContext,
     private val logger:Log = Log
 ) : ListenServiceManager {
     private val handler: Handler = Handler(Looper.getMainLooper())
-    override val listenSubmissionState = ListenSubmissionState(handler, workManager, context)
+    override val listenSubmissionState = ListenSubmissionState(handler, scheduler, context)
 
     /** Used to avoid repetitive submissions.*/
     private var lastCallbackTs = System.currentTimeMillis()

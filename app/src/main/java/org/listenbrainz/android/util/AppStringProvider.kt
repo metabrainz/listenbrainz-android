@@ -16,6 +16,7 @@ class AppStringProvider() : StringProvider {
             StringResource.TRACK_MOVED_SUCCESSFULLY -> R.string.track_moved_successfully
             StringResource.TRACK_REMOVED_FROM_PLAYLIST_SUCCESSFULLY -> R.string.track_removed_from_playlist_successfully
             StringResource.PLAYLIST_DUPLICATED_SUCCESSFULLY -> R.string.playlist_duplicated_successfully
+            StringResource.NOTIFICATION_LISTENING_TITLE -> R.string.notification_listening_title
         }
     }
 }

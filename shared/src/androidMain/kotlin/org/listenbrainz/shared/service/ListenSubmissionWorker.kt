@@ -1,97 +1,97 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
-import android.R.attr.duration
-import android.content.Context
-import android.media.MediaMetadata
-import androidx.work.CoroutineWorker
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkerParameters
+import dev.brewkits.kmpworkmanager.annotations.Worker
+import dev.brewkits.kmpworkmanager.background.domain.AndroidWorker
+import dev.brewkits.kmpworkmanager.background.domain.WorkerEnvironment
+import dev.brewkits.kmpworkmanager.background.domain.WorkerResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.shared.model.AdditionalInfo
 import org.listenbrainz.shared.model.ListenSubmitBody
 import org.listenbrainz.shared.model.ListenTrackMetadata
-import org.listenbrainz.android.model.ListenType
-import org.listenbrainz.android.model.PlayingTrack
+import org.listenbrainz.shared.model.ListenType
+import org.listenbrainz.shared.model.ListenWorkerInput
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.dao.PendingListensDao
-import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.listens.ListensRepository
+import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.Log
-import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.shared.util.Resource
 
-class ListenSubmissionWorker(
-    context: Context,
-    workerParams: WorkerParameters
-) : CoroutineWorker(context, workerParams), KoinComponent {
+@Worker("ListenSubmissionWorker")
+class ListenSubmissionWorker: AndroidWorker, KoinComponent {
 
     private var logger:Log = Log
     private val appPreferences: AppPreferences by inject()
     private val repository: ListensRepository by inject()
     private val pendingListensDao: PendingListensDao by inject()
-    
-    override suspend fun doWork(): Result {
+    private val buildInfo: BuildInfo by inject()
+
+    override suspend fun doWork(input: String?, env: WorkerEnvironment): WorkerResult {
         val token = appPreferences.lbAccessToken.get()
         if (token.isEmpty()) {
             logger.d("ListenBrainz User token has not been set!")
-            return Result.failure()
+            return WorkerResult.Failure("No token")
         }
-        val duration = inputData.getLong(MediaMetadata.METADATA_KEY_DURATION, 0).run {
-            when (this) {
-                0L -> null
-                in 1..30_000 -> {
-                    logger.d("Track is too short to submit, duration: $duration")
-                    return Result.failure()
-                }
-                else -> this
+        val data = try {
+            Json.decodeFromString<ListenWorkerInput>(input ?: "")
+        } catch (e: SerializationException) {
+            logger.e("Failed to parse worker input: ${e.message}")
+            return WorkerResult.Failure("Bad input")
+        }
+        val inputTrack = data.track
+        val inputListenType = data.listenType
+        val duration: Long? = when(inputTrack.duration) {
+            0L -> null
+            in 1L..30_000L -> {
+                logger.d("Track is too short to submit, duration: ${inputTrack.duration}ms")
+                return WorkerResult.Failure("Track duration under submission threshold")
             }
+            else -> inputTrack.duration
         }
 
         val metadata = ListenTrackMetadata(
-            artist = inputData.getString(MediaMetadata.METADATA_KEY_ARTIST),
-            track = inputData.getString(MediaMetadata.METADATA_KEY_TITLE),
-            release = inputData.getString(MediaMetadata.METADATA_KEY_ALBUM),
+            artist = inputTrack.artist,
+            track = inputTrack.title,
+            release = inputTrack.releaseName,
             additionalInfo = AdditionalInfo(
                 durationMs = duration?.toInt(),
-                mediaPlayer = inputData.getString(MediaMetadata.METADATA_KEY_WRITER)
-                    ?.let { repository.getPackageLabel(it) },
+                mediaPlayer = inputTrack.pkgName?.let { repository.getPackageLabel(it) },
                 submissionClient = "ListenBrainz Android",
-                submissionClientVersion = BuildConfig.VERSION_NAME
+                submissionClientVersion = buildInfo.versionName
             )
         )
 
         if (!metadata.isValid()) {
             logger.d("Track metadata is not valid: $metadata")
-            return Result.failure()
+            return WorkerResult.Failure("Invalid metadata")
         }
-        
+
         // Our listen to submit
         val listen = ListenSubmitBody.Payload(
-            listenedAt = when (inputData.getString(LISTEN_TYPE)) {
-                ListenType.SINGLE.code -> inputData.getLong(
-                    Constants.Strings.TIMESTAMP,
-                    System.currentTimeMillis() / 1000
-                )
+            listenedAt = when (inputListenType) {
+                ListenType.SINGLE -> {
+                    inputTrack.timestampSeconds
+                }
                 else -> null
             },
             metadata = metadata
         )
-    
+
         val body = ListenSubmitBody().addListens(listen)
-        
-        body.listenType = inputData.getString(LISTEN_TYPE)
-        
+
+        body.listenType = inputListenType.code
+
         // TODO: Inject dispatcher here and below as well.
         val response = withContext(Dispatchers.IO) {
             repository.submitListen(token, body)
         }
-        
+
         return when (response.status) {
             Resource.Status.SUCCESS -> {
                 if (body.listenType == ListenType.PLAYING_NOW.code) {
@@ -126,12 +126,12 @@ class ListenSubmissionWorker(
                     }
                 }
 
-                Result.success()
+                WorkerResult.Success("Submitted: ${inputTrack.title}")
 
             }
             else -> {
                 // In case of failure, we add this listen to pending list.
-                if (inputData.getString("TYPE") == "single") {
+                if (inputListenType == ListenType.SINGLE) {
                     // We don't want to submit playing nows later.
                     if (response.error is ResponseError.BadRequest) {
                         logger.e(
@@ -147,32 +147,8 @@ class ListenSubmissionWorker(
                     logger.e("Could not submit playing now. Reason: " + (response.error?.toast ?: "Unknown"))
                 }
 
-                Result.failure()
+                WorkerResult.Failure("Submission failed")
             }
-        }
-    }
-    
-    companion object {
-        const val LISTEN_TYPE = "TYPE"
-
-    
-        /** Build a one time work request to submit a listen.
-         * @param listenType Type of listen to submit.
-         */
-        fun buildWorkRequest(playingTrack: PlayingTrack, listenType: ListenType): OneTimeWorkRequest {
-            val data = Data.Builder()
-                .putString(MediaMetadata.METADATA_KEY_ARTIST, playingTrack.artist)
-                .putString(MediaMetadata.METADATA_KEY_TITLE, playingTrack.title)
-                .putLong(MediaMetadata.METADATA_KEY_DURATION, playingTrack.duration)
-                .putString(MediaMetadata.METADATA_KEY_WRITER, playingTrack.pkgName)
-                .putString(MediaMetadata.METADATA_KEY_ALBUM, playingTrack.releaseName)
-                .putString(LISTEN_TYPE, listenType.code)
-                .putLong(Constants.Strings.TIMESTAMP, playingTrack.timestampSeconds)
-                .build()
-        
-            return OneTimeWorkRequestBuilder<ListenSubmissionWorker>()
-                .setInputData(data)
-                .build()
         }
     }
 }

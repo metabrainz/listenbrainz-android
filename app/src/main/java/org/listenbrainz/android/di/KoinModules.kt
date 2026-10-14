@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import de.jensklingenberg.ktorfit.Ktorfit
+import dev.brewkits.kmpworkmanager.KmpWorkManager
+import dev.brewkits.kmpworkmanager.background.domain.BackgroundTaskScheduler
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpRedirect
@@ -27,8 +29,8 @@ import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
-import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
-import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
+import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManager
+import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.repository.yim.YimRepositoryImpl
 import org.listenbrainz.android.repository.yim23.Yim23Repository
@@ -40,6 +42,8 @@ import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
 import org.listenbrainz.android.service.createYim23Service
 import org.listenbrainz.android.service.createYimService
+import org.listenbrainz.android.util.AppArrayProvider
+import org.listenbrainz.android.util.AppDrawableProvider
 import org.listenbrainz.android.util.AppStringProvider
 import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
@@ -60,7 +64,11 @@ import org.listenbrainz.shared.di.sharedNetworkServiceModule
 import org.listenbrainz.shared.di.sharedRepositoryModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.util.AndroidNotificationManager
+import org.listenbrainz.shared.util.PlatformNotificationManager
 import org.listenbrainz.shared.repository.AppPreferencesImpl
+import org.listenbrainz.shared.util.ArrayProvider
+import org.listenbrainz.shared.util.DrawableProvider
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.StringProvider
 
@@ -206,10 +214,14 @@ val appModule = module {
 
     single<AppPreferences> { AppPreferencesImpl(androidContext()) }
 
-    single<WorkManager> { WorkManager.getInstance(androidContext()) }
+    single<BackgroundTaskScheduler> {
+        KmpWorkManager.getInstance().backgroundTaskScheduler
+    }
+
+    single { get<PlatformNotificationManager>() as AndroidNotificationManager }
 
     single<ListenServiceManager> {
-        ListenServiceManagerImpl(get(), get(), androidContext())
+        ListenServiceManagerImpl(scheduler = get(), get(), androidContext())
     }
 
     single<BuildInfo>{
@@ -222,6 +234,12 @@ val appModule = module {
     }
     single<StringProvider>{
         AppStringProvider()
+    }
+    single<DrawableProvider>{
+        AppDrawableProvider()
+    }
+    single<ArrayProvider>{
+        AppArrayProvider()
     }
 }
 

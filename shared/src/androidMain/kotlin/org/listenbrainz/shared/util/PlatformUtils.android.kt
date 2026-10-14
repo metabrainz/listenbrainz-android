@@ -1,6 +1,9 @@
 package org.listenbrainz.shared.util
 
+import android.Manifest
 import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import org.listenbrainz.shared.applicationContext
 import org.listenbrainz.shared.repository.PlatformContext
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -22,5 +25,11 @@ actual object PlatformUtils {
             e.printStackTrace()
         }
         return null
+    }
+    actual suspend fun canShowNotifications(): Boolean{
+        return ContextCompat.checkSelfPermission(
+            applicationContext,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
     }
 }

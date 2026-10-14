@@ -8,6 +8,8 @@ import org.listenbrainz.shared.provideLogSubmitter
 import org.listenbrainz.shared.provideLogger
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.LogSubmitter
+import org.listenbrainz.shared.provideSharedNotificationManager
+import org.listenbrainz.shared.util.PlatformNotificationManager
 
 
 val platformModule = module {
@@ -21,5 +23,8 @@ val platformModule = module {
 
     single<RemotePlaybackHandler> {
         provideRemotePlaybackHandler(youTubeApiService = get<YouTubeApiService>())
+    }
+    single<PlatformNotificationManager>{
+        provideSharedNotificationManager(get(),get(),get())
     }
 }

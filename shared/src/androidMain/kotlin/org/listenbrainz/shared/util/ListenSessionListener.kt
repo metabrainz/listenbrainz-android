@@ -1,4 +1,4 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.shared.util
 
 import android.media.MediaMetadata
 import android.media.session.MediaController
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
+import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.util.Log
 import java.util.concurrent.ConcurrentHashMap
