@@ -70,10 +70,6 @@ object ResourceString {
         "{\"code\":400,\"error\":\"Wow new error!\"}"
     }
     
-    val yim_data by lazy {
-        EntityTestUtils.loadResourceAsString("yim_data.json")
-    }
-
     val current_pins by lazy {
         EntityTestUtils.loadResourceAsString("current_pins.json")
     }

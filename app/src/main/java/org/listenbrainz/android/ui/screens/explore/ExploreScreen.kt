@@ -39,8 +39,6 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
-import org.listenbrainz.android.ui.screens.yim.YearInMusicActivity
-import org.listenbrainz.android.ui.screens.yim23.YearInMusic23Activity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.PreviewSurface
@@ -72,7 +70,7 @@ fun ExploreScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                repeat(currentYear - 2024) {
+                repeat(currentYear - 2022) {
                     val year = currentYear - it - 1
                     item {
                         ExploreScreenCard(
@@ -84,24 +82,6 @@ fun ExploreScreen(
                             uriHandler.openUri("https://listenbrainz.org/user/$username/year-in-music/$year/")
                         }
                     }
-                }
-
-                item {
-                    ExploreScreenCard(
-                        nextActivity = YearInMusic23Activity::class.java,
-                        iconId = R.drawable.yim23_explore_tile,
-                        title = "Your Year in Music 2023",
-                        subTitle = "Review"
-                    )
-                }
-
-                item {
-                    ExploreScreenCard(
-                        nextActivity = YearInMusicActivity::class.java,
-                        iconId = R.drawable.yim2022,
-                        title = "Your Year in Music 2022",
-                        subTitle = "Review"
-                    )
                 }
 
                 // NewsBrainz Card

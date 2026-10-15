@@ -208,27 +208,10 @@
     <string name="title_image_size">Image size</string>
     <string name="title_image_scale_type">Scale type</string>
 
-    <!-- Year in Music -->
-    <string name="title_activity_year_in_music">YearInMusicActivity</string>
-
     <!-- News Brainz Acitivity -->
     <string name="title_activity_news_brainz">NewsBrainzActivity</string>
 
     <!-- Test Tags -->
-    <!-- Yim test tags-->
-    <string name="tt_yim_home_logo" translatable="false">tt_yim_home_logo</string>
-    <string name="tt_yim_share" translatable="false">tt_yim_share</string>
-    <string name="tt_yim_back_button" translatable="false">tt_yim_back_button</string>
-    <string name="tt_yim_next_button" translatable="false">tt_yim_next_button</string>
-    <string name="tt_yim_charts_heading" translatable="false">tt_yim_charts_heading</string>
-    <string name="tt_yim_statistics_heading" translatable="false">tt_yim_statistics_heading</string>
-    <string name="tt_yim_recommended_playlists_heading" translatable="false">tt_yim_recommended_playlists_heading</string>
-    <string name="tt_yim_discover_heading" translatable="false">tt_yim_discover_heading</string>
-    <string name="tt_yim_endgame_heading" translatable="false">tt_yim_endgame_heading</string>
-    <string name="tt_yim_discover_parent" translatable="false">tt_yim_discover_parent</string>
-    <string name="tt_yim_recommended_playlists_parent" translatable="false">tt_yim_recommended_playlists_parent</string>
-    <string name="tt_yim_charts_parent" translatable="false">tt_yim_charts_parent</string>
-    <string name="tt_yim_statistics_parent" translatable="false">tt_yim_statistics_parent</string>
     <string name="title_activity_settings" translatable="false">SettingsActivity</string>
 
     <!-- CritiqueBrainz-->

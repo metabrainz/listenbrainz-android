@@ -150,7 +150,6 @@
     <string name="title_current_track">当前曲目</string>
     <string name="title_image_size">图像尺寸</string>
     <string name="title_image_scale_type">缩放类型</string>
-    <string name="title_activity_year_in_music">年度音乐回顾活动</string>
     <string name="title_activity_news_brainz">NewsBrainz 活动</string>
     <string name="state_scrobbling">正在记录收听历史…</string>
     <string name="state_scrobbled">已记录</string>

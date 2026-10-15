@@ -36,20 +36,8 @@ val lb_purple = Color(0xFF353070)
 val lb_yellow = Color(0xFFE59B2E)
 val lb_purple_night = Color(0xFF9AABD1)
 
-val yimYellow = Color(0xFFFECB49)
-val yimRed = Color(0xFFFE0E25)
-val yimWhite = Color(0xFFFEFEFE)
 val offWhite = Color(0xFFF4F4F4)
 
-val yim23Green = Color(0xFF4C6C52)
-val yim23Background = Color(0xFFF0EEE2)
-val yim23DarkGreen = Color(0xFF253127)
-val yim23DarkRed = Color(0xFF8B3D40)
-val yim23DarkBlue = Color(0xFF354F53)
-val yim23DarkGray = Color(0xFF282423)
-val yim23Red = Color(0xFFBE4A55)
-val yim23Blue = Color(0xFF567276)
-val yim23Grey = Color(0xFF4C4442)
 
 /* User Page Colors */
 val compatibilityMeterColor = Color(0xFFDB7544)

@@ -30,17 +30,9 @@ import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
 import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManagerImpl
-import org.listenbrainz.android.repository.yim.YimRepository
-import org.listenbrainz.android.repository.yim.YimRepositoryImpl
-import org.listenbrainz.android.repository.yim23.Yim23Repository
-import org.listenbrainz.android.repository.yim23.Yim23RepositoryImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
-import org.listenbrainz.android.service.Yim23Service
-import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
-import org.listenbrainz.android.service.createYim23Service
-import org.listenbrainz.android.service.createYimService
 import org.listenbrainz.android.util.AppArrayProvider
 import org.listenbrainz.android.util.AppDrawableProvider
 import org.listenbrainz.android.util.AppStringProvider
@@ -50,8 +42,6 @@ import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.android.viewmodel.AboutViewModel
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.viewmodel.Yim23ViewModel
-import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
 import org.listenbrainz.shared.di.IO_DISPATCHER
 import org.listenbrainz.shared.di.platformModule
@@ -148,24 +138,6 @@ val networkModule = module {
     }
 
 
-    single<YimService> {
-        val httpClient = createBaseHttpClient(androidContext(), baseUrl = LISTENBRAINZ_API_BASE_URL)
-        Ktorfit.Builder()
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createYimService()
-    }
-
-    single<Yim23Service> {
-        val httpClient = createBaseHttpClient(androidContext(), baseUrl = LISTENBRAINZ_BETA_API_BASE_URL)
-        Ktorfit.Builder()
-            .baseUrl(LISTENBRAINZ_BETA_API_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createYim23Service()
-    }
-
     single<GithubAppUpdatesService> {
         val httpClient = HttpClient(OkHttp) {
             expectSuccess = true
@@ -244,8 +216,6 @@ val appModule = module {
 val repositoryModule = module {
 
     // API Repositories
-    single<YimRepository> { YimRepositoryImpl(get()) }
-    single<Yim23Repository> { Yim23RepositoryImpl(get()) }
     single<AppUpdatesRepository> {
         AppUpdatesRepositoryImpl(
             get(),
@@ -258,8 +228,6 @@ val repositoryModule = module {
 val viewModelModule = module {
     viewModel { DashBoardViewModel(get(), get(), get(), get(),get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
-    viewModel { YimViewModel(get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
-    viewModel { Yim23ViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { AboutViewModel() }
 }
 

@@ -52,29 +52,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
-import io.ktor.client.call.body
-import io.ktor.client.plugins.ResponseException
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.util.Log
-import org.listenbrainz.shared.model.ApiError
-import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Constants
 import java.io.*
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 /**
  * A set of fairly general Android utility methods.
@@ -518,21 +502,6 @@ object Utils {
         }
     }
 
-
-    fun ComponentActivity.askNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                1
-            )
-        }
-    }
 
     /**
      * Compares the current app version with the latest version from GitHub.
