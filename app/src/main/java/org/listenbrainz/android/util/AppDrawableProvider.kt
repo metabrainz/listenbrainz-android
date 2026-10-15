@@ -16,6 +16,9 @@ class AppDrawableProvider (): DrawableProvider {
             DrawableResource.FEED_REVIEW -> R.drawable.feed_review
             DrawableResource.FEED_UNKNOWN -> R.drawable.feed_unknown
             DrawableResource.IC_LISTENBRAINZ_LOGO_NO_TEXT -> R.drawable.ic_listenbrainz_logo_no_text
+            DrawableResource.IC_NOTIFICATION -> R.drawable.ic_notification
+            DrawableResource.IC_NOTIFICATION_READ -> R.drawable.ic_notification_read
+            DrawableResource.IC_BATTERY -> R.drawable.ic_battery
         }
     }
 }

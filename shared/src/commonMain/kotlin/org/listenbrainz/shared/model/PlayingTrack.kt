@@ -1,6 +1,7 @@
 package org.listenbrainz.shared.model
 
 import kotlinx.serialization.Serializable
+import kotlin.concurrent.Volatile
 import org.listenbrainz.shared.util.ListenSubmissionStateConstants.DEFAULT_DURATION
 
 /** Track metadata class for Listen service.*/
@@ -12,8 +13,9 @@ data class PlayingTrack(
     var timestamp: Long = 0,
     var duration: Long = 0,
     var pkgName: String? = null,
-    var playingNowSubmitted: Boolean = false,
-    var submitted: Boolean = false,
+    // TODO: Structure code better to remove volatile
+    @Volatile var playingNowSubmitted: Boolean = false,
+    @Volatile var submitted: Boolean = false,
 ) {
     val timestampSeconds: Long
         get() = timestamp / 1000

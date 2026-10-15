@@ -10,6 +10,8 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.shared.di.database.ListensSubmissionDatabase
 import org.listenbrainz.shared.model.dao.PendingListensDao
+import org.listenbrainz.shared.permission.IOSPermissionHandler
+import org.listenbrainz.shared.permission.PermissionHandler
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.IosFileLogWriter
@@ -111,4 +113,8 @@ actual fun provideSharedNotificationManager(
         notificationId = ListenSubmissionNotification.NOTIFICATION_ID,
         listeningTitle = "♫ Listening now",
     )
+}
+
+actual fun providePermissionHandler(): PermissionHandler {
+    return IOSPermissionHandler()
 }

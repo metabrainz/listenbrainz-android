@@ -25,6 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -37,9 +39,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import androidx.navigation3.runtime.rememberNavBackStack
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.shared.permission.AndroidPermissionEnum
+import org.listenbrainz.shared.permission.PermissionHandler
+import org.listenbrainz.shared.util.DrawableProvider
 import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
@@ -49,17 +55,22 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSup
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.model.PermissionStatus
 import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.ui.screens.onboarding.permissions.AppPermission
 
 @Composable
 fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = koinViewModel(),
+                     permissionHandler: PermissionHandler = koinInject(),
                      onExitAfterGrantingAllPermissions: ()-> Unit,
                      onExit: () -> Unit) {
     val activity = LocalActivity.current
+    val scope = rememberCoroutineScope()
     val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val permissionsRequestedOnce = dashBoardUiState.permissionRequestedAtLeastOnce
-    val filteredPermissions = permissions.filter { it.key != PermissionEnum.BATTERY_OPTIMIZATION && it.key != PermissionEnum.READ_NOTIFICATIONS }
+    val screenPermissions = remember { permissionHandler.getPermissionsForPermissionScreen() }
+    val filteredPermissions = permissions.filterKeys { it in screenPermissions }
     val isLogSubmitting= dashBoardUiState.isSubmittingLogs
 
     LaunchedEffect(filteredPermissions) {
@@ -76,10 +87,17 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = koinViewModel(),
         filteredPermissions,
         onGrantPermissionClick = { permission ->
             if (activity != null) {
-                permission.requestPermission(activity, permissionsRequestedOnce, {
-                    dashBoardViewModel.markPermissionAsRequested(permission)
-                    launcher.launch(permission.permission)
-                })
+                scope.launch {
+                    permissionHandler.requestPermission(
+                        permission = permission,
+                        activity = activity,
+                        permissionsRequestedOnce,
+                        {
+                            dashBoardViewModel.markPermissionAsRequested(permission)
+                            launcher.launch(it)
+                        }
+                    )
+                }
             }
         },
         onRejectPermissionClick = {
@@ -94,8 +112,8 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = koinViewModel(),
 
 @Composable
 private fun PermissionScreenBase(
-    permissions: Map<PermissionEnum, PermissionStatus>,
-    onGrantPermissionClick: (PermissionEnum) -> Unit,
+    permissions: Map<AppPermission, PermissionStatus>,
+    onGrantPermissionClick: (AppPermission) -> Unit,
     onRejectPermissionClick: () -> Unit,
     submitLogs:()->Unit,
     isSubmitting:Boolean
@@ -189,10 +207,11 @@ private fun PermissionScreenBase(
 
 @Composable
 fun PermissionCard(
-    permissionEnum: PermissionEnum,
+    permissionEnum: AppPermission,
     isPermanentlyDecline: Boolean,
     modifier: Modifier = Modifier,
     isDisabled: Boolean = false,
+    drawableProvider: DrawableProvider = koinInject(),
     onClick: () -> Unit
 ) {
     Box(
@@ -218,7 +237,7 @@ fun PermissionCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = painterResource(permissionEnum.image),
+                        painter = painterResource(drawableProvider.getDrawable(permissionEnum.image)),
                         contentDescription = "Permission Icon",
                         modifier = Modifier.padding(end = 8.dp),
                         tint = ListenBrainzTheme.colorScheme.text,
@@ -261,8 +280,8 @@ private fun PermissionScreenPreview() {
         OnboardingScreenBackground(backStack = rememberNavBackStack(NavigationItem.OnboardingScreens.PermissionScreen))
         PermissionScreenBase(
             permissions = mapOf(
-                PermissionEnum.READ_NOTIFICATIONS to PermissionStatus.DENIED_TWICE,
-                PermissionEnum.BATTERY_OPTIMIZATION to PermissionStatus.NOT_REQUESTED
+                AndroidPermissionEnum.READ_NOTIFICATIONS to PermissionStatus.DENIED_TWICE,
+                AndroidPermissionEnum.BATTERY_OPTIMIZATION to PermissionStatus.NOT_REQUESTED
             ),
             onGrantPermissionClick = {},
             onRejectPermissionClick = {},

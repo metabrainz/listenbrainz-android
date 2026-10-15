@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.shared.di.database.ListensSubmissionDatabase
 import org.listenbrainz.shared.model.dao.PendingListensDao
+import org.listenbrainz.shared.permission.PermissionHandler
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.LogSubmitter
@@ -48,3 +49,5 @@ expect fun provideSharedNotificationManager(
     stringProvider: StringProvider,
     arrayProvider: ArrayProvider
 ): PlatformNotificationManager
+
+expect fun providePermissionHandler(): PermissionHandler

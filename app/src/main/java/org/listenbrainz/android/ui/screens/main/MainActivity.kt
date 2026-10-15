@@ -27,7 +27,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.application.App
-import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
@@ -46,6 +45,7 @@ import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScree
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.model.PermissionStatus
 
 class MainActivity : ComponentActivity() {
 
