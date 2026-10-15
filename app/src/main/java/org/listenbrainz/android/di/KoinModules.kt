@@ -38,11 +38,8 @@ import org.listenbrainz.android.util.AppDrawableProvider
 import org.listenbrainz.android.util.AppStringProvider
 import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
-import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
-import org.listenbrainz.android.viewmodel.AboutViewModel
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
 import org.listenbrainz.shared.di.IO_DISPATCHER
 import org.listenbrainz.shared.di.platformModule
 import org.listenbrainz.shared.util.BuildInfo
@@ -228,7 +225,6 @@ val repositoryModule = module {
 val viewModelModule = module {
     viewModel { DashBoardViewModel(get(), get(), get(), get(),get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
-    viewModel { AboutViewModel() }
 }
 
 val appModules = listOf(
