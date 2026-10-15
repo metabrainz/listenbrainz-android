@@ -1,34 +1,33 @@
 package org.listenbrainz.android.ui.screens.onboarding.introduction
 
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
-import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.intro_bug_report
+import org.listenbrainz.shared.resources.intro_headphones
 
-enum class IntroScreenDataEnum(val title: String,
-                               val subtitle: String,
-                               val highlight: String?,
-                               val screenNo: Int,
-                               val res: Int) {
+enum class IntroScreenDataEnum(
+    val title: String,
+    val subtitle: String,
+    val highlight: String?,
+    val screenNo: Int,
+    val res: DrawableResource
+) {
     LISTENBRAINZ(
         title = "Listen together with Listenbrainz",
         subtitle = "Track, explore, visualise and share the music you listen to. Follow your favourites and discover great music.",
         highlight = null,
         screenNo = 1,
-        res = R.drawable.intro_headphones
+        res = Res.drawable.intro_headphones
     ),
     BUGS(
         title = "Facing any Issue? \nSubmit Logs!",
         highlight = "Settings > Report an issue",
         subtitle = "If you face any issues, you can submit logs to help us troubleshoot. Go to ",
         screenNo = 2,
-        res = R.drawable.intro_bug_report
+        res = Res.drawable.intro_bug_report
     );
 
-    companion object{
+    companion object {
         fun getScreenData(screenNo: Int): IntroScreenDataEnum {
             return entries.first { it.screenNo == screenNo }
         }
@@ -36,5 +35,5 @@ enum class IntroScreenDataEnum(val title: String,
 
 
     val isLast: Boolean
-    get() = screenNo == IntroScreenDataEnum.entries.size
+        get() = screenNo == IntroScreenDataEnum.entries.size
 }

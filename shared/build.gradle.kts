@@ -84,6 +84,11 @@ kotlin {
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
 
+        // Required for Compose Multiplatform resources on Android
+        androidResources {
+            enable = true
+        }
+
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
         }.configure {
@@ -148,6 +153,7 @@ kotlin {
                 implementation(libs.compose.ui)
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.foundation)
+                api(libs.compose.resources)
                 implementation(libs.compose.ui.tooling.preview)
                 // datastore
                 implementation(libs.datastore.preferences.core)
@@ -240,6 +246,11 @@ kotlin {
         }
     }
 
+}
+
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "org.listenbrainz.shared.resources"
 }
 
 // Room schema configuration

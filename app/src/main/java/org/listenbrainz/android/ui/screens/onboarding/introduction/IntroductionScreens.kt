@@ -59,7 +59,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -73,6 +72,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.jetbrains.compose.resources.painterResource
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.shared.ui.icons.IcSupport
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
