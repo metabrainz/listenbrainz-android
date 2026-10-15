@@ -244,7 +244,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     implementation(libs.androidx.test.ext.junit.ktx)
-    implementation(libs.turbine)
 
     // Chucker
     debugImplementation(libs.chucker)
