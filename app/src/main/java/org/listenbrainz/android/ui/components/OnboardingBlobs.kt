@@ -14,12 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.rememberAsyncImagePainter
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.shared.ui.icons.OnboardBlob1
+import org.listenbrainz.shared.ui.icons.OnboardBlob2
+import org.listenbrainz.shared.ui.icons.OnboardBlob3
 
 @Preview(showBackground = true)
 @Composable
@@ -37,11 +37,11 @@ fun OnboardingBlobs(modifier: Modifier = Modifier, isRotated: Boolean = false) {
         horizontalArrangement = Arrangement.Center,
     ) {
         Image(
-            painter = painterResource(R.drawable.onboard_blob_1),
+            imageVector = OnboardBlob1,
             contentDescription = "Blob 1",
         )
         Image(
-            painter = painterResource(R.drawable.onboard_blob_2),
+            imageVector = OnboardBlob2,
             contentDescription = "Blob 2",
             modifier = Modifier.graphicsLayer {
                 translationX = 180f
@@ -49,7 +49,7 @@ fun OnboardingBlobs(modifier: Modifier = Modifier, isRotated: Boolean = false) {
             },
         )
         Image(
-            painter = painterResource(R.drawable.onboard_blob_3),
+            imageVector = OnboardBlob3,
             contentDescription = "Blob 3",
             modifier = Modifier.graphicsLayer {
                 translationY = 300f

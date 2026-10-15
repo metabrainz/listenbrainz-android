@@ -74,6 +74,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.OnboardingBlobs
+import org.listenbrainz.shared.ui.icons.IcSupport
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
@@ -351,7 +352,7 @@ fun OnboardingSupportButton(modifier: Modifier,isSubmitting:Boolean,submitLogs:(
     ) {
         Icon(
             modifier = Modifier.size(28.dp),
-            painter = painterResource(R.drawable.ic_support),
+            imageVector = IcSupport,
             contentDescription = "Report an issue",
             tint = lb_purple
         )

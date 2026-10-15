@@ -148,6 +148,7 @@ kotlin {
                 implementation(libs.compose.ui)
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.foundation)
+                implementation(libs.compose.ui.tooling.preview)
                 // datastore
                 implementation(libs.datastore.preferences.core)
                 implementation(libs.kotlinx.serialization.json)
@@ -248,6 +249,9 @@ room {
 
 // KSP configuration for Room compiler
 dependencies {
+    // Runtime-only so Android Studio can render @Preview in this module (ComposeViewAdapter)
+    add("androidRuntimeClasspath", libs.compose.ui.tooling)
+
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
