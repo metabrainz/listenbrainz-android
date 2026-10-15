@@ -6,6 +6,10 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Colors
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -192,31 +196,58 @@ private val colorSchemeLight = ColorScheme(
 val LocalColorScheme: ProvidableCompositionLocal<ColorScheme> = staticCompositionLocalOf { colorSchemeLight }
 
 
-private val DarkColorScheme = darkColorScheme(
-    background = app_bg_dark,
-    onBackground = app_bg_light,
-    primary = app_bg_dark,
-    // Tertiary reserved for frontLayer's mini view
-    tertiaryContainer = bp_bottom_song_viewpager_dark,
-    onTertiary = bp_color_primary_dark,
-    inverseOnSurface = lb_orange,   // Reserved for progress indicators.
+private fun ColorScheme.toMaterial3(isDark: Boolean): androidx.compose.material3.ColorScheme {
+    val base = if (isDark) darkColorScheme() else lightColorScheme()
+    return base.copy(
+        primary = lbSignature,
+        onPrimary = onLbSignature,
+        secondary = lbSignatureSecondary,
+        onSecondary = Color.Black,
+        tertiary = lbSignatureInverse,
+        onTertiary = if (isDark) bp_color_primary_dark else bp_color_primary_day,   // Reserved for frontLayer's mini view
+        tertiaryContainer = nav,    // Reserved for frontLayer's mini view
+        background = background,
+        onBackground = onBackground,
+        surface = background,
+        onSurface = text,
+        surfaceVariant = level1,
+        onSurfaceVariant = hint,
+        surfaceTint = if (isDark) bp_lavender_dark else bp_lavender_day,
+        outline = hint,
+        outlineVariant = dividerColor,
+        inverseOnSurface = if (isDark) lb_orange else lb_purple,   // Reserved for progress indicators.
+    )
+}
 
-    surfaceTint = bp_lavender_dark,
-    onSurface = Color.White,     // Text color (Which is ON surface/canvas)
-)
-
-private val LightColorScheme = lightColorScheme(
-    background = app_bg_day,
-    onBackground = app_bg_light,
-    primary = app_bg_day,
-    // Tertiary reserved for frontLayer's mini view
-    tertiaryContainer = bp_bottom_song_viewpager_day,
-    onTertiary = bp_color_primary_day,
-    inverseOnSurface = lb_purple,   // Reserved for progress indicators.
-    surfaceTint = bp_lavender_day,
-
-    onSurface = Color.Black
-)
+private fun ColorScheme.toMaterial(isDark: Boolean): Colors {
+    return if (isDark) {
+        darkColors(
+            primary = lbSignature,
+            primaryVariant = lbSignature,
+            secondary = lbSignatureSecondary,
+            secondaryVariant = lbSignatureSecondary,
+            background = background,
+            surface = background,
+            onPrimary = onLbSignature,
+            onSecondary = Color.Black,
+            onBackground = text,
+            onSurface = text,
+        )
+    } else {
+        lightColors(
+            primary = lbSignature,
+            primaryVariant = lbSignature,
+            secondary = lbSignatureSecondary,
+            secondaryVariant = lbSignatureSecondary,
+            background = background,
+            surface = background,
+            onPrimary = onLbSignature,
+            onSecondary = Color.Black,
+            onBackground = text,
+            onSurface = text,
+        )
+    }
+}
 
 
 @Immutable
@@ -310,43 +341,19 @@ fun ListenBrainzTheme(
     systemTheme: Boolean = isSystemInDarkTheme(),
     context: Context = LocalContext.current,
     appPreferences: AppPreferences = AppPreferencesImpl(context),
-    // Dynamic color is available on Android 12+
-    //dynamicColor: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-    // dynamicColor: Boolean = false,//Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
     content: @Composable () -> Unit
 ) {
-    
     val uiMode by appPreferences.themePreference.getFlow().collectAsState(initial = UiMode.FOLLOW_SYSTEM)
-    
-    // With Dynamic Color
-    /*val colorScheme = if (dynamicColor){
-            when(isUiModeIsDark.value){
-                true -> dynamicDarkColorScheme(context)
-                false -> dynamicLightColorScheme(context)
-                else -> if (systemTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-            }
-            }else{
-                when (isUiModeIsDark.value) {
-                    true -> DarkColorScheme
-                    false -> LightColorScheme
-                    else -> if (systemTheme) DarkColorScheme else LightColorScheme
-            }
-    }*/
-    // Without Dynamic Color
-    val colorScheme = when (uiMode) {
-        UiMode.DARK -> DarkColorScheme
-        UiMode.LIGHT -> LightColorScheme
-        UiMode.FOLLOW_SYSTEM -> if (systemTheme) DarkColorScheme else LightColorScheme
+    val isDark = when (uiMode) {
+        UiMode.DARK -> true
+        UiMode.LIGHT -> false
+        UiMode.FOLLOW_SYSTEM -> systemTheme
     }
-    
+
     // Custom ColorScheme
-    val localColorScheme = remember(uiMode) {
-        when (uiMode) {
-            UiMode.DARK -> colorSchemeDark
-            UiMode.LIGHT -> colorSchemeLight
-            UiMode.FOLLOW_SYSTEM -> if (systemTheme) colorSchemeDark else colorSchemeLight
-        }
-    }
+    val localColorScheme = if (isDark) colorSchemeDark else colorSchemeLight
+    val material3ColorScheme = remember(localColorScheme, isDark) { localColorScheme.toMaterial3(isDark) }
+    val materialColors = remember(localColorScheme, isDark) { localColorScheme.toMaterial(isDark) }
 
     val textStyleLB = remember(localColorScheme) {
         TextStyle(color = localColorScheme.text)
@@ -378,24 +385,30 @@ fun ListenBrainzTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = material3ColorScheme,
     ) {
-        CompositionLocalProvider(
-            LocalShimmerTheme provides localShimmerTheme,
-            LocalPaddings provides Paddings(),
-            LocalShapes provides Shapes(),
-            LocalSizes provides Sizes(),
-            LocalTextStyles provides TextStyles(),
-            LocalUiMode provides uiMode,
-            LocalColorScheme provides localColorScheme,
-            LocalTextStyle provides LocalTextStyle
-                .current
-                .merge(textStyleLB),
-            androidx.compose.material.LocalTextStyle provides androidx.compose.material.LocalTextStyle
-                .current
-                .merge(textStyleLB),
-            content = content
-        )
+        androidx.compose.material.MaterialTheme(
+            colors = materialColors
+        ) {
+            ProvideLocalContentColor(localColorScheme.text) {
+                CompositionLocalProvider(
+                    LocalShimmerTheme provides localShimmerTheme,
+                    LocalPaddings provides Paddings(),
+                    LocalShapes provides Shapes(),
+                    LocalSizes provides Sizes(),
+                    LocalTextStyles provides TextStyles(),
+                    LocalUiMode provides uiMode,
+                    LocalColorScheme provides localColorScheme,
+                    LocalTextStyle provides LocalTextStyle
+                        .current
+                        .merge(textStyleLB),
+                    androidx.compose.material.LocalTextStyle provides androidx.compose.material.LocalTextStyle
+                        .current
+                        .merge(textStyleLB),
+                    content = content
+                )
+            }
+        }
     }
 }
 
@@ -436,4 +449,13 @@ object ListenBrainzTheme {
                 else -> isSystemInDarkTheme()
             }
         }
+}
+
+@Composable
+fun ProvideLocalContentColor(color: Color, content: @Composable () -> Unit) {
+    CompositionLocalProvider(
+        androidx.compose.material.LocalContentColor provides color,
+        LocalContentColor provides color,
+        content = content
+    )
 }
