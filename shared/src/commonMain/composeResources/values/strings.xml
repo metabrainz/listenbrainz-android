@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recommendation_greeting">Song recommended successfully!</string>
+    <string name="personal_recommendation_greeting">Song recommendation sent successfully!</string>
+    <string name="review_greeting">Review submitted successfully!</string>
+    <string name="pin_greeting">Song pinned successfully!</string>
+    <string name="listen_deleted">Listen scheduled for deletion</string>
+    <string name="track_added_successfully">Track added successfully</string>
+    <string name="track_moved_successfully">Track moved successfully!!</string>
+    <string name="track_removed_from_playlist_successfully">Track removed from playlist successfully!!</string>
+    <string name="playlist_duplicated_successfully">Playlist duplicated successfully!!</string>
+</resources>

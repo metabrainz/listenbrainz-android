@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recommendation_greeting">Morceau recommandé avec succès !</string>
+    <string name="personal_recommendation_greeting">Recommandation de morceau envoyée avec succès !</string>
+    <string name="pin_greeting">Morceau épinglé avec succès !</string>
+</resources>

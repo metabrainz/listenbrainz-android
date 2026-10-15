@@ -47,9 +47,6 @@
     <string name="no_listens">Aucun morceau ici pour le moment…</string>
     <string name="new_app">Nouvelle application</string>
     <string name="no_apps_enabled">Aucune application n\'est activée</string>
-    <string name="recommendation_greeting">Morceau recommandé avec succès !</string>
-    <string name="personal_recommendation_greeting">Recommandation de morceau envoyée avec succès !</string>
-    <string name="pin_greeting">Morceau épinglé avec succès !</string>
     <string name="error_message">Une erreur s\'est produite ! Veuillez réessayer plus tard !</string>
     <string name="lookup_metadata">Métadonnées</string>
     <string name="file_select">Sélectionner un fichier</string>

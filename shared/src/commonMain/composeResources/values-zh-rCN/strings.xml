@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recommendation_greeting">歌曲推荐成功！</string>
+    <string name="personal_recommendation_greeting">歌曲推荐发送成功！</string>
+    <string name="review_greeting">评析提交成功！</string>
+    <string name="pin_greeting">歌曲置顶成功！</string>
+</resources>

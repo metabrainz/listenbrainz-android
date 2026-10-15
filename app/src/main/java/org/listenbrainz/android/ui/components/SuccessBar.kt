@@ -7,19 +7,20 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.delay
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.R
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.listen_deleted
 
 @Composable
 fun SuccessBar(
-    resId : Int?,
+    resId : StringResource?,
     onMessageShown: () -> Unit,
     snackbarState : SnackbarHostState
 ) {
-    val context = LocalContext.current;
     LaunchedEffect(resId) {
         if (resId != null) {
             delay(4000)
@@ -34,7 +35,7 @@ fun SuccessBar(
     ) {
         LaunchedEffect(key1 = resId){
             if(resId != null){
-                snackbarState.showSnackbar(context.getString(resId))
+                snackbarState.showSnackbar(getString(resId))
             }
         }
     }
@@ -45,6 +46,6 @@ fun SuccessBar(
 @Composable
 private fun SuccessBarPreview() {
     ListenBrainzTheme {
-        SuccessBar(resId = R.string.about_title , onMessageShown = {} , snackbarState = SnackbarHostState())
+        SuccessBar(resId = Res.string.listen_deleted , onMessageShown = {} , snackbarState = SnackbarHostState())
     }
 }

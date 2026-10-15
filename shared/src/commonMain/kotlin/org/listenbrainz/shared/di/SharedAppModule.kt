@@ -27,7 +27,7 @@ val platformModule = module {
         provideRemotePlaybackHandler(youTubeApiService = get<YouTubeApiService>())
     }
     single<PlatformNotificationManager>{
-        provideSharedNotificationManager(get(),get(),get())
+        provideSharedNotificationManager()
     }
 
     single<PermissionHandler> {

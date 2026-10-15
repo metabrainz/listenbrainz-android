@@ -34,7 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.koin.compose.koinInject
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.feed.FeedEvent
@@ -52,7 +51,6 @@ import org.listenbrainz.shared.model.feed.FeedEventType.Companion.getTimeStringF
 import org.listenbrainz.shared.model.feed.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
-import org.listenbrainz.shared.util.DrawableProvider
 
 @Composable
 fun BaseFeedLayout(
@@ -63,7 +61,6 @@ fun BaseFeedLayout(
     onDeleteOrHide: () -> Unit,
     isHidden: Boolean = event.hidden == true,
     goToUserPage: (String) -> Unit,
-    drawableProvider: DrawableProvider = koinInject(),
     content: @Composable () -> Unit,
 ) {
     // Content that is to be measured for horizontal line.
@@ -112,7 +109,7 @@ fun BaseFeedLayout(
         // Icon and Tagline
         Row {
         
-            EventIcon(eventType,drawableProvider)
+            EventIcon(eventType)
     
             Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.insideCard))
             
@@ -267,10 +264,10 @@ private fun DynamicHorizontalLine(Content: @Composable () -> Unit) {
 
 
 @Composable
-private fun EventIcon(eventType: FeedEventType,drawableProvider: DrawableProvider) {
+private fun EventIcon(eventType: FeedEventType) {
     Image(
         modifier = Modifier.size(19.dp),
-        painter = painterResource(drawableProvider.getDrawable(eventType.icon)),
+        painter = painterResource(eventType.icon),
         contentDescription = eventType.name
     )
 }

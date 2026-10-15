@@ -3,7 +3,6 @@ package org.listenbrainz.shared.di
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import org.listenbrainz.shared.util.StringProvider
 import org.listenbrainz.shared.viewmodel.NewsListViewModel
 import org.listenbrainz.shared.viewmodel.CreateAccountViewModel
 import org.listenbrainz.shared.viewmodel.FeaturesViewModel
@@ -30,8 +29,8 @@ val sharedViewModelModule = module {
     viewModel { AlbumViewModel(get(),get(named(IO_DISPATCHER))) }
     viewModel { ListensViewModel(get(),get(),get(),get(),get(named(DEFAULT_DISPATCHER))) }
     viewModel { ListeningNowViewModel(get(),get(),get(),get(named(IO_DISPATCHER))) }
-    viewModel { PlaylistDataViewModel(get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER)),get<StringProvider>()) }
-    viewModel { SocialViewModel(get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER)),get<StringProvider>()) }
+    viewModel { PlaylistDataViewModel(get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
+    viewModel { SocialViewModel(get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { FeedViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { SearchViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { UserViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER))) }

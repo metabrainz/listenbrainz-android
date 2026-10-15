@@ -12,6 +12,7 @@ import com.mmk.kmpnotifier.KMPNotifier
 import com.mmk.kmpnotifier.local.LocalNotifications
 import com.mmk.kmpnotifier.local.localNotifier
 import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
+import org.listenbrainz.shared.R
 import org.listenbrainz.shared.applicationContext
 import org.listenbrainz.shared.model.PlayingTrack
 import org.listenbrainz.shared.repository.PlatformContext
@@ -21,10 +22,7 @@ import org.listenbrainz.shared.util.ListenSubmissionNotification.CHANNEL_NAME
 import org.listenbrainz.shared.util.ListenSubmissionNotification.NOTIFICATION_ID
 
 class AndroidNotificationManager(
-    val context: PlatformContext = applicationContext,
-    val drawableProvider: DrawableProvider,
-    val arrayProvider: ArrayProvider,
-    val stringProvider: StringProvider
+    val context: PlatformContext = applicationContext
 ) : PlatformNotificationManager {
 
     val manager = NotificationManagerCompat.from(context)
@@ -32,7 +30,7 @@ class AndroidNotificationManager(
     init {
         KMPNotifier.initialize(
             configuration = NotificationPlatformConfiguration.Android(
-                notificationIconResId = drawableProvider.getDrawable(DrawableResource.IC_LISTENBRAINZ_LOGO_NO_TEXT),
+                notificationIconResId = R.drawable.ic_listenbrainz_logo_no_text,
                 notificationChannelData = NotificationPlatformConfiguration.Android.NotificationChannelData(
                     id = CHANNEL_ID,
                     name = CHANNEL_NAME,
@@ -67,7 +65,7 @@ class AndroidNotificationManager(
 
     fun createNotification(playingTrack: PlayingTrack?): Notification{
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(drawableProvider.getDrawable(DrawableResource.IC_LISTENBRAINZ_LOGO_NO_TEXT))
+            .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
             .setContentIntent(launcherPendingIntent())
             .setSound(null)
             .setOngoing(true)
@@ -82,7 +80,7 @@ class AndroidNotificationManager(
             val titleText = playingTrack.title ?: "Unknown Track"
             val artistText = playingTrack.artist ?: "Unknown Artist"
 
-            val listeningTitle = context.getString(stringProvider.getString(StringResource.NOTIFICATION_LISTENING_TITLE))
+            val listeningTitle = context.getString(R.string.notification_listening_title)
             builder.setContentTitle(listeningTitle)
                 .setContentText("$titleText • $artistText")
                 .setStyle(
@@ -92,7 +90,7 @@ class AndroidNotificationManager(
                 )
         }else{
             // No track playing - show idle state
-            val idleMessages = context.resources.getStringArray(arrayProvider.getArray(ArrayResource.NOTIFICATION_IDLE_MESSAGES))
+            val idleMessages = context.resources.getStringArray(R.array.notification_idle_messages)
             val randomMessage = idleMessages.random()
             builder.setContentText(randomMessage)
         }

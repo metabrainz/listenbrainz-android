@@ -26,10 +26,7 @@ import org.listenbrainz.shared.service.ListensService
 import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
 import org.listenbrainz.shared.util.AndroidNotificationManager
-import org.listenbrainz.shared.util.ArrayProvider
-import org.listenbrainz.shared.util.DrawableProvider
 import org.listenbrainz.shared.util.PlatformNotificationManager
-import org.listenbrainz.shared.util.StringProvider
 
 actual fun platform() = "Android"
 
@@ -86,16 +83,8 @@ actual fun getListensSubmissionDatabase(): RoomDatabase.Builder<ListensSubmissio
     )
 }
 
-actual fun provideSharedNotificationManager(
-    drawableProvider: DrawableProvider,
-    stringProvider: StringProvider,
-    arrayProvider: ArrayProvider
-): PlatformNotificationManager {
-    return AndroidNotificationManager(
-        drawableProvider = drawableProvider,
-        stringProvider = stringProvider,
-        arrayProvider = arrayProvider
-    )
+actual fun provideSharedNotificationManager(): PlatformNotificationManager {
+    return AndroidNotificationManager()
 }
 
 actual fun providePermissionHandler(): PermissionHandler {

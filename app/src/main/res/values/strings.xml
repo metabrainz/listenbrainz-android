@@ -96,10 +96,6 @@
     <string name="toast_search_err">Add some text to search</string>
     <string name="toast_feedback_fail">No email client found</string>
     <string name="toast_search_cleared">Search history deleted</string>
-    <string name="recommendation_greeting">Song recommended successfully!</string>
-    <string name="personal_recommendation_greeting">Song recommendation sent successfully!</string>
-    <string name="review_greeting">Review submitted successfully!</string>
-    <string name="pin_greeting">Song pinned successfully!</string>
     <string name="error_message">Error occurred! Please try again later!</string>
 
 
@@ -216,14 +212,10 @@
 
     <!-- CritiqueBrainz-->
     <string name="cb_review_tc">You acknowledge and agree that your contributed reviews to CritiqueBrainz are licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) license. You agree to license your work under this license. You represent and warrant that you own or control all rights in and to the work, that nothing in the work infringes the rights of any third-party, and that you have the permission to use and to license the work under the selected Creative Commons license. Finally, you give the MetaBrainz Foundation permission to license this content for commercial use outside of Creative Commons licenses in order to support the operations of the organization.</string>
-    <string name="track_added_successfully">Track added successfully</string>
-    <string name="playlist_duplicated_successfully">Playlist duplicated successfully!!</string>
-    <string name="track_moved_successfully">Track moved successfully!!</string>
     <string name="permission_screen_rationale">ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don\'t collect or share personal data.</string>
     <string name="listening_screen_rationale">Listen Submission tracks your music activity, helping you discover stats, trends, and personalized recommendations.</string>
     <string name="listen_submission_rationale">To enable Listen Submission, please grant the required permissions so we can track your music activity.</string>
     <string name="listen_permission_rationale">Choose the apps you want ListenBrainz to track. This helps automatically submit your listens while ensuring accurate listening history</string>
-    <string name="track_removed_from_playlist_successfully">Track removed from playlist successfully!!</string>
     <string name="explanation_special_use" translatable="false">ListenBrainz Android needs to remain active in foreground at all times to immediately sync music activity to ListenBrainz.
         Whenever a user starts listening to a song, the song is instantly synced with ListenBrainz in the form of Playing now and when some duration of the song elapses without interruption, it is marked as
         a confirmed listen. Stats are calculated in real time using this data which makes real time behavior of the app important.</string>
@@ -239,32 +231,12 @@ If you installed the app from a trusted app store, updating from GitHub will ski
 For added safety, you can continue updating through your preferred app store instead.
     </string>
     <string name="error_apk_install">Error starting APK installation</string>
-    <string name="notification_listening_title">♫ Listening now</string>
     <string name="load_more">Load More</string>
     <string name="load_less">Load Less</string>
     <string name="musicbrainz" translatable="false">MusicBrainz</string>
-
-    <!-- Listen Submission Notification Idle States -->
-    <string-array name="notification_idle_messages">
-        <item>Waiting for the beat to drop...</item>
-        <item>Press play and let\'s listen some tunes</item>
-        <item>No music detected... yet!</item>
-        <item>Standing by for your next jam</item>
-        <item>Ears open, waiting for music</item>
-        <item>Vibing in silence... for now</item>
-        <item>Nothing playing? That\'s unusual</item>
-        <item>Let\'s hear what you\'re into today</item>
-        <item>Silence... *crickets chirping*</item>
-        <item>What are we listening to today?</item>
-        <item>Ready when you are</item>
-        <item>Patiently waiting for some tunes...</item>
-        <item>Hit me with your best track</item>
-        <item>So silent...</item>
-    </string-array>
 
     <string name="album_title">Album</string>
     <string name="songs_title">Songs</string>
 
     <string name="cannot_delete">Cannot Delete</string>
-    <string name="listen_deleted">Listen scheduled for deletion</string>
 </resources>

@@ -30,8 +30,12 @@ import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.shared.util.StringProvider
-import org.listenbrainz.shared.util.StringResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.listen_deleted
+import org.listenbrainz.shared.resources.personal_recommendation_greeting
+import org.listenbrainz.shared.resources.pin_greeting
+import org.listenbrainz.shared.resources.recommendation_greeting
+import org.listenbrainz.shared.resources.review_greeting
 
 class SocialViewModel(
     private val repository: SocialRepository,
@@ -39,8 +43,7 @@ class SocialViewModel(
     private val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val ioDispatcher: CoroutineDispatcher,
-    private val defaultDispatcher: CoroutineDispatcher,
-    private val stringProvider: StringProvider
+    private val defaultDispatcher: CoroutineDispatcher
 ) : FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
 
     private val inputSearchFollowerQuery = MutableStateFlow("")
@@ -162,7 +165,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(stringProvider.getString(StringResource.RECOMMENDATION_GREETING))
+                emitMsg(Res.string.recommendation_greeting)
             }
         }
     }
@@ -188,7 +191,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(stringProvider.getString(StringResource.PERSONAL_RECOMMENDATION_GREETING))
+                emitMsg(Res.string.personal_recommendation_greeting)
             }
         }
     }
@@ -231,7 +234,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(stringProvider.getString(StringResource.REVIEW_GREETING))
+                emitMsg(Res.string.review_greeting)
             }
         }
     }
@@ -247,7 +250,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(stringProvider.getString(StringResource.PIN_GREETING))
+                emitMsg(Res.string.pin_greeting)
             }
         }
     }
@@ -275,7 +278,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(stringProvider.getString(StringResource.LISTEN_DELETED))
+                emitMsg(Res.string.listen_deleted)
             }
 
         }

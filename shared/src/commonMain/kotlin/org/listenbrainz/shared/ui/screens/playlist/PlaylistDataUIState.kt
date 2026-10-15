@@ -1,5 +1,6 @@
 package org.listenbrainz.shared.ui.screens.playlist
 
+import org.jetbrains.compose.resources.StringResource
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.User
 import org.listenbrainz.shared.model.playlist.PlaylistData
@@ -10,7 +11,7 @@ data class PlaylistDataUIState(
     val createEditScreenUIState: CreateEditScreenUIState = CreateEditScreenUIState(),
     val playlistDetailUIState: PlaylistDetailUIState = PlaylistDetailUIState(),
     val error: ResponseError? = null,
-    val successMsg: Int? = null
+    val successMsg: StringResource? = null
 )
 
 data class CreateEditScreenUIState(

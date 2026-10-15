@@ -40,8 +40,12 @@ import org.listenbrainz.shared.ui.screens.playlist.PlaylistDetailUIState
 import org.listenbrainz.shared.ui.screens.profile.playlists.CollabPlaylistPagingSource
 import org.listenbrainz.shared.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.shared.util.StringProvider
-import org.listenbrainz.shared.util.StringResource
+import org.jetbrains.compose.resources.StringResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.playlist_duplicated_successfully
+import org.listenbrainz.shared.resources.track_added_successfully
+import org.listenbrainz.shared.resources.track_moved_successfully
+import org.listenbrainz.shared.resources.track_removed_from_playlist_successfully
 import org.listenbrainz.shared.util.Utils
 import org.listenbrainz.shared.util.Utils.isValidMbidFormat
 import org.listenbrainz.shared.viewmodel.BaseViewModel
@@ -52,8 +56,7 @@ class PlaylistDataViewModel(
     private val repository: PlaylistDataRepository,
     private val socialRepository: SocialRepository,
     private val ioDispatcher: CoroutineDispatcher,
-    private val defaultDispatcher: CoroutineDispatcher,
-    private val stringProvider: StringProvider
+    private val defaultDispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlaylistDataUIState>() {
     private val username = appPreferences
         .username
@@ -436,7 +439,7 @@ class PlaylistDataViewModel(
                         ))
                     } else {
                         //Refresh screen (to fetch cover art)
-                        emitMsg(stringProvider.getString(StringResource.TRACK_ADDED_SUCCESSFULLY))
+                        emitMsg(Res.string.track_added_successfully)
                         if (playlistScreenUIStateFlow.value.playlistMBID != null)
                             getDataInPlaylistScreen(
                                 playlistScreenUIStateFlow.value.playlistMBID!!,
@@ -505,7 +508,7 @@ class PlaylistDataViewModel(
                         ))
                         refreshPlaylistScreen()
                     } else {
-                        emitMsg(stringProvider.getString(StringResource.TRACK_MOVED_SUCCESSFULLY))
+                        emitMsg(Res.string.track_moved_successfully)
                         refreshPlaylistScreen()
                     }
                 }
@@ -542,7 +545,7 @@ class PlaylistDataViewModel(
                         ))
                         refreshPlaylistScreen()
                     } else {
-                        emitMsg(stringProvider.getString(StringResource.TRACK_REMOVED_FROM_PLAYLIST_SUCCESSFULLY))
+                        emitMsg(Res.string.track_removed_from_playlist_successfully)
                         refreshPlaylistScreen()
                     }
                 }
@@ -580,7 +583,7 @@ class PlaylistDataViewModel(
         viewModelScope.launch(ioDispatcher) {
             val result = repository.copyPlaylist(playlistMbid)
             if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(stringProvider.getString(StringResource.PLAYLIST_DUPLICATED_SUCCESSFULLY))
+                emitMsg(Res.string.playlist_duplicated_successfully)
             } else {
                 emitError(result.error)
             }
@@ -609,7 +612,7 @@ class PlaylistDataViewModel(
                     collaboratorQueryText = array[3] as String,
                     usersSearched = array[4] as List<User>
                 ),
-                successMsg = array[0] as Int?
+                successMsg = array[0] as StringResource?
             )
         }.stateIn(
             scope = viewModelScope,
@@ -676,7 +679,7 @@ class PlaylistDataViewModel(
                             actualResponse = "Some error occurred while adding the track"
                         ))
                     } else {
-                        emitMsg(stringProvider.getString(StringResource.TRACK_ADDED_SUCCESSFULLY))
+                        emitMsg(Res.string.track_added_successfully)
                         onSuccess()
                     }
                 }

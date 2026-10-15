@@ -33,9 +33,6 @@ import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceMana
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
-import org.listenbrainz.android.util.AppArrayProvider
-import org.listenbrainz.android.util.AppDrawableProvider
-import org.listenbrainz.android.util.AppStringProvider
 import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
@@ -53,10 +50,7 @@ import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.util.AndroidNotificationManager
 import org.listenbrainz.shared.util.PlatformNotificationManager
 import org.listenbrainz.shared.repository.AppPreferencesImpl
-import org.listenbrainz.shared.util.ArrayProvider
-import org.listenbrainz.shared.util.DrawableProvider
 import org.listenbrainz.shared.util.Log
-import org.listenbrainz.shared.util.StringProvider
 
 
 private val jsonConfig = Json {
@@ -198,15 +192,6 @@ val appModule = module {
             versionName = BuildConfig.VERSION_NAME,
             buildType = BuildConfig.BUILD_TYPE
         )
-    }
-    single<StringProvider>{
-        AppStringProvider()
-    }
-    single<DrawableProvider>{
-        AppDrawableProvider()
-    }
-    single<ArrayProvider>{
-        AppArrayProvider()
     }
 }
 

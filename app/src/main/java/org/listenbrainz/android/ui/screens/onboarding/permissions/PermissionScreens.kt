@@ -32,20 +32,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import androidx.navigation3.runtime.rememberNavBackStack
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.permission.AndroidPermissionEnum
 import org.listenbrainz.shared.permission.PermissionHandler
-import org.listenbrainz.shared.util.DrawableProvider
 import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
@@ -211,7 +210,6 @@ fun PermissionCard(
     isPermanentlyDecline: Boolean,
     modifier: Modifier = Modifier,
     isDisabled: Boolean = false,
-    drawableProvider: DrawableProvider = koinInject(),
     onClick: () -> Unit
 ) {
     Box(
@@ -237,7 +235,7 @@ fun PermissionCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = painterResource(drawableProvider.getDrawable(permissionEnum.image)),
+                        painter = painterResource(permissionEnum.image),
                         contentDescription = "Permission Icon",
                         modifier = Modifier.padding(end = 8.dp),
                         tint = ListenBrainzTheme.colorScheme.text,

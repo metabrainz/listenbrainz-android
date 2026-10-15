@@ -7,7 +7,10 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import org.listenbrainz.shared.ui.screens.onboarding.permissions.AppPermission
 import org.listenbrainz.shared.ui.screens.onboarding.permissions.SharedPermissionEnum
-import org.listenbrainz.shared.util.DrawableResource
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_battery
+import org.listenbrainz.shared.resources.ic_notification_read
 
 enum class AndroidPermissionEnum(
     override val id: String,
@@ -24,7 +27,7 @@ enum class AndroidPermissionEnum(
         title = "Read Notifications",
         permanentlyDeclinedRationale = "Without it, automatic music tracking from other apps won’t work.",
         rationaleText = "Allows ListenBrainz to detect songs from other apps and submit them automatically.",
-        image = DrawableResource.IC_NOTIFICATION_READ,
+        image = Res.drawable.ic_notification_read,
         systemPermission = "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
         minSdk = 21,
     ),
@@ -34,7 +37,7 @@ enum class AndroidPermissionEnum(
         title = "Battery Optimization",
         permanentlyDeclinedRationale = "With optimization enabled, background listening submission may fail or get delayed.",
         rationaleText = "Disabling optimization ensures listens are submitted in the background without interruptions.",
-        image = DrawableResource.IC_BATTERY,
+        image = Res.drawable.ic_battery,
         systemPermission = "android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
         minSdk = 23
     );

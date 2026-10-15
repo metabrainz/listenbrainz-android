@@ -12,7 +12,16 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import org.listenbrainz.shared.util.DrawableResource
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.feed_follow
+import org.listenbrainz.shared.resources.feed_listen
+import org.listenbrainz.shared.resources.feed_love
+import org.listenbrainz.shared.resources.feed_notification
+import org.listenbrainz.shared.resources.feed_pin
+import org.listenbrainz.shared.resources.feed_review
+import org.listenbrainz.shared.resources.feed_send
+import org.listenbrainz.shared.resources.feed_unknown
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.TypeConverter
 import org.listenbrainz.shared.util.Utils.getArticle
@@ -33,55 +42,55 @@ enum class FeedEventType (
     
     RECORDING_RECOMMENDATION(
         type = "recording_recommendation",
-        icon = DrawableResource.FEED_SEND,
+        icon = Res.drawable.feed_send,
         isDeletable = true,
         isHideable = true,
     ),
     
     PERSONAL_RECORDING_RECOMMENDATION(
         type = "personal_recording_recommendation",
-        icon = DrawableResource.FEED_SEND,
+        icon = Res.drawable.feed_send,
     ),
     
     RECORDING_PIN(
         type = "recording_pin",
-        icon = DrawableResource.FEED_PIN,
+        icon = Res.drawable.feed_pin,
         isDeletable = true,
         isHideable = true,
     ),
     
     LIKE(
         type = "like",
-        icon = DrawableResource.FEED_LOVE,
+        icon = Res.drawable.feed_love,
     ),
     
     LISTEN(
         type = "listen",
-        icon = DrawableResource.FEED_LISTEN,
+        icon = Res.drawable.feed_listen,
     ),
     
     FOLLOW(
         type = "follow",
-        icon = DrawableResource.FEED_FOLLOW,
+        icon = Res.drawable.feed_follow,
         isPlayable = false,
     ),
     
     NOTIFICATION(
         type = "notification",
-        icon = DrawableResource.FEED_NOTIFICATION,
+        icon = Res.drawable.feed_notification,
         isPlayable = false,
         isDeletable = true,
     ),
     
     REVIEW (
         type = "critiquebrainz_review",
-        icon = DrawableResource.FEED_REVIEW,
+        icon = Res.drawable.feed_review,
     ),
     
     /** In case a new event is added in future that had not been published to the app. */
     UNKNOWN(
         type = "update_app",
-        icon = DrawableResource.FEED_UNKNOWN,
+        icon = Res.drawable.feed_unknown,
         isPlayable = false,
     );
     

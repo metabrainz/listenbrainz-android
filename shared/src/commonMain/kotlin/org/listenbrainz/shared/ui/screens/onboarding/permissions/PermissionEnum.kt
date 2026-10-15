@@ -1,6 +1,8 @@
 package org.listenbrainz.shared.ui.screens.onboarding.permissions
 
-import org.listenbrainz.shared.util.DrawableResource
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_notification
 
 
 interface AppPermission {
@@ -28,6 +30,6 @@ enum class SharedPermissionEnum(
         title = "Send Notifications",
         permanentlyDeclinedRationale = "Without notifications, we can't alert you about new features, errors, or background activity.",
         rationaleText = "Needed to send updates on activity, recommendations, and system alerts for a better user experience.",
-        image = DrawableResource.IC_NOTIFICATION,
+        image = Res.drawable.ic_notification,
     )
 }

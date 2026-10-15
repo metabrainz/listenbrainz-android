@@ -5,12 +5,13 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
 import org.listenbrainz.shared.model.ResponseError
 
 abstract class BaseViewModel<UiState>: ViewModel() {
 
     protected val errorFlow = MutableStateFlow<ResponseError?>(null)
-    protected val successMsgFlow = MutableStateFlow<Int?>(null)
+    protected val successMsgFlow = MutableStateFlow<StringResource?>(null)
     /** Visible Ui-State for UI to consume.*/
     abstract val uiState: StateFlow<UiState>
 
@@ -23,9 +24,9 @@ abstract class BaseViewModel<UiState>: ViewModel() {
         }
     }
 
-    protected fun emitMsg(messageId : Int?){
+    protected fun emitMsg(message: StringResource?){
         viewModelScope.launch {
-            successMsgFlow.emit(messageId)
+            successMsgFlow.emit(message)
         }
     }
 

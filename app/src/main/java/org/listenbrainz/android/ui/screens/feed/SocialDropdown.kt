@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.getString
 import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
@@ -69,7 +70,7 @@ fun SocialDropdownDefault(
 
     LaunchedEffect(key1 = uiState.successMsgId) {
         uiState.successMsgId?.let {
-            onSuccess(context.getString(it))
+            onSuccess(getString(it))
             viewModel.clearMsgFlow()
         }
     }
