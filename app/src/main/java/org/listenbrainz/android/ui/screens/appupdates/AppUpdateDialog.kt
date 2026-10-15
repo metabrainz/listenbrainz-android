@@ -1,6 +1,10 @@
 package org.listenbrainz.android.ui.screens.appupdates
 
 import androidx.compose.foundation.layout.Arrangement
+import org.listenbrainz.shared.resources.github_app_update
+import org.listenbrainz.shared.resources.app_update_risk_disclaimer_short
+import org.listenbrainz.shared.resources.app_update_disclaimer
+import org.listenbrainz.shared.resources.Res
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,7 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,7 +48,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.koin.androidx.compose.koinViewModel
-import org.listenbrainz.android.R
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
@@ -127,7 +130,7 @@ fun AppUpdateDialogLayout(
             )
 
             Text(
-                text = stringResource(R.string.github_app_update),
+                text = stringResource(Res.string.github_app_update),
                 style = MaterialTheme.typography.bodyMedium,
                 color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.8f),
                 modifier = Modifier.fillMaxWidth()
@@ -145,7 +148,7 @@ fun AppUpdateDialogLayout(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.app_update_disclaimer),
+                    text = stringResource(Res.string.app_update_disclaimer),
                     style = MaterialTheme.typography.bodySmall,
                     color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
                     modifier = Modifier.weight(1f)
@@ -163,7 +166,7 @@ fun AppUpdateDialogLayout(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.app_update_risk_disclaimer_short),
+                    text = stringResource(Res.string.app_update_risk_disclaimer_short),
                     style = MaterialTheme.typography.bodySmall,
                     color = ListenBrainzTheme.colorScheme.golden,
                     modifier = Modifier.weight(1f),

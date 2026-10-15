@@ -1,6 +1,10 @@
 package org.listenbrainz.android.ui.navigation
 
 import android.content.Context
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_listenbrainz_logo_icon
+import org.listenbrainz.shared.resources.ic_search
+import org.listenbrainz.shared.resources.ic_settings
 import android.content.Intent
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.net.Uri
@@ -14,10 +18,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
@@ -49,7 +52,7 @@ fun TopBar(
                     )
                 }) {
                     Icon(
-                        painterResource(id = R.drawable.ic_listenbrainz_logo_icon),
+                        painterResource(Res.drawable.ic_listenbrainz_logo_icon),
                         "ListenBrainz",
                         tint = Color.Unspecified
                     )
@@ -61,7 +64,7 @@ fun TopBar(
             actions = {
                 IconButton(onClick = { topBarActions.activateSearch() }) {
                     Icon(
-                        painterResource(id = R.drawable.ic_search),
+                        painterResource(Res.drawable.ic_search),
                         contentDescription = "Search users"
                     )
                 }
@@ -73,7 +76,7 @@ fun TopBar(
                         topBarActions.navigateToSettingsScreen()
                     }
                 }) {
-                    Icon(painterResource(id = R.drawable.ic_settings), "Settings")
+                    Icon(painterResource(Res.drawable.ic_settings), "Settings")
                 }
             }
         )

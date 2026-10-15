@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.components
 
-import androidx.annotation.DrawableRes
+import org.listenbrainz.shared.resources.Res
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.ic_coverartarchive_logo_no_text
+import org.listenbrainz.shared.resources.ic_options
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,14 +33,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import kotlinx.coroutines.CoroutineScope
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.AdditionalInfo
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.ResponseError
@@ -64,7 +66,7 @@ fun ListenCardSmall(
     artists: List<FeedListenArtist?>,
     coverArtUrl: String?,
     listenedAt: Long? = null,
-    @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
+    errorAlbumArt: DrawableResource = Res.drawable.ic_coverartarchive_logo_no_text,
     onDropdownIconClick: () -> Unit = {},
     titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
@@ -198,7 +200,7 @@ fun ListenCardSmall(
     artist: String,
     coverArtUrl: String?,
     listenedAt: Long? = null,
-    @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
+    errorAlbumArt: DrawableResource = Res.drawable.ic_coverartarchive_logo_no_text,
     onDropdownIconClick: () -> Unit = {},
     dropDown: @Composable () -> Unit = {},
     trailingContent: @Composable (modifier: Modifier) -> Unit = {},
@@ -239,7 +241,7 @@ fun ListenCardSmallDefault(
     modifier: Modifier = Modifier,
     metadata: Metadata,
     coverArtUrl: String?,
-    @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
+    errorAlbumArt: DrawableResource = Res.drawable.ic_coverartarchive_logo_no_text,
     trailingContent: @Composable ((modifier: Modifier) -> Unit)? = null,
     blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit)? = null,
     preCoverArtContent: @Composable ((modifier: Modifier) -> Unit)? = null,
@@ -294,7 +296,7 @@ fun ListenCardSmallDefault(
 @Composable
 private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: () -> Unit) {
     Icon(
-        painter = painterResource(id = R.drawable.ic_options),
+        painter = painterResource(Res.drawable.ic_options),
         contentDescription = "",
         tint = ListenBrainzTheme.colorScheme.hint,
         modifier = modifier
@@ -307,21 +309,21 @@ private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: (
 private fun AlbumArt(
     coverArtUrl: String?,
     modifier: Modifier = Modifier,
-    errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text
+    errorAlbumArt: DrawableResource = Res.drawable.ic_coverartarchive_logo_no_text
 ) {
     // Use this for previews
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(coverArtUrl)
             .build(),
-        fallback = painterResource(id = errorAlbumArt),
-        error = painterResource(id = errorAlbumArt),
+        fallback = painterResource(errorAlbumArt),
+        error = painterResource(errorAlbumArt),
         modifier = modifier
             .clip(GenericShape { size, _ ->
                 addRect(Rect(0f, 0f, size.width*0.95f, size.height))
             }),
         contentScale = ContentScale.Crop,
-        placeholder = painterResource(id = errorAlbumArt),
+        placeholder = painterResource(errorAlbumArt),
         filterQuality = FilterQuality.Low,
         contentDescription = "Album Cover Art"
     )

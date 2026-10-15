@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.screens.profile.createdforyou
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.playlist_play_btn
+import org.listenbrainz.shared.resources.playlist_share_btn
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -26,7 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -34,7 +37,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.shared.util.Utils.removeHtmlTags
@@ -158,7 +160,7 @@ fun PlayAndShareButtons(
 //            )
 //        ) {
 //            Image(
-//                painter = painterResource(R.drawable.playlist_play_btn),
+//                painter = painterResource(Res.drawable.playlist_play_btn),
 //                contentDescription = "Play All",
 //                modifier = Modifier.size(20.dp)
 //            )
@@ -177,7 +179,7 @@ fun PlayAndShareButtons(
         ) {
             Row {
                 Icon(
-                    painter = painterResource(R.drawable.playlist_share_btn),
+                    painter = painterResource(Res.drawable.playlist_share_btn),
                     contentDescription = "Share",
                     modifier = Modifier.size(20.dp)
                 )

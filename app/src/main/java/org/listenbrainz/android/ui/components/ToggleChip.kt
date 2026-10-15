@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.Res
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -21,7 +24,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -34,7 +36,7 @@ fun ToggleChips(
     modifier: Modifier = Modifier,
     currentPageStateProvider: () -> Int,
     chips: List<String>,
-    icons: List<Int?>? = null,
+    icons: List<DrawableResource?>? = null,
     scope: CoroutineScope = rememberCoroutineScope(),
     onClick: suspend (Int) -> Unit
 ) {

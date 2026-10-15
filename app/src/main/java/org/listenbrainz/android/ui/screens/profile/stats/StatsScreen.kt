@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.screens.profile.stats
 
 import android.text.TextUtils
+import org.jetbrains.compose.resources.stringResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.globe
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,7 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -68,7 +71,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
@@ -90,7 +92,6 @@ import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.util.getStringResource
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.viewmodel.UserViewModel
 import org.listenbrainz.shared.ui.screens.profile.stats.DataScope
@@ -284,7 +285,7 @@ fun StatsScreen(
                     ChipItem(
                         id = "GLOBAL",
                         label = "Global",
-                        icon = painterResource(id = R.drawable.globe)
+                        icon = painterResource(Res.drawable.globe)
                     )
                 )
                 SelectionChipBar(
@@ -444,12 +445,9 @@ fun StatsScreen(
 
                     Spacer(10.dp)
 
-                    val context = LocalContext.current
                     SelectionChipBar(
-                        items = remember {
-                            CategoryState.entries.map {
-                                ChipItem(it.text.getStringResource(context), it.ordinal)
-                            }
+                        items = CategoryState.entries.map {
+                            ChipItem(stringResource(it.text), it.ordinal)
                         },
                         selectedItemId = currentTabSelection.ordinal,
                     ) { chip ->

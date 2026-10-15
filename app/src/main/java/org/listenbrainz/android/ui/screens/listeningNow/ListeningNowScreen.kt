@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.screens.listeningNow
 
 import android.util.Log
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_arrow_down
+import org.listenbrainz.shared.resources.ic_erroralbumart
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,7 +47,6 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.basicMarquee
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.model.AdditionalInfo
@@ -125,8 +127,8 @@ fun ListeningNowLayout(
                         .size(280.dp)
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop,
-                    placeholder = painterResource(id = R.drawable.ic_erroralbumart),
-                    error = painterResource(id = R.drawable.ic_erroralbumart),
+                    placeholder = painterResource(Res.drawable.ic_erroralbumart),
+                    error = painterResource(Res.drawable.ic_erroralbumart),
                     onLoading = {
                         Log.d("ListeningNowScreen", "Loading image...")
                     },
@@ -202,7 +204,7 @@ fun ListeningNowLayout(
             }
         }
         Icon(
-            painter = painterResource(R.drawable.ic_arrow_down),
+            painter = painterResource(Res.drawable.ic_arrow_down),
             contentDescription = "Navigate Back",
             tint = titleColor,
             modifier = Modifier
@@ -248,8 +250,8 @@ fun ListeningNowCard(
                     .size(if (isLandscape) 30.dp else 45.dp)
                     .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop,
-                placeholder = painterResource(id = R.drawable.ic_erroralbumart),
-                error = painterResource(id = R.drawable.ic_erroralbumart)
+                placeholder = painterResource(Res.drawable.ic_erroralbumart),
+                error = painterResource(Res.drawable.ic_erroralbumart)
             )
 
             Spacer(modifier = Modifier.width(12.dp))

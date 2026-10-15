@@ -135,8 +135,3 @@ fun ProvideLBButtonStyle(content: @Composable () -> Unit) {
         )
     }
 }
-
-@Composable
-fun Int.getStringResource() = stringResource(this)
-
-fun Int.getStringResource(context: Context) = context.getString(this)

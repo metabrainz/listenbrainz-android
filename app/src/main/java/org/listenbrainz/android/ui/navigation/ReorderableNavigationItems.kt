@@ -22,11 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
-import org.listenbrainz.android.util.iconUnselected
 import org.listenbrainz.shared.model.AppNavigationItem
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableLazyListState
@@ -35,7 +34,7 @@ import sh.calvin.reorderable.ReorderableLazyListState
 @Composable
 fun NavIcon(item: AppNavigationItem) {
     Icon(
-        painter = painterResource(id = item.iconUnselected),
+        painter = painterResource(item.iconUnselected),
         modifier = Modifier
             .size(24.dp)
             .padding(vertical = 4.dp),

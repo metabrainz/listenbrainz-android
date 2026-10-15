@@ -3,7 +3,9 @@ package org.listenbrainz.android.ui.screens.profile.listens
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.drawable.Drawable
-import androidx.appcompat.content.res.AppCompatResources
+import org.jetbrains.compose.resources.painterResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.music_regular
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -40,7 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.SwitchLB
 import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.shared.util.Constants.SPOTIFY_PACKAGE_NAME
@@ -103,21 +104,20 @@ fun ListeningAppsList(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
 
-                                val context = LocalContext.current
-                                val drawable = getPackageIcon(packageName) as? Drawable
-                                    ?: AppCompatResources.getDrawable(context, R.drawable.music_regular)
-                                val bitmap = drawable?.toBitmap()
-                                val painter = if (bitmap != null) BitmapPainter(bitmap.asImageBitmap()) else null
-
-                                if (painter != null) {
-                                    Image(
-                                        modifier = Modifier
-                                            .fillMaxWidth(0.15f)
-                                            .padding(end = 5.dp),
-                                        painter = painter,
-                                        contentDescription = null
-                                    )
+                                val packageIcon = (getPackageIcon(packageName) as? Drawable)?.toBitmap()
+                                val painter = if (packageIcon != null) {
+                                    BitmapPainter(packageIcon.asImageBitmap())
+                                } else {
+                                    painterResource(Res.drawable.music_regular)
                                 }
+
+                                Image(
+                                    modifier = Modifier
+                                        .fillMaxWidth(0.15f)
+                                        .padding(end = 5.dp),
+                                    painter = painter,
+                                    contentDescription = null
+                                )
 
                                 Text(
                                     modifier = Modifier.fillMaxWidth(0.85f),

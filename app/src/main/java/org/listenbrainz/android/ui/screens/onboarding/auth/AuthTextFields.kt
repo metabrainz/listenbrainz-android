@@ -1,6 +1,10 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth
 
 import androidx.compose.foundation.layout.Column
+import org.jetbrains.compose.resources.painterResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_visibility
+import org.listenbrainz.shared.resources.ic_visibility_off
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
@@ -21,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
@@ -30,7 +33,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
@@ -203,7 +205,7 @@ fun AuthPasswordField(
             trailingIcon = {
                 IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
                     Icon(
-                        painter = painterResource(id = if (passwordVisibility) R.drawable.ic_visibility_off else R.drawable.ic_visibility),
+                        painter = painterResource(if (passwordVisibility) Res.drawable.ic_visibility_off else Res.drawable.ic_visibility),
                         contentDescription = if (passwordVisibility) "Hide password" else "Show password",
                         tint = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f)
                     )

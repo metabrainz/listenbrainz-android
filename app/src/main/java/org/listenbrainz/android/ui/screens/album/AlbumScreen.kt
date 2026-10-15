@@ -1,5 +1,8 @@
 package org.listenbrainz.android.ui.screens.album
 
+import org.jetbrains.compose.resources.vectorResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.lb_radio_play_button
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -36,11 +39,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
@@ -188,7 +189,7 @@ private fun ArtistRadio() {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.lb_radio_play_button),
+                imageVector = vectorResource(Res.drawable.lb_radio_play_button),
                 contentDescription = null,
                 tint = new_app_bg_light,
                 modifier = Modifier

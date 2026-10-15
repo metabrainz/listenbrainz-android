@@ -31,7 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -41,8 +41,6 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.listeningNow.ListeningNowCard
-import org.listenbrainz.android.util.iconSelected
-import org.listenbrainz.android.util.iconUnselected
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.viewmodel.ListeningNowUIState
@@ -74,7 +72,7 @@ fun AdaptiveNavigationBar(
         val navIcon = @Composable {
             Icon(
                 painter = painterResource(
-                    id = if (selected) item.iconSelected else item.iconUnselected
+                    if (selected) item.iconSelected else item.iconUnselected
                 ),
                 modifier = Modifier
                     .size(24.dp)

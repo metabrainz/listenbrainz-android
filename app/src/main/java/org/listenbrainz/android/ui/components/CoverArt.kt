@@ -1,6 +1,10 @@
 package org.listenbrainz.android.ui.components
 
 import android.content.Intent
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.playlist_card_bg1
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -16,10 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import org.listenbrainz.android.R
 import org.listenbrainz.android.util.CoverArtImageLinkExtractor
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -38,7 +40,7 @@ fun CoverArtComposable(
     modifier: Modifier = Modifier,
     coverArt: String?,
     maxGridSize: Int,
-    errorImage: Int = R.drawable.playlist_card_bg1,
+    errorImage: DrawableResource = Res.drawable.playlist_card_bg1,
     areImagesClickable: Boolean = false,
 ) {
     if (coverArt == null) {
@@ -83,7 +85,7 @@ private fun ImageGridCover(
     modifier: Modifier = Modifier,
     imageUrls: List<String>,
     columns: Int,
-    errorImage: Int,
+    errorImage: DrawableResource,
     anchorLinks: List<String>,
     isClickable: Boolean,
     onClickImage: (String) -> Unit

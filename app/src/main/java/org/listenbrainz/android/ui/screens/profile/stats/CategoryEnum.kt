@@ -1,10 +1,13 @@
 package org.listenbrainz.android.ui.screens.profile.stats
 
-import androidx.annotation.StringRes
-import org.listenbrainz.android.R
+import org.jetbrains.compose.resources.StringResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.album_title
+import org.listenbrainz.shared.resources.artist_title
+import org.listenbrainz.shared.resources.songs_title
 
-enum class CategoryState(@StringRes val text: Int) {
-    ARTISTS(R.string.artist_title),
-    ALBUMS(R.string.album_title),
-    SONGS(R.string.songs_title)
+enum class CategoryState(val text: StringResource) {
+    ARTISTS(Res.string.artist_title),
+    ALBUMS(Res.string.album_title),
+    SONGS(Res.string.songs_title)
 }

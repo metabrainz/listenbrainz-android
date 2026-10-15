@@ -1,6 +1,11 @@
 package org.listenbrainz.android.ui.screens.artist
 
 import android.webkit.WebView
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_coverartarchive_logo_no_text
+import org.listenbrainz.shared.resources.lb_radio_play_button
+import org.listenbrainz.shared.resources.listeners_icon
+import org.listenbrainz.shared.resources.listens_icon
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
@@ -56,8 +61,8 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -68,7 +73,6 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import org.listenbrainz.android.ui.components.ratingbar.RatingBar
 import org.listenbrainz.android.ui.components.ratingbar.RatingBarStyle
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.MbidMapping
 import org.listenbrainz.shared.model.Metadata
@@ -103,7 +107,9 @@ import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.util.ArtistLinksEnum
 import org.listenbrainz.shared.util.LinkCardData
+import org.jetbrains.compose.resources.DrawableResource
 import org.listenbrainz.android.util.getLinkCardRes
+import org.listenbrainz.shared.util.IconKeys
 import org.listenbrainz.shared.ui.screens.artist.ArtistUIState
 import kotlin.math.max
 import kotlin.math.round
@@ -338,10 +344,10 @@ fun BioCard(
                                 model = ImageRequest.Builder(LocalContext.current)
                                     .data(coverArt)
                                     .build(),
-                                fallback = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                fallback = painterResource(Res.drawable.ic_coverartarchive_logo_no_text),
                                 modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
                                 contentScale = ContentScale.Fit,
-                                placeholder = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                placeholder = painterResource(Res.drawable.ic_coverartarchive_logo_no_text),
                                 filterQuality = FilterQuality.Low,
                                 contentDescription = "Album Cover Art"
                             )
@@ -400,7 +406,7 @@ fun BioCard(
                         Spacer(modifier = Modifier.height(10.dp))
                         Row {
                             Icon(
-                                imageVector = ImageVector.vectorResource(id = R.drawable.listens_icon),
+                                imageVector = vectorResource(Res.drawable.listens_icon),
                                 contentDescription = null,
                                 tint = app_bg_mid
                             )
@@ -413,7 +419,7 @@ fun BioCard(
                         }
                         Row {
                             Icon(
-                                imageVector = ImageVector.vectorResource(id = R.drawable.listeners_icon),
+                                imageVector = vectorResource(Res.drawable.listeners_icon),
                                 contentDescription = null,
                                 tint = app_bg_mid
                             )
@@ -588,7 +594,8 @@ fun Links(
                     ) {
                         rowItems.forEach { item ->
                             LinkCard(
-                                icon = ImageVector.vectorResource(getLinkCardRes(item.iconKey)),
+                                icon = getLinkCardRes(item.iconKey) ?: return@forEach,
+                                useOriginalColors = item.iconKey == IconKeys.MUSICBRAINZ_LOGO,
                                 label = item.label,
                                 url = item.url,
                             )
@@ -720,12 +727,12 @@ private fun AlbumsCard(
                                 model = ImageRequest.Builder(LocalContext.current)
                                     .data(coverArt)
                                     .build(),
-                                fallback = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                fallback = painterResource(Res.drawable.ic_coverartarchive_logo_no_text),
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(16.dp))
                                     .size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
                                 contentScale = ContentScale.Crop,
-                                placeholder = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                placeholder = painterResource(Res.drawable.ic_coverartarchive_logo_no_text),
                                 filterQuality = FilterQuality.Low,
                                 contentDescription = "Album Cover Art"
                             )
@@ -989,7 +996,8 @@ fun ReviewsCard(
 
 @Composable
 private fun LinkCard(
-    icon: ImageVector,
+    icon: DrawableResource,
+    useOriginalColors: Boolean,
     label: String,
     url: String,
 ) {
@@ -1012,8 +1020,8 @@ private fun LinkCard(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                imageVector = icon, contentDescription = null, tint = when (icon) {
-                    ImageVector.vectorResource(id = R.drawable.musicbrainz_logo) -> Color.Unspecified
+                imageVector = vectorResource(icon), contentDescription = null, tint = when {
+                    useOriginalColors -> Color.Unspecified
                     else -> ListenBrainzTheme.colorScheme.followerCardTextColor
                 }
             )
@@ -1045,7 +1053,7 @@ private fun LbRadioButton(
     ) {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.lb_radio_play_button),
+                imageVector = vectorResource(Res.drawable.lb_radio_play_button),
                 contentDescription = ""
             )
             Spacer(modifier = Modifier.width(5.dp))

@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.profile.taste
 
 import androidx.compose.foundation.background
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.heart
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,7 +47,6 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.MbidMapping
 import org.listenbrainz.shared.model.PinnedRecording
 import org.listenbrainz.shared.model.SocialUiState
@@ -154,7 +155,7 @@ fun TasteScreen(
                     ChipItem(
                         id = LovedHated.Loved.name,
                         label = LovedHated.Loved.name,
-                        icon = painterResource(id = R.drawable.heart)
+                        icon = painterResource(Res.drawable.heart)
                     ),
                     ChipItem(
                         id = LovedHated.Hated.name,

@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
 import androidx.compose.foundation.Image
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_coverartarchive_logo_no_text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,13 +26,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
@@ -86,8 +87,8 @@ fun ListeningNowOnSpotify(
                         .data(data = bitmap.bitmap)
                         .crossfade(true)
                         .build(),
-                    placeholder = painterResource(R.drawable.ic_coverartarchive_logo_no_text),
-                    error = painterResource(R.drawable.ic_coverartarchive_logo_no_text),
+                    placeholder = painterResource(Res.drawable.ic_coverartarchive_logo_no_text),
+                    error = painterResource(Res.drawable.ic_coverartarchive_logo_no_text),
                     modifier = Modifier
                         .size(80.dp)
                         .clip(RoundedCornerShape(16.dp)),

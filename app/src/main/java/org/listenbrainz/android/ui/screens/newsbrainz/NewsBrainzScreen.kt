@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.newsbrainz
 
 import android.os.Build
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.news_share
 import android.text.Html
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -34,7 +36,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,7 +47,6 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.shared.viewmodel.NewsListViewModel
-import org.listenbrainz.android.R
 
 @Composable
 fun NewsBrainzScreen(
@@ -135,7 +136,7 @@ fun BlogCard(
                     modifier = Modifier.padding(end = 5.dp).fillMaxWidth(0.9F)
                 )
                 IconButton(onClick = { onLongClick() }) {
-                   Icon(painter = painterResource(id = R.drawable.news_share), contentDescription = "Share News Button" , tint = ListenBrainzTheme.colorScheme.hint , modifier = Modifier.padding(start = 5.dp)
+                   Icon(painter = painterResource(Res.drawable.news_share), contentDescription = "Share News Button" , tint = ListenBrainzTheme.colorScheme.hint , modifier = Modifier.padding(start = 5.dp)
                    )
 
                 }

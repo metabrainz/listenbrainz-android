@@ -1,6 +1,10 @@
 package org.listenbrainz.android.ui.screens.profile.playlists
 
 import android.content.res.Configuration
+import org.listenbrainz.shared.resources.playlist_collab
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.playlist_gridview
+import org.listenbrainz.shared.resources.playlist_listview
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,7 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -61,7 +65,6 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ToggleChips
 import org.listenbrainz.android.ui.screens.feed.RetryButton
@@ -609,7 +612,7 @@ private fun PlaylistScreenTopSection(
                 }
             },
             icons = remember {
-                listOf(null, R.drawable.playlist_collab)
+                listOf(null, Res.drawable.playlist_collab)
             }
         )
 
@@ -621,7 +624,7 @@ private fun PlaylistScreenTopSection(
                 when (it) {
                     PlaylistView.GRID -> {
                         Icon(
-                            painter = painterResource(R.drawable.playlist_listview),
+                            painter = painterResource(Res.drawable.playlist_listview),
                             tint = ListenBrainzTheme.colorScheme.followerChipSelected,
                             contentDescription = "List View of Playlist Screen"
                         )
@@ -629,7 +632,7 @@ private fun PlaylistScreenTopSection(
 
                     PlaylistView.LIST -> {
                         Icon(
-                            painter = painterResource(R.drawable.playlist_gridview),
+                            painter = painterResource(Res.drawable.playlist_gridview),
                             tint = ListenBrainzTheme.colorScheme.followerChipSelected,
                             contentDescription = "Grid View of Playlist Screen"
                         )

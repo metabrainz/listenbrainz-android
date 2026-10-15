@@ -1,6 +1,10 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
 import android.os.Bundle
+import org.listenbrainz.shared.resources.load_more
+import org.listenbrainz.shared.resources.load_less
+import org.listenbrainz.shared.resources.cannot_delete
+import org.listenbrainz.shared.resources.Res
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -69,7 +73,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -89,7 +93,6 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
@@ -277,7 +280,7 @@ fun ListensScreen(
                     listen: Listen,
                     modifier: Modifier = Modifier
                 ) {
-                    val cannotDeleteMsg = stringResource(id = R.string.cannot_delete)
+                    val cannotDeleteMsg = stringResource(Res.string.cannot_delete)
                     val metadata = remember(listen) {
                         listen.toMetadata()
                     }
@@ -849,8 +852,8 @@ fun LoadMoreButton(
     ) {
         Text(
             when (state) {
-                true -> stringResource(R.string.load_more)
-                false -> stringResource(R.string.load_less)
+                true -> stringResource(Res.string.load_more)
+                false -> stringResource(Res.string.load_less)
             }, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium
         )
     }

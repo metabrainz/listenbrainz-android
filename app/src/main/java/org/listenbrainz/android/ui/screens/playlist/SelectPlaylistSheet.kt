@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.playlist
 
 import android.content.res.Configuration
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.add_track_to_playlist
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,7 +23,7 @@ import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -32,7 +34,6 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ErrorBar
@@ -170,7 +171,7 @@ private fun SelectPlaylistBase(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.add_track_to_playlist),
+                    painter = painterResource(Res.drawable.add_track_to_playlist),
                     contentDescription = "Add to playlist icon",
                     tint = ListenBrainzTheme.colorScheme.listenText
                 )

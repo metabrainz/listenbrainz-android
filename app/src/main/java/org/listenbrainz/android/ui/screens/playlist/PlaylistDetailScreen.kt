@@ -1,6 +1,10 @@
 package org.listenbrainz.android.ui.screens.playlist
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.playlist_duplicate_svg
+import org.listenbrainz.shared.resources.playlist_reorder
+import org.listenbrainz.shared.resources.playlist_share_btn
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -57,7 +61,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -69,7 +73,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import org.koin.androidx.compose.koinViewModel
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.playlist.MoveTrack
 import org.listenbrainz.shared.model.playlist.PlaylistData
@@ -457,7 +460,7 @@ private fun PlaylistDetailContent(
                         }
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.playlist_duplicate_svg),
+                            painter = painterResource(Res.drawable.playlist_duplicate_svg),
                             contentDescription = "Duplicate Playlist",
                             tint = Color.White
                         )
@@ -487,7 +490,7 @@ private fun PlaylistDetailContent(
                         }
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.playlist_share_btn),
+                            painter = painterResource(Res.drawable.playlist_share_btn),
                             contentDescription = "Share playlist",
                             modifier = Modifier.size(30.dp),
                             tint = Color.White
@@ -561,7 +564,7 @@ private fun PlaylistDetailContent(
                     preCoverArtContent = if (playlistDetailUIState.isUserPlaylistOwner) { modifier2 ->
                         Icon(
                             modifier = modifier2.padding(horizontal = 4.dp),
-                            painter = painterResource(R.drawable.playlist_reorder),
+                            painter = painterResource(Res.drawable.playlist_reorder),
                             tint = ListenBrainzTheme.colorScheme.listenText,
                             contentDescription = "Reorder Icon"
                         )

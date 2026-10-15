@@ -5,21 +5,30 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
+import org.listenbrainz.android.ui.screens.onboarding.auth.templogin.TempLoginCard
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.viewmodel.UserViewModel
@@ -79,12 +88,16 @@ fun ProfileScreen(
                     socialViewModel = socialViewModel,
                 )
             } else {
-                LoginScreen(
-                    navigateToCreateAccount = navigateToCreateAccount,
-                    navigateToUserProfile = {
+                val scope = rememberCoroutineScope()
+                TempLoginCard(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .wrapContentHeight(),
+                ) {
+                    scope.launch {
                         goToUserProfile(viewModel.appPreferences.username.get())
                     }
-                )
+                }
             }
         }
     }

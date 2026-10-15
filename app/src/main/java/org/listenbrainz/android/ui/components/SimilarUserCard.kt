@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.components
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import org.listenbrainz.shared.resources.roboto_regular
+import org.listenbrainz.shared.resources.Res
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,14 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
+import org.jetbrains.compose.resources.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
@@ -122,7 +123,7 @@ fun SimilarUserCard(
                 Text(
                     text = "${DecimalFormat("#.#").format(similarity*10)}/10",
                     color = if (uiModeIsDark) Color.White else Color.Black.copy(alpha = 0.4f),
-                    fontFamily = FontFamily(Font(R.font.roboto_regular)),
+                    fontFamily = FontFamily(Font(Res.font.roboto_regular)),
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .padding(5.dp)

@@ -62,9 +62,6 @@
         </receiver>
         -->
         <activity
-            android:name=".ui.screens.onboarding.FeaturesActivity"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
-        <activity
             android:name=".ui.screens.main.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"

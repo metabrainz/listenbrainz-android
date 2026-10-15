@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.screens.onboarding.permissions
 
 import android.content.res.Configuration
+import org.listenbrainz.shared.resources.permission_screen_rationale
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_redirect
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -32,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,7 +45,6 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import androidx.navigation3.runtime.rememberNavBackStack
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.permission.AndroidPermissionEnum
 import org.listenbrainz.shared.permission.PermissionHandler
 import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
@@ -165,7 +167,7 @@ private fun PermissionScreenBase(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        stringResource(R.string.permission_screen_rationale),
+                        stringResource(Res.string.permission_screen_rationale),
                         color = Color.White.copy(alpha = 0.7f),
                         fontSize = 16.sp,
                         modifier = Modifier.fillMaxWidth(0.9f)
@@ -259,7 +261,7 @@ fun PermissionCard(
             Spacer(Modifier.height(16.dp))
             OnboardingYellowButton(
                 onClick = onClick,
-                icon = if(isPermanentlyDecline) R.drawable.ic_redirect else null,
+                icon = if(isPermanentlyDecline) Res.drawable.ic_redirect else null,
                 modifier = Modifier.fillMaxWidth(0.9f),
                 isEnabled = !isDisabled,
                 text = if (isPermanentlyDecline) "Go to Settings" else "Grant Permission",

@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.components
 
 import androidx.compose.foundation.layout.Row
+import org.listenbrainz.shared.resources.musicbrainz
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.musicbrainz_logo
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -10,12 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Utils.Spacer
@@ -24,7 +26,7 @@ import org.listenbrainz.android.util.Utils.Spacer
 fun MusicBrainzButton(onClick: () -> Unit) {
     ButtonLB(onClick = onClick) {
         Icon(
-            painter = painterResource(id = R.drawable.musicbrainz_logo),
+            painter = painterResource(Res.drawable.musicbrainz_logo),
             contentDescription = "",
             modifier = Modifier.width(20.dp),
             tint = Color.Unspecified
@@ -32,7 +34,7 @@ fun MusicBrainzButton(onClick: () -> Unit) {
 
         Spacer(5.dp)
 
-        Text(text = stringResource(R.string.musicbrainz))
+        Text(text = stringResource(Res.string.musicbrainz))
 
         Spacer(5.dp)
 

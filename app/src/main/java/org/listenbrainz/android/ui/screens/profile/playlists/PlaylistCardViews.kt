@@ -1,7 +1,10 @@
 package org.listenbrainz.android.ui.screens.profile.playlists
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.annotation.DrawableRes
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.playlist_card_bg1
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_options
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,12 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.ui.components.CoverArtComposable
 import org.listenbrainz.android.ui.components.ListenCardSmall
@@ -41,7 +43,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
  * @param coverArt String? - Cover Art URL
  * @param title String - Title of the playlist
  * @param updatedDate String - The date when playlist was last updated
- * @param errorCoverArt Int - Image to display when cover art could not be loaded
+ * @param errorCoverArt DrawableResource - Image to display when cover art could not be loaded
  * @param onClickCard () -> Unit - Function to be called when card is clicked
  * @param onDropdownClick (PlaylistDropdownItems) -> Unit - Function to be called when dropdown item is clicked
  * @param canUserEdit Tells whether the current profile belongs to the logged in user
@@ -52,7 +54,7 @@ fun PlaylistGridViewCard(
     coverArt: String?,
     title: String,
     updatedDate: String,
-    @DrawableRes errorCoverArt: Int = R.drawable.playlist_card_bg1,
+    errorCoverArt: DrawableResource = Res.drawable.playlist_card_bg1,
     onClickCard: () -> Unit,
     onDropdownClick: (PlaylistDropdownItems) -> Unit,
     canUserEdit: Boolean
@@ -108,7 +110,7 @@ fun PlaylistGridViewCard(
                             isDropdownEnabled = !isDropdownEnabled
                         }) {
                             Icon(
-                                painter = painterResource(R.drawable.ic_options),
+                                painter = painterResource(Res.drawable.ic_options),
                                 contentDescription = "Options button"
                             )
                         }
@@ -136,7 +138,7 @@ fun PlaylistGridViewCard(
  * @param coverArt String? - Cover Art URL
  * @param title String - Title of the playlist
  * @param updatedDate String - The date when playlist was last updated
- * @param errorCoverArt Int - Image to display when cover art could not be loaded
+ * @param errorCoverArt DrawableResource - Image to display when cover art could not be loaded
  * @param onClickCard () -> Unit - Function to be called when card is clicked
  * @param onDropdownClick (PlaylistDropdownItems) -> Unit - Function to be called when dropdown item is clicked
  * @param isUserSelf Tells whether the current profile belongs to the logged in user
@@ -147,7 +149,7 @@ fun PlaylistListViewCard(
     coverArt: String?,
     title: String,
     updatedDate: String,
-    @DrawableRes errorCoverArt: Int = R.drawable.playlist_card_bg1,
+    errorCoverArt: DrawableResource = Res.drawable.playlist_card_bg1,
     onDropdownClick: (PlaylistDropdownItems) -> Unit,
     onClickCard: () -> Unit,
     canUserEdit: Boolean

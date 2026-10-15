@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.components.dialogs
 
 import android.content.res.Configuration
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_critiquebrainz_logo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
@@ -29,7 +30,7 @@ fun ReviewDisabledDialog(
         title = {
             Image(
                 modifier = Modifier.align(Alignment.Center),
-                painter = painterResource(id = R.drawable.ic_critiquebrainz_logo),
+                painter = painterResource(Res.drawable.ic_critiquebrainz_logo),
                 contentDescription = "CritiqueBrainz Logo"
             )
         },

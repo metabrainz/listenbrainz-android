@@ -1,6 +1,12 @@
 package org.listenbrainz.android.ui.screens.profile.createdforyou
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.playlist_card_bg1
+import org.listenbrainz.shared.resources.playlist_card_bg2
+import org.listenbrainz.shared.resources.playlist_card_bg3
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.playlist_save
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -28,11 +34,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.userPlaylist.AdditionalMetadata
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylistExtensionData
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
@@ -115,7 +120,7 @@ fun PlaylistTitleCard(
     fractionLeft: Float = 0.0f,
     sizeIncrementOnSelect: Int = 10,
     alignment: Alignment = Alignment.TopStart,
-    cardBg: Int = R.drawable.playlist_card_bg1,
+    cardBg: DrawableResource = Res.drawable.playlist_card_bg1,
     isSelected: Boolean = false,
     onSaveClick: () -> Unit,
     onPlaylistSelect: () -> Unit
@@ -170,7 +175,7 @@ fun PlaylistTitleCard(
         }
 
         Image(
-            painter = painterResource(R.drawable.playlist_save),
+            painter = painterResource(Res.drawable.playlist_save),
             contentDescription = "Button to save the playlist",
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -219,12 +224,12 @@ fun ProgressCircle(
 }
 
 //This function provides a background for the card based on the index.
-fun getCardBg(index: Int): Int{
+fun getCardBg(index: Int): DrawableResource{
     return when(index%3){
-        0 -> R.drawable.playlist_card_bg1
-        1 -> R.drawable.playlist_card_bg2
-        2 -> R.drawable.playlist_card_bg3
-        else -> R.drawable.playlist_card_bg1
+        0 -> Res.drawable.playlist_card_bg1
+        1 -> Res.drawable.playlist_card_bg2
+        2 -> Res.drawable.playlist_card_bg3
+        else -> Res.drawable.playlist_card_bg1
     }
 }
 

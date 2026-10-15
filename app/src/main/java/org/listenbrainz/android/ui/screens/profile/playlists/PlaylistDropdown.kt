@@ -1,6 +1,13 @@
 package org.listenbrainz.android.ui.screens.profile.playlists
 
+import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.foundation.background
+import org.jetbrains.compose.resources.painterResource
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_delete
+import org.listenbrainz.shared.resources.ic_review
+import org.listenbrainz.shared.resources.playlist_duplicate_svg
+import org.listenbrainz.shared.resources.playlist_share_btn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -8,9 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 
@@ -51,11 +56,11 @@ fun PlaylistDropdownMenu(
 
 enum class PlaylistDropdownItems(
     val title: String,
-    val image: Int,
+    val image: DrawableResource,
     val isPrivate: Boolean
 ) {
-    DUPLICATE(title = "Duplicate", image = R.drawable.playlist_duplicate_svg, isPrivate = false),
-    DELETE(title = "Delete", image = R.drawable.ic_delete, isPrivate = true),
-    SHARE(title = "Share", image = R.drawable.playlist_share_btn, isPrivate = false),
-    EDIT(title = "Edit", image = R.drawable.ic_review, isPrivate = true),
+    DUPLICATE(title = "Duplicate", image = Res.drawable.playlist_duplicate_svg, isPrivate = false),
+    DELETE(title = "Delete", image = Res.drawable.ic_delete, isPrivate = true),
+    SHARE(title = "Share", image = Res.drawable.playlist_share_btn, isPrivate = false),
+    EDIT(title = "Edit", image = Res.drawable.ic_review, isPrivate = true),
 }

@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
 import androidx.compose.foundation.clickable
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_coverartarchive_logo_no_text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,12 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
@@ -62,7 +63,7 @@ fun ListeningNowCard(listen: Listen?, coverArtUrl: String?, onItemClicked: () ->
                         .size(80.dp, 80.dp)
                         .clip(RoundedCornerShape(16.dp)),
                     contentDescription = null,
-                    placeholder = painterResource(R.drawable.ic_coverartarchive_logo_no_text)
+                    placeholder = painterResource(Res.drawable.ic_coverartarchive_logo_no_text)
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))

@@ -1,6 +1,12 @@
 package org.listenbrainz.android.ui.screens.explore
 
 import android.content.Intent
+import org.listenbrainz.shared.resources.news_card
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.all_projects
+import org.listenbrainz.shared.resources.yim_title
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.playlist_card_bg2
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -28,14 +34,13 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.datetime.YearMonth
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
@@ -74,7 +79,7 @@ fun ExploreScreen(
                     val year = currentYear - it - 1
                     item {
                         ExploreScreenCard(
-                            iconId = R.drawable.yim_title,
+                            iconId = Res.drawable.yim_title,
                             title = "Your Year in Music $year",
                             subTitle = "Review",
                             iconTint = lb_purple
@@ -88,9 +93,9 @@ fun ExploreScreen(
                 item {
                     ExploreScreenCard(
                         nextActivity = NewsBrainzActivity::class.java,
-                        iconId = R.drawable.all_projects,
+                        iconId = Res.drawable.all_projects,
                         title = "News",
-                        subTitle = stringResource(id = R.string.news_card)
+                        subTitle = stringResource(Res.string.news_card)
                     )
                 }
             }
@@ -101,7 +106,7 @@ fun ExploreScreen(
 @Composable
 private fun ExploreScreenCard(
     nextActivity: Class<out ComponentActivity>,
-    iconId: Int,
+    iconId: DrawableResource,
     title: String,
     subTitle: String,
     iconTint: Color? = null,
@@ -125,7 +130,7 @@ private fun ExploreScreenCard(
 
 @Composable
 private fun ExploreScreenCard(
-    iconId: Int,
+    iconId: DrawableResource,
     title: String,
     subTitle: String,
     iconTint: Color? = null,
@@ -152,7 +157,7 @@ private fun ExploreScreenCard(
                     .aspectRatio(1.5f)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.playlist_card_bg2),
+                    painter = painterResource(Res.drawable.playlist_card_bg2),
                     alignment = Alignment.Center,
                     contentDescription = "",
                     contentScale = ContentScale.FillBounds,
@@ -160,7 +165,7 @@ private fun ExploreScreenCard(
                 )
 
                 Image(
-                    painter = painterResource(id = iconId),
+                    painter = painterResource(iconId),
                     alignment = Alignment.Center,
                     contentDescription = "",
                     colorFilter = iconTint?.let { ColorFilter.tint(it) },

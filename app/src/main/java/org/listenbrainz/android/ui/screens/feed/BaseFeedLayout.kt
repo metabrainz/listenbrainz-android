@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.screens.feed
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_hide
+import org.listenbrainz.shared.resources.ic_unhide
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -35,7 +38,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import org.jetbrains.compose.resources.painterResource
-import androidx.compose.ui.res.vectorResource
+import org.jetbrains.compose.resources.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +46,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.feed.FeedEvent
 import org.listenbrainz.shared.model.feed.FeedEventType
@@ -198,9 +200,9 @@ fun Date(
                 imageVector = if (isActionDelete(event, eventType, parentUser))
                         Icons.Rounded.Delete
                     else if (isHidden)
-                        ImageVector.vectorResource(id = R.drawable.ic_unhide)
+                        vectorResource(Res.drawable.ic_unhide)
                     else
-                        ImageVector.vectorResource(id = R.drawable.ic_hide),
+                        vectorResource(Res.drawable.ic_hide),
                 tint = ListenBrainzTheme.colorScheme.lbSignature,
                 contentDescription = if (isActionDelete(
                         event,

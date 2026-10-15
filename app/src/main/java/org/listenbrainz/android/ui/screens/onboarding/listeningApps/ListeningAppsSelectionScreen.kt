@@ -1,6 +1,11 @@
 package org.listenbrainz.android.ui.screens.onboarding.listeningApps
 
 import android.content.res.Configuration
+import org.listenbrainz.shared.resources.listening_screen_rationale
+import org.listenbrainz.shared.resources.listen_submission_rationale
+import org.listenbrainz.shared.resources.listen_permission_rationale
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.add_track_to_playlist
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
@@ -45,8 +50,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,7 +60,6 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.navigation3.runtime.rememberNavBackStack
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.permission.AndroidPermissionEnum
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
@@ -206,7 +210,7 @@ fun ListeningAppScreenLayout(
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    stringResource(R.string.listening_screen_rationale),
+                    stringResource(Res.string.listening_screen_rationale),
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = 14.sp,
                     modifier = Modifier.fillMaxWidth(0.95f)
@@ -399,9 +403,9 @@ fun EnableListenSubmission(
             ) { isPermissionRequired ->
                 Text(
                     text = if (isPermissionRequired)
-                        stringResource(R.string.listen_submission_rationale)
+                        stringResource(Res.string.listen_submission_rationale)
                     else
-                        stringResource(R.string.listen_permission_rationale),
+                        stringResource(Res.string.listen_permission_rationale),
                     style = MaterialTheme.typography.bodyMedium,
                     color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
                     lineHeight = 20.sp,
@@ -434,7 +438,7 @@ fun EnableListenSubmission(
                         }
                         .padding(top = 4.dp)
                 ){
-                    Icon(painter = painterResource(R.drawable.add_track_to_playlist),
+                    Icon(painter = painterResource(Res.drawable.add_track_to_playlist),
                         contentDescription = null,
                         tint = ListenBrainzTheme.colorScheme.text)
                     Spacer(modifier = Modifier.width(4.dp))

@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.components.dialogs
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import org.listenbrainz.shared.resources.cb_review_tc
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.ic_critiquebrainz_logo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -34,8 +37,8 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,7 +48,6 @@ import org.listenbrainz.android.ui.components.ratingbar.RatingBar
 import org.listenbrainz.android.ui.components.ratingbar.RatingBarStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import java.util.Locale
@@ -84,7 +86,7 @@ fun ReviewEnabledDialog(
         title = {
             Image(
                 modifier = Modifier.align(Alignment.Center),
-                painter = painterResource(id = R.drawable.ic_critiquebrainz_logo),
+                painter = painterResource(Res.drawable.ic_critiquebrainz_logo),
                 contentDescription = "CritiqueBrainz Logo"
             )
         },
@@ -275,7 +277,7 @@ fun ReviewEnabledDialog(
                 )
                 
                 Text(
-                    text = stringResource(R.string.cb_review_tc),
+                    text = stringResource(Res.string.cb_review_tc),
                     color = ListenBrainzTheme.colorScheme.text,
                     style = ListenBrainzTheme.textStyles.dialogText,
                     fontSize = 13.sp

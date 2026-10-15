@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth.createaccount
 
 import android.content.Intent
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.musicbrainz_logo
 import android.content.res.Configuration
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -41,7 +43,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -54,7 +56,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.rememberNavBackStack
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
@@ -303,7 +304,7 @@ private fun CreateAccountHeader() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.musicbrainz_logo),
+            painter = painterResource(Res.drawable.musicbrainz_logo),
             contentDescription = "MusicBrainz Logo",
             modifier = Modifier.size(48.dp)
         )
@@ -517,7 +518,7 @@ private fun EmailVerificationCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.musicbrainz_logo),
+                    painter = painterResource(Res.drawable.musicbrainz_logo),
                     contentDescription = "MusicBrainz Logo",
                     modifier = Modifier.size(48.dp)
                 )

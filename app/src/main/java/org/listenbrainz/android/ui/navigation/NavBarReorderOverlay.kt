@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.navigation
 
 import ReorderableBottomNavBar
+import org.listenbrainz.shared.resources.nav_reorder_hint
+import org.listenbrainz.shared.resources.Res
 import ReorderableNavRail
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -37,7 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.stringResource
+import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -117,7 +119,7 @@ fun NavBarReorderOverlay(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = stringResource(R.string.nav_reorder_hint),
+                text = stringResource(Res.string.nav_reorder_hint),
                 color = color,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold

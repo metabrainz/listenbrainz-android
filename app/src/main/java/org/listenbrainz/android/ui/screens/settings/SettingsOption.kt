@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.settings
 
 import androidx.compose.foundation.Image
+import org.listenbrainz.shared.resources.Res
+import org.listenbrainz.shared.resources.link_to
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,11 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.SwitchLB
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
@@ -115,7 +116,7 @@ fun SettingsHyperlink(
 
         Image(
             modifier = Modifier.size(16.dp),
-            painter = painterResource(id = R.drawable.link_to),
+            painter = painterResource(Res.drawable.link_to),
             contentDescription = "Arrow",
             colorFilter = ColorFilter.tint(iconColor)
         )

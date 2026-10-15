@@ -1,7 +1,9 @@
 package org.listenbrainz.android.ui.screens.feed
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.annotation.DrawableRes
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.DrawableResource
+import org.listenbrainz.shared.resources.Res
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
@@ -19,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.getString
@@ -281,7 +282,7 @@ private fun SocialDropdown(
 
 @Composable
 private fun DropdownItem(
-    @DrawableRes icon: Int,
+    icon: DrawableResource,
     title: String,
     onClick: () -> Unit
 ) {
@@ -289,7 +290,7 @@ private fun DropdownItem(
         leadingIcon = {
             Icon(
                 modifier = Modifier.size(ListenBrainzTheme.sizes.dropdownItem),
-                painter = painterResource(id = icon),
+                painter = painterResource(icon),
                 contentDescription = title
             )
         },
