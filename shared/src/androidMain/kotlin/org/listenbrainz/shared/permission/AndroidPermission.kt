@@ -42,8 +42,8 @@ enum class AndroidPermissionEnum(
 
 data class AndroidPermissionEnumSpec(
     val systemPermission: String,
-    val minSdk: Int,
-    val maxSdk: Int? = null
+    val minSdkInclusive: Int,
+    val maxSdkInclusive: Int? = null
 )
 
 val AppPermission.androidSpec: AndroidPermissionEnumSpec
@@ -51,7 +51,7 @@ val AppPermission.androidSpec: AndroidPermissionEnumSpec
         is AndroidPermissionEnum -> AndroidPermissionEnumSpec(systemPermission, minSdk, maxSdk)
         SharedPermissionEnum.SEND_NOTIFICATIONS -> AndroidPermissionEnumSpec(
             systemPermission = Manifest.permission.POST_NOTIFICATIONS,
-            minSdk = 33
+            minSdkInclusive = 33
         )
         else -> error("Unknown permission: $id")
     }
@@ -62,13 +62,8 @@ val AppPermission.systemPermission: String
 //This function checks if the permission is applicable for the current Android version
 fun AppPermission.isPermissionApplicable(): Boolean {
     val spec = androidSpec
-    return if (Build.VERSION.SDK_INT >= spec.minSdk) {
-        spec.maxSdk?.let {
-            Build.VERSION.SDK_INT <= it
-        }?: true
-    } else {
-        false
-    }
+    return Build.VERSION.SDK_INT >= spec.minSdkInclusive
+            && (spec.maxSdkInclusive == null || spec.maxSdkInclusive >= Build.VERSION.SDK_INT)
 }
 
 //This function assumes that permission was requested atleast one time (according to working of shouldShowRequestPermissionRationale)
