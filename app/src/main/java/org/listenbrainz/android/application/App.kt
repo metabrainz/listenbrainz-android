@@ -11,6 +11,7 @@ import dev.brewkits.kmpworkmanager.generated.AndroidWorkerFactoryGenerated
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
@@ -107,6 +108,18 @@ class App : Application() {
                 appPreferences.lbAccessToken.get().isNotEmpty() &&
                 appPreferences.isListeningAllowed.get()
             ) {
+                // A running service is not a working one: it only gets notifications while Android has
+                // it bound as a listener. After an update or a reboot some phones never bind it again,
+                // and the user has to toggle notification access. Ask Android instead, and if it still
+                // isn't bound a little later, do what the toggle does.
+                if (!ListenSubmissionService.connected) {
+                    ListenSubmissionService.rebind(context)
+                    delay(10_000)
+                    if (!ListenSubmissionService.connected) {
+                        Log.d("Listener still not bound after rebind, re-enabling the component")
+                        ListenSubmissionService.forceRebind(context)
+                    }
+                }
                 val intent = Intent(context, ListenSubmissionService::class.java)
                 if (!context.isServiceRunning(ListenSubmissionService::class.java)) {
                     val component = runCatching {
