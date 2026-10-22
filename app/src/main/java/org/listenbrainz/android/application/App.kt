@@ -11,9 +11,10 @@ import dev.brewkits.kmpworkmanager.generated.AndroidWorkerFactoryGenerated
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -108,18 +109,6 @@ class App : Application() {
                 appPreferences.lbAccessToken.get().isNotEmpty() &&
                 appPreferences.isListeningAllowed.get()
             ) {
-                // A running service is not a working one: it only gets notifications while Android has
-                // it bound as a listener. After an update or a reboot some phones never bind it again,
-                // and the user has to toggle notification access. Ask Android instead, and if it still
-                // isn't bound a little later, do what the toggle does.
-                if (!ListenSubmissionService.connected) {
-                    ListenSubmissionService.rebind(context)
-                    delay(10_000)
-                    if (!ListenSubmissionService.connected) {
-                        Log.d("Listener still not bound after rebind, re-enabling the component")
-                        ListenSubmissionService.forceRebind(context)
-                    }
-                }
                 val intent = Intent(context, ListenSubmissionService::class.java)
                 if (!context.isServiceRunning(ListenSubmissionService::class.java)) {
                     val component = runCatching {
@@ -136,6 +125,20 @@ class App : Application() {
                     }
                 } else {
                     Log.d("Service already running")
+                }
+
+                // A running service is not a working one: it only gets notifications while Android has
+                // it bound as a listener. After an update or a reboot some phones never bind it again,
+                // and the user has to toggle notification access. Ask Android instead, and if it doesn't
+                // bind it within 10 s, do what the toggle does. Android never refuses a rebind outright,
+                // so the timeout is the only sign that it won't; a bind that comes sooner ends the wait.
+                if (!ListenSubmissionService.connected.value) {
+                    ListenSubmissionService.rebind(context)
+                    val bound = withTimeoutOrNull(10_000) { ListenSubmissionService.connected.first { it } }
+                    if (bound == null) {
+                        Log.d("Listener still not bound after rebind, re-enabling the component")
+                        ListenSubmissionService.forceRebind(context)
+                    }
                 }
             }
         }

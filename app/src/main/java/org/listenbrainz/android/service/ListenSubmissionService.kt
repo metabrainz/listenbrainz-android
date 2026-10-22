@@ -17,6 +17,9 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.koin.android.ext.android.inject
 import org.listenbrainz.android.application.App
 import org.listenbrainz.shared.repository.AppPreferences
@@ -63,7 +66,7 @@ class ListenSubmissionService(
     }
 
     override fun onListenerConnected() {
-        connected = true
+        _connected.value = true
         // Called more times than onListenerDisconnected for some reason.
         if (!isConnected) {
             initialize()
@@ -72,7 +75,7 @@ class ListenSubmissionService(
     }
 
     override fun onListenerDisconnected() {
-        connected = false
+        _connected.value = false
         if (isConnected) {
             destroy()
             logger.d("onListenerDisconnected: Listen Service paused.")
@@ -135,9 +138,8 @@ class ListenSubmissionService(
 
     companion object {
         /** True while Android has the listener bound: between onListenerConnected and onListenerDisconnected. */
-        @Volatile
-        var connected = false
-            private set
+        private val _connected = MutableStateFlow(false)
+        val connected: StateFlow<Boolean> = _connected.asStateFlow()
 
         private fun component(context: Context) = ComponentName(context, ListenSubmissionService::class.java)
 
