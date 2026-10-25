@@ -46,6 +46,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.shared.model.PermissionStatus
+import java.lang.ref.WeakReference
 
 class MainActivity : ComponentActivity() {
 
@@ -63,13 +64,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         dashBoardViewModel.setUiMode()
-        dashBoardViewModel.updatePermissionStatus(this)
-        dashBoardViewModel.updateListeningApps(this)
+        dashBoardViewModel.updatePermissionStatus(WeakReference(this))
+        dashBoardViewModel.updateListeningApps(WeakReference(this))
         appUpdatesViewModel.checkForUpdatesDuringLaunch(this)
 
         setContent {
             ListenBrainzTheme {
-
                 onboardingNavigationSetup(dashBoardViewModel)
                 DisposableEffect(Unit) {
                     dashBoardViewModel.connectToSpotify()
@@ -288,7 +288,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        dashBoardViewModel.updatePermissionStatus(this)
+        dashBoardViewModel.updatePermissionStatus(WeakReference(this))
         appUpdatesViewModel.refreshInstallPermissionStatus()
 
         // Handle permission granted flow - if permission was granted, update state

@@ -5,12 +5,10 @@ import android.app.Application
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
-import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.createBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +32,7 @@ import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.PermissionStatus
 import org.listenbrainz.shared.ui.screens.onboarding.permissions.AppPermission
 import org.listenbrainz.shared.util.LogSubmitter
+import java.lang.ref.WeakReference
 
 data class DashBoardUiState(
     val username:String?= null,
@@ -66,7 +65,7 @@ class DashBoardViewModel(
             initialValue = null
         )
 
-    private val permissionsRequestedAteastOnce = appPreferences.requestedPermissionsList.getFlow()
+    private val permissionsRequestedAtleastOnce = appPreferences.requestedPermissionsList.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     private val _onboardingCompletedState = appPreferences.onboardingCompleted.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
@@ -82,7 +81,7 @@ class DashBoardViewModel(
         usernameFlow,
         permissionStatusFlow,
         navBarOrderFlow,
-        permissionsRequestedAteastOnce,
+        permissionsRequestedAtleastOnce,
         _onboardingCompletedState,
         _listeningAppsFlow,
         _allApps,
@@ -153,20 +152,21 @@ class DashBoardViewModel(
     }
 
 
-    fun updatePermissionStatus(activity: ComponentActivity) {
+    fun updatePermissionStatus(activity: WeakReference<Activity>) {
         viewModelScope.launch {
             val requiredPermissions = permissionHandler.getAllRelevantPermissions()
             val permissionMap = mutableMapOf<AppPermission, PermissionStatus>()
-            val permissionsReqeustedOnce = appPreferences.requestedPermissionsList.getFlow().first()
+            val permissionsRequestedOnce = appPreferences.requestedPermissionsList.get()
             requiredPermissions.forEach { permission ->
                 if (permissionHandler.isGranted(permission)) {
                     permissionMap[permission] = PermissionStatus.GRANTED
-                    //This is to ensure that the permission is marked as requested (for devices which already gave permission before any prompt)
+                    // This is to ensure that the permission is marked as requested
+                    // (for devices which already gave permission before any prompt)
                     markPermissionAsRequested(permission)
                 } else if (
                     permission.isPermissionPermanentlyDeclined(
-                        activity = activity,
-                        permissionsRequestedOnce = permissionsReqeustedOnce
+                        activity = activity.get() ?: return@launch,
+                        permissionsRequestedOnce = permissionsRequestedOnce
                     )
                 ) {
                     permissionMap[permission] = PermissionStatus.DENIED_TWICE
@@ -175,7 +175,6 @@ class DashBoardViewModel(
                 }
             }
             permissionStatusFlow.emit(permissionMap)
-
         }
     }
 
@@ -208,26 +207,31 @@ class DashBoardViewModel(
         }
     }
 
-    fun updateListeningApps(context: Activity) {
-        viewModelScope.launch(Dispatchers.IO) {
+    fun updateListeningApps(activity: WeakReference<Activity>) {
+        viewModelScope.launch {
             val musicAppsPackageNames = mutableSetOf<String>()
             val fetchedApps = mutableListOf<AppInfo>()
-            //First add from the existing listening apps
+            // First add from the existing listening apps
             val listeningApps = appPreferences.listeningApps.getFlow().firstOrNull()
             listeningApps?.let { list ->
                 musicAppsPackageNames.addAll(list)
             }
             val whiteListedApps = appPreferences.listeningWhitelist.getFlow().first()
-            context.getListeningApps().forEach {
-                musicAppsPackageNames.add(it.packageName)
-            }
-            getAppInfoFromPackageNames(context, musicAppsPackageNames.toList()).forEach {
-                fetchedApps.add(
-                    it.copy(
-                        isWhitelisted = it.packageName in whiteListedApps
+
+            // -- NO SUSPEND FUNCTIONS START --
+            activity.get()?.let { activity ->
+                activity.getListeningApps().forEach {
+                    musicAppsPackageNames.add(it.packageName)
+                }
+                getAppInfoFromPackageNames(activity, musicAppsPackageNames.toList()).forEach {
+                    fetchedApps.add(
+                        it.copy(
+                            isWhitelisted = it.packageName in whiteListedApps
+                        )
                     )
-                )
+                }
             }
+            // -- NO SUSPEND FUNCTIONS END --
 
             // Sort so that Spotify, YouTube Music, and YouTube are at the top if present
             val preferredOrder = listOf(
@@ -242,7 +246,7 @@ class DashBoardViewModel(
 
             _listeningAppsFlow.emit(sortedApps)
 
-            //Updating the listening apps preference
+            // Updating the listening apps preference
             val updatedListeningApps = mutableListOf<String>()
             listeningApps?.let {
                 updatedListeningApps.addAll(it)
@@ -254,18 +258,20 @@ class DashBoardViewModel(
             }
             appPreferences.listeningApps.set(updatedListeningApps)
 
-            //Adding all installed apps to the list
-            val allApps = getAppInfoFromPackageNames(
-                context = context,
-                packages = context
-                    .getAllInstalledApps()
-                    .map { it.packageName },
-                isListening = false
-            )
-                .filter {
-                    it.packageName !in updatedListeningApps
-                }
-            _allApps.emit(allApps)
+            // Adding all installed apps to the list
+            activity.get()?.let { activity ->
+                val allApps = getAppInfoFromPackageNames(
+                    context = activity,
+                    packages = activity
+                        .getAllInstalledApps()
+                        .map { it.packageName },
+                    isListening = false
+                )
+                    .filter {
+                        it.packageName !in updatedListeningApps
+                    }
+                _allApps.emit(allApps)
+            }
         }
     }
 
