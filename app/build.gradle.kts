@@ -22,7 +22,7 @@ android {
     val versionMap = mapOf(
         major to 2,
         minor to 15,
-        patch to 1,
+        patch to 2,
         build to 0
     )
     fun versionCode() = versionMap[major]!! * 10000 + versionMap[minor]!! * 100 + versionMap[patch]!! * 10 + versionMap[build]!! * 1
