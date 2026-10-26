@@ -25,7 +25,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.listenbrainz.android.service.ListenServiceState
 import org.listenbrainz.android.application.App
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
@@ -53,6 +55,8 @@ class MainActivity : ComponentActivity() {
     private val dashBoardViewModel: DashBoardViewModel by viewModel()
 
     private val appUpdatesViewModel: AppUpdatesViewModel by viewModel()
+
+    private val listenServiceState: ListenServiceState by inject()
 
     private val onboardingScreensQueue: MutableList<NavKey> =
         mutableListOf()
@@ -298,7 +302,7 @@ class MainActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch {
-            App.startListenService(appPreferences = dashBoardViewModel.appPreferences)
+            App.startListenService(appPreferences = dashBoardViewModel.appPreferences, serviceState = listenServiceState)
         }
     }
 }

@@ -22,7 +22,8 @@ class ListenServiceRestarter : BroadcastReceiver() {
         GlobalScope.launch {
             try {
                 App.ensureKoinStarted(context)
-                App.startListenService(GlobalContext.get().get<AppPreferences>())
+                val koin = GlobalContext.get()
+                App.startListenService(koin.get<AppPreferences>(), koin.get<ListenServiceState>())
             } finally {
                 pending.finish()
             }

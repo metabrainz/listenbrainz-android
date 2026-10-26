@@ -23,6 +23,7 @@ import org.koin.core.context.startKoin
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.di.appModules
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.android.service.ListenServiceState
 import org.listenbrainz.android.service.ListenSubmissionService
 import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.android.util.Utils.isServiceRunning
@@ -31,6 +32,7 @@ import org.listenbrainz.shared.util.Log
 class App : Application() {
 
     private val appPreferences: AppPreferences by inject()
+    private val listenServiceState: ListenServiceState by inject()
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
@@ -46,7 +48,7 @@ class App : Application() {
 
         GlobalScope.launch {
             cleanupBrainzPlayerResources()
-            startListenService(appPreferences)
+            startListenService(appPreferences, listenServiceState)
         }
     }
 
@@ -103,7 +105,7 @@ class App : Application() {
             }
         }
 
-        suspend fun startListenService(appPreferences: AppPreferences) = withContext(Dispatchers.Main) {
+        suspend fun startListenService(appPreferences: AppPreferences, serviceState: ListenServiceState) = withContext(Dispatchers.Main) {
             if (
                 appPreferences.isNotificationServiceAllowed &&
                 appPreferences.lbAccessToken.get().isNotEmpty() &&
@@ -132,9 +134,9 @@ class App : Application() {
                 // and the user has to toggle notification access. Ask Android instead, and if it doesn't
                 // bind it within 10 s, do what the toggle does. Android never refuses a rebind outright,
                 // so the timeout is the only sign that it won't; a bind that comes sooner ends the wait.
-                if (!ListenSubmissionService.connected.value) {
+                if (!serviceState.connected.value) {
                     ListenSubmissionService.rebind(context)
-                    val bound = withTimeoutOrNull(10_000) { ListenSubmissionService.connected.first { it } }
+                    val bound = withTimeoutOrNull(10_000) { serviceState.connected.first { it } }
                     if (bound == null) {
                         Log.d("Listener still not bound after rebind, re-enabling the component")
                         ListenSubmissionService.forceRebind(context)

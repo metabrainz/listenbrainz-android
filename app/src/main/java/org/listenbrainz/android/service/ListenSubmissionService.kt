@@ -17,9 +17,6 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import org.koin.android.ext.android.inject
 import org.listenbrainz.android.application.App
 import org.listenbrainz.shared.repository.AppPreferences
@@ -38,6 +35,8 @@ class ListenSubmissionService(
     
     private val serviceManager: ListenServiceManager by inject()
     private val notificationManager: AndroidNotificationManager by inject()
+
+    private val serviceState: MutableListenServiceState by inject()
     
     private val scope = MainScope()
 
@@ -66,7 +65,7 @@ class ListenSubmissionService(
     }
 
     override fun onListenerConnected() {
-        _connected.value = true
+        serviceState.connected.value = true
         // Called more times than onListenerDisconnected for some reason.
         if (!isConnected) {
             initialize()
@@ -75,7 +74,7 @@ class ListenSubmissionService(
     }
 
     override fun onListenerDisconnected() {
-        _connected.value = false
+        serviceState.connected.value = false
         if (isConnected) {
             destroy()
             logger.d("onListenerDisconnected: Listen Service paused.")
@@ -137,10 +136,6 @@ class ListenSubmissionService(
     }
 
     companion object {
-        /** True while Android has the listener bound: between onListenerConnected and onListenerDisconnected. */
-        private val _connected = MutableStateFlow(false)
-        val connected: StateFlow<Boolean> = _connected.asStateFlow()
-
         private fun component(context: Context) = ComponentName(context, ListenSubmissionService::class.java)
 
         /** Asks Android to bind the listener again (API 24+). */
