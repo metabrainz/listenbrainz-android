@@ -37,6 +37,10 @@
 
 -dontwarn com.spotify.base.annotations.NotNull
 
+# Spotify App Remote ships an optional Gson mapper; Gson isn't a dependency (Jackson is used instead).
+-dontwarn com.google.gson.**
+-dontwarn com.spotify.protocol.mappers.gson.**
+
 # Retrofit
 -dontwarn retrofit.**
 -keep class retrofit.** { *; }
