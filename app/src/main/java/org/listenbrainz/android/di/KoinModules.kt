@@ -32,6 +32,8 @@ import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceMana
 import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
+import org.listenbrainz.android.service.ListenServiceState
+import org.listenbrainz.android.service.MutableListenServiceState
 import org.listenbrainz.android.service.createGithubAppUpdatesService
 import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
@@ -185,6 +187,10 @@ val appModule = module {
     single<ListenServiceManager> {
         ListenServiceManagerImpl(scheduler = get(), get(), androidContext())
     }
+
+    single { MutableListenServiceState() }
+    single<ListenServiceState> { get<MutableListenServiceState>() }
+
     single<BuildInfo>{
         BuildInfo(
             applicationId = BuildConfig.APPLICATION_ID,

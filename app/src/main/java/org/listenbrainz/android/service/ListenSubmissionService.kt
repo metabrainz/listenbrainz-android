@@ -3,6 +3,8 @@ package org.listenbrainz.android.service
 import android.Manifest
 import android.app.Notification
 import android.content.ComponentName
+import android.content.Context
+import android.content.pm.PackageManager
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.session.MediaSessionManager
@@ -33,6 +35,8 @@ class ListenSubmissionService(
     
     private val serviceManager: ListenServiceManager by inject()
     private val notificationManager: AndroidNotificationManager by inject()
+
+    private val serviceState: MutableListenServiceState by inject()
     
     private val scope = MainScope()
 
@@ -61,6 +65,7 @@ class ListenSubmissionService(
     }
 
     override fun onListenerConnected() {
+        serviceState.connected.value = true
         // Called more times than onListenerDisconnected for some reason.
         if (!isConnected) {
             initialize()
@@ -69,11 +74,15 @@ class ListenSubmissionService(
     }
 
     override fun onListenerDisconnected() {
+        serviceState.connected.value = false
         if (isConnected) {
             destroy()
             logger.d("onListenerDisconnected: Listen Service paused.")
             isConnected = false
         }
+        // Android unbinds the listener after an app update, and some phones (Honor/MagicOS among
+        // them) don't bind it again until notification access is toggled. Ask for it.
+        rebind(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = START_STICKY
@@ -126,6 +135,31 @@ class ListenSubmissionService(
         }
     }
 
+    companion object {
+        private fun component(context: Context) = ComponentName(context, ListenSubmissionService::class.java)
+
+        /** Asks Android to bind the listener again (API 24+). */
+        fun rebind(context: Context) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                runCatching { requestRebind(component(context)) }
+                    .onSuccess { Log.d("Listener rebind requested") }
+                    .onFailure { Log.d("Listener rebind failed: ${it.message}") }
+            }
+        }
+
+        /**
+         * What toggling notification access does, without the user: turning the service component off
+         * and on makes Android drop the listener and bind it again. For phones that ignore rebind().
+         */
+        fun forceRebind(context: Context) {
+            val pm = context.packageManager
+            runCatching {
+                pm.setComponentEnabledSetting(component(context), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+                pm.setComponentEnabledSetting(component(context), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
+            }.onSuccess { Log.d("Listener component re-enabled") }
+             .onFailure { Log.d("Listener component toggle failed: ${it.message}") }
+        }
+    }
 
     private fun createNotificationChannel() {
         notificationManager.createChannel()
