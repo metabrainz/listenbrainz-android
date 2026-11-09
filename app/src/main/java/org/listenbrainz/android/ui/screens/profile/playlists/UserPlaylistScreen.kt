@@ -307,7 +307,7 @@ private fun UserPlaylistScreenBase(
                                     }
                                     val row = listState.layoutInfo.viewportSize.height / height
                                     val column = listState.layoutInfo.viewportSize.width / width
-                                    (row * column * 2) - 1
+                                    ((row * column * 2) - 1).coerceAtLeast(0)
                                 }
                             }
 
