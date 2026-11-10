@@ -40,7 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,7 +70,7 @@ import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.VerticalSpacer
 import org.listenbrainz.android.util.formatDurationSeconds
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.util.Utils.shareLink
+import org.listenbrainz.android.util.shareLink
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.viewmodel.UserViewModel
 
@@ -83,7 +82,6 @@ fun CreatedForYouScreen(
     goToArtistPage: (String) -> Unit,
 ) {
     val uiState by userViewModel.uiState.collectAsState()
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val socialUiState by socialViewModel.uiState.collectAsState()
     CreatedForYouScreen(
@@ -102,7 +100,7 @@ fun CreatedForYouScreen(
             //TODO: Implement this
         }, onShareClick = {
             it?.identifier?.let{ identifier->
-                shareLink(context, identifier)
+                shareLink(identifier)
             } ?: run {
                 scope.launch {
                     snackbarState.showSnackbar("Link not found")

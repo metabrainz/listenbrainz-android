@@ -112,7 +112,6 @@ import org.listenbrainz.android.util.getLinkCardRes
 import org.listenbrainz.shared.util.IconKeys
 import org.listenbrainz.shared.ui.screens.artist.ArtistUIState
 import kotlin.math.max
-import kotlin.math.round
 
 @Composable
 fun ArtistScreen(
@@ -1131,14 +1130,4 @@ fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
             .height(height)
             .clip(RoundedCornerShape(8.dp))
     )
-}
-
-
-
-fun formatNumber(input: Int): String {
-    return when {
-        input >= 1_00_000 -> "${round(input / 1_00_000f)}L"
-        input >= 1_000 -> "${round(input / 1_000f)}K"
-        else -> input.toString()
-    }
 }

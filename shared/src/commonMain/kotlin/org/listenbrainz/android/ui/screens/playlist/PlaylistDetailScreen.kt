@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.playlist
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.playlist_duplicate_svg
 import org.listenbrainz.shared.resources.playlist_reorder
@@ -60,7 +60,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -71,7 +70,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.playlist.MoveTrack
@@ -92,7 +91,7 @@ import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
-import org.listenbrainz.android.util.Utils
+import org.listenbrainz.android.util.shareLink
 import org.listenbrainz.android.util.formatDurationSeconds
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.shared.util.Utils.removeHtmlTags
@@ -111,7 +110,6 @@ fun PlaylistDetailScreen(
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String) -> Unit
 ) {
-    val context = LocalContext.current
     val uiState by playlistViewModel.uiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -182,10 +180,7 @@ fun PlaylistDetailScreen(
                                 },
                                 onSharePlaylistClick = {
                                     if (uiState.playlistDetailUIState.playlistData?.identifier != null)
-                                        Utils.shareLink(
-                                            context,
-                                            uiState.playlistDetailUIState.playlistData?.identifier!!
-                                        )
+                                        shareLink(uiState.playlistDetailUIState.playlistData?.identifier!!)
                                 },
                                 onPermanentlyMoveTrack = {
                                     playlistViewModel.reorderPlaylist(it)

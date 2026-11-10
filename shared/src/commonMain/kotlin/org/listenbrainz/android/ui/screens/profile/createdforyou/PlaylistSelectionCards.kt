@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile.createdforyou
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import org.jetbrains.compose.resources.DrawableResource
 import org.listenbrainz.shared.resources.playlist_card_bg1
 import org.listenbrainz.shared.resources.playlist_card_bg2
@@ -44,9 +44,8 @@ import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.shared.model.userPlaylist.Extension
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
-import java.text.SimpleDateFormat
-import java.util.Locale
-import java.util.TimeZone
+import org.listenbrainz.android.util.parseIsoTimestamp
+import kotlin.time.Clock
 
 /**
  * A row of cards that display the title of created for you playlists.
@@ -300,24 +299,20 @@ fun modifyTitle(createdForYouPlaylist: UserPlaylist): String{
     return createdForYouPlaylist.title?.let {
         if(!it.contains("Weekly Exploration")) return it
         val millis = convertISOTimeStampToMillis(createdForYouPlaylist.date ?: "")
-        val currentTime = System.currentTimeMillis()
+        val currentTime = Clock.System.now().toEpochMilliseconds()
         if(currentTime - millis < 7*24*60*60*1000) return "Weekly Exploration"
         return "Last Week's Exploration"
     } ?:"No title"
 }
 
 //This function converts an ISO timestamp to milliseconds.
-fun convertISOTimeStampToMillis(timeStamp: String): Long {
-    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-    sdf.timeZone = TimeZone.getTimeZone("UTC")
-    val date = sdf.parse(timeStamp)
-    return date?.time ?: 0L
-}
+fun convertISOTimeStampToMillis(timeStamp: String): Long =
+    parseIsoTimestamp(timeStamp)?.toEpochMilliseconds() ?: 0L
 
 //This function calculates the fraction of time left for a task to be completed.
 fun getFractionLeft(createdTimeStamp: String?, expiryTimeStamp: String?): Float {
     if (createdTimeStamp == null || expiryTimeStamp == null) return 0.0f
-    val currentTime = System.currentTimeMillis()
+    val currentTime = Clock.System.now().toEpochMilliseconds()
     val createdTime = convertISOTimeStampToMillis(createdTimeStamp)
     val expiryTime = convertISOTimeStampToMillis(expiryTimeStamp)
     val fraction =  (expiryTime - currentTime).toFloat() / (expiryTime - createdTime).toFloat()

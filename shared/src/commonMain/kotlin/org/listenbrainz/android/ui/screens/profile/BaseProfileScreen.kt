@@ -37,7 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.screens.profile.createdforyou.CreatedForYouScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen

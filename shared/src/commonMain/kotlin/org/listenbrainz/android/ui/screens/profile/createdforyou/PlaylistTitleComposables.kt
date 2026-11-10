@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile.createdforyou
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.playlist_play_btn
 import org.listenbrainz.shared.resources.playlist_share_btn
@@ -40,10 +40,15 @@ import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.shared.util.Utils.removeHtmlTags
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
-import java.util.TimeZone
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
+import org.listenbrainz.android.util.parseIsoTimestamp
+import kotlin.time.Clock
 
 // PlaylistHeadingAndDescription composable is used to display the heading and description of a playlist.
 @Composable
@@ -193,32 +198,27 @@ fun PlayAndShareButtons(
 
 
 fun formatDateLegacy(inputDate: String, showTime: Boolean = true): String {
-    // Parse the input date string
-    val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH)
-    isoFormat.timeZone = TimeZone.getTimeZone("UTC")
-    val date = runCatching {
-        isoFormat.parse(inputDate) ?: return ""
-    }.getOrElse { return "" }
+    val timeZone = TimeZone.currentSystemDefault()
+    val date = parseIsoTimestamp(inputDate)?.toLocalDateTime(timeZone) ?: return ""
+    val isThisYear = date.year == Clock.System.now().toLocalDateTime(timeZone).year
 
-    // Get current year and the year from the input date
-    val calendar = Calendar.getInstance()
-    val currentYear = calendar.get(Calendar.YEAR)
-
-    calendar.time = date
-    val inputYear = calendar.get(Calendar.YEAR)
-
-    // Determine the date format based on year difference and time preference
-    val pattern = when {
-        inputYear != currentYear && showTime -> "MMM dd, yyyy, h:mm a"
-        inputYear != currentYear -> "MMM dd, yyyy"
-        showTime -> "MMM dd, h:mm a"
-        else -> "MMM dd"
-    }
-
-    val outputFormat = SimpleDateFormat(pattern, Locale.ENGLISH)
-    outputFormat.timeZone = TimeZone.getDefault() // Adjust to local time zone
-
-    return outputFormat.format(date)
+    return date.format(LocalDateTime.Format {
+        monthName(MonthNames.ENGLISH_ABBREVIATED)
+        char(' ')
+        day()
+        if (!isThisYear) {
+            chars(", ")
+            year()
+        }
+        if (showTime) {
+            chars(", ")
+            amPmHour(Padding.NONE)
+            char(':')
+            minute()
+            char(' ')
+            amPmMarker("AM", "PM")
+        }
+    })
 }
 
 

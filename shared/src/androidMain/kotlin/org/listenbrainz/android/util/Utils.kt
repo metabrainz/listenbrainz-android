@@ -393,14 +393,6 @@ object Utils {
     }
 
     // Function to share a link
-    fun shareLink(context: Context, link: String) {
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, link)
-        }
-        context.startActivity(Intent.createChooser(intent, "Share link via"))
-    }
-
     /**
      * Compares the current app version with the latest version from GitHub.
      * @param currentVersion The current app version (e.g., "2.8.3")

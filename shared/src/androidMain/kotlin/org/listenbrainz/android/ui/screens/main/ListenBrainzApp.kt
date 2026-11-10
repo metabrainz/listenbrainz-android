@@ -28,7 +28,7 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScre
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.getActivity
-import org.listenbrainz.android.util.Utils.shareLink
+import org.listenbrainz.android.util.shareLink
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.shared.navigation.NavigationItem
@@ -107,7 +107,7 @@ fun ListenBrainzApp(
                     NewsBrainzScreen(
                         modifier = Modifier.safeDrawingPadding(),
                         onItemClicked = { post -> uriHandler.openUri(post.URL) },
-                        onItemLongClicked = { post -> shareLink(activity, post.URL) },
+                        onItemLongClicked = { post -> shareLink(post.URL) },
                         onBack = { navigator.backStack.removeAt(navigator.backStack.lastIndex) }
                     )
                 }

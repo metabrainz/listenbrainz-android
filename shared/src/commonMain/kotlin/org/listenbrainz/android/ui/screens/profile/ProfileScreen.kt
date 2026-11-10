@@ -19,7 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.TopBar

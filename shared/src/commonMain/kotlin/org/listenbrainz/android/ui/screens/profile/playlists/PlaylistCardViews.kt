@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile.playlists
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import org.jetbrains.compose.resources.DrawableResource
 import org.listenbrainz.shared.resources.playlist_card_bg1
 import org.listenbrainz.shared.resources.Res

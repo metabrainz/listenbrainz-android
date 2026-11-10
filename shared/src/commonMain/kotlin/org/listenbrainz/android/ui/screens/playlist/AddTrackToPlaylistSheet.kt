@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.playlist
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -236,7 +236,7 @@ fun AddTrackCard(
 
 
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 fun AddToPlaylistPreview() {
     ListenBrainzTheme {
@@ -251,7 +251,7 @@ fun AddToPlaylistPreview() {
 
 
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 fun AddTrackCardPreview() {
     ListenBrainzTheme {

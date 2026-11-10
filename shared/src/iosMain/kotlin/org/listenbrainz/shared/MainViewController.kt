@@ -13,7 +13,7 @@ import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.presentShareSheet
+import org.listenbrainz.android.util.shareLink
 import org.listenbrainz.shared.di.ensureKoinStarted
 import org.listenbrainz.shared.navigation.NavigationItem
 import org.listenbrainz.shared.ui.App
@@ -64,7 +64,7 @@ fun MainViewController(): UIViewController {
                         NewsBrainzScreen(
                             modifier = Modifier.safeDrawingPadding(),
                             onItemClicked = { post -> uriHandler.openUri(post.URL) },
-                            onItemLongClicked = { post -> presentShareSheet(listOf(post.URL)) },
+                            onItemLongClicked = { post -> shareLink(post.URL) },
                             onBack = { navigator.backStack.removeAt(navigator.backStack.lastIndex) }
                         )
                     }

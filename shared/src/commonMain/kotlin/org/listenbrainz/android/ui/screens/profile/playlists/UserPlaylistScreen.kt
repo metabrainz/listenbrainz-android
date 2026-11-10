@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile.playlists
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import org.listenbrainz.shared.resources.playlist_collab
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.playlist_gridview
@@ -54,7 +54,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,7 +71,7 @@ import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple_night
-import org.listenbrainz.android.util.Utils.shareLink
+import org.listenbrainz.android.util.shareLink
 import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.shared.viewmodel.UserViewModel
 
@@ -84,7 +83,6 @@ fun UserPlaylistScreen(
     playlistViewModel: PlaylistDataViewModel,
     goToPlaylist: (String) -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val uiState by userViewModel.uiState.collectAsState()
     val userPlaylistsData = uiState.playlistTabUIState.userPlaylists.collectAsLazyPagingItems()
@@ -188,7 +186,7 @@ fun UserPlaylistScreen(
 
                 PlaylistDropdownItems.SHARE -> {
                     playlist.identifier?.let{
-                        shareLink(context, it)
+                        shareLink(it)
                     } ?: run {
                         scope.launch {
                             snackbarState.showSnackbar("Link not found")
@@ -646,7 +644,7 @@ private fun PlaylistScreenTopSection(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 fun UserPlaylistScreenPreview() {
     ListenBrainzTheme {

@@ -1,11 +1,12 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
-import android.os.Bundle
 import org.listenbrainz.shared.resources.load_more
 import org.listenbrainz.shared.resources.load_less
 import org.listenbrainz.shared.resources.cannot_delete
 import org.listenbrainz.shared.resources.Res
-import androidx.activity.compose.BackHandler
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -92,7 +93,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
@@ -119,7 +120,7 @@ import org.listenbrainz.android.util.optionalSharedElement
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.viewmodel.UserViewModel
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @Composable
 fun ListensScreen(
@@ -169,20 +170,6 @@ fun ListensScreen(
         goToUserProfile = goToUserProfile,
         viewModel = socialViewModel
     )
-}
-
-enum class ListenDialogBundleKeys {
-    PAGE,
-    EVENT_INDEX;
-
-    companion object {
-        fun listenDialogBundle(page: Int, eventIndex: Int): Bundle {
-            return Bundle().apply {
-                putInt(PAGE.name, page)
-                putInt(EVENT_INDEX.name, eventIndex)
-            }
-        }
-    }
 }
 
 
@@ -342,7 +329,7 @@ fun ListensScreen(
                 }
 
                 if (allListensVisible) {
-                    BackHandler {
+                    NavigationBackHandler(rememberNavigationEventState(NavigationEventInfo.None)) {
                         showAllListens = false
                     }
 
@@ -546,7 +533,7 @@ fun ListensScreen(
                             items(
                                 count = listensPagingItems.itemCount.coerceAtMost(previewListenCount),
                                 key = listensPagingItems.itemKey { listen ->
-                                    listen.sharedTransitionId.takeIf { it.isNotEmpty() } ?: UUID.randomUUID()
+                                    listen.sharedTransitionId.takeIf { it.isNotEmpty() } ?: Uuid.random().toString()
                                 },
                                 contentType = { "listen" }
                             ) { index ->
