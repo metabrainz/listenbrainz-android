@@ -1,11 +1,14 @@
 package org.listenbrainz.shared.onboarding
 
+import androidx.navigation3.runtime.NavKey
+import org.listenbrainz.shared.navigation.NavigationItem
+
 /** Onboarding screens, in the order they are shown. */
-enum class OnboardingStep {
-    INTRODUCTION,
-    LOGIN,
-    PERMISSIONS,
-    LISTENING_APPS
+enum class OnboardingStep(val key: NavigationItem.OnboardingScreens) {
+    INTRODUCTION(NavigationItem.OnboardingScreens.IntroductionScreen),
+    LOGIN(NavigationItem.OnboardingScreens.TempLoginScreen),
+    PERMISSIONS(NavigationItem.OnboardingScreens.PermissionScreen),
+    LISTENING_APPS(NavigationItem.OnboardingScreens.ListeningAppScreen)
 }
 
 data class OnboardingState(
@@ -24,60 +27,53 @@ fun OnboardingState.pendingSteps(): List<OnboardingStep> = OnboardingStep.entrie
     }
 }
 
+fun OnboardingState.startDestination(): NavigationItem =
+    pendingSteps().firstOrNull()?.key ?: NavigationItem.HomeScreen
+
 /**
  * Moves through onboarding on [backStack]. The next screen is always derived from the screen on
  * top of the back stack and the current [state], so nothing besides the back stack needs saving.
- *
- * @param K the back stack's key type.
- * @param keyOf the key of each step's screen.
  */
-class OnboardingNavigator<K : Any>(
-    private val backStack: MutableList<K>,
-    private val home: K,
-    private val keyOf: (OnboardingStep) -> K,
+class OnboardingNavigator(
+    private val backStack: MutableList<NavKey>,
     private val state: () -> OnboardingState,
     private val onOnboardingCompleted: () -> Unit
 ) {
 
-    private val stepOf: Map<K, OnboardingStep> = OnboardingStep.entries.associateBy(keyOf)
+    private val stepOf: Map<NavKey, OnboardingStep> = OnboardingStep.entries.associateBy { it.key }
 
     /** Shows the pending step after the current screen, or completes onboarding. */
     fun next() = next(state())
 
     /** Starts onboarding again on top of the current back stack. */
     fun restart() {
-        val firstStep = state().copy(isOnboardingCompleted = false).pendingSteps().firstOrNull()
-        backStack.add(firstStep?.let(keyOf) ?: home)
+        backStack.add(state().copy(isOnboardingCompleted = false).startDestination())
     }
 
     fun onLoggedIn() {
-        backStack.remove(keyOf(OnboardingStep.LOGIN))
-        // The stored login status may not have reached [state] yet
+        backStack.remove(OnboardingStep.LOGIN.key)
+        // [state] may lag behind the stored login
         next(state().copy(isUserLoggedIn = true))
     }
 
     fun onPermissionsGranted() {
         next(state().copy(isPermissionMissing = false))
-        backStack.remove(keyOf(OnboardingStep.PERMISSIONS))
+        backStack.remove(OnboardingStep.PERMISSIONS.key)
     }
 
     private fun next(state: OnboardingState) {
         val current = backStack.lastOrNull()?.let(stepOf::get)
         val next = state.pendingSteps().firstOrNull { current == null || it > current }
         if (next != null) {
-            backStack.add(keyOf(next))
+            backStack.add(next.key)
             return
         }
 
         onOnboardingCompleted()
-        // Onboarding started from inside the app returns to where it was, otherwise to home
+        // Return to where onboarding was started from, if anywhere
         if (backStack.all { it in stepOf }) {
-            backStack.add(home)
+            backStack.add(NavigationItem.HomeScreen)
         }
         backStack.removeAll { it in stepOf }
     }
 }
-
-/** Where a fresh back stack starts. */
-fun <K : Any> OnboardingState.startDestination(home: K, keyOf: (OnboardingStep) -> K): K =
-    pendingSteps().firstOrNull()?.let(keyOf) ?: home

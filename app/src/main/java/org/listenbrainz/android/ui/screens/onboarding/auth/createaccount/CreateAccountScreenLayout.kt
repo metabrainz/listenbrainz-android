@@ -59,7 +59,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
-import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.shared.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.auth.AuthEmailField
 import org.listenbrainz.android.ui.screens.onboarding.auth.AuthPasswordField
 import org.listenbrainz.android.ui.screens.onboarding.auth.AuthUsernameField

@@ -68,7 +68,7 @@ import org.listenbrainz.shared.permission.missing
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.components.SwitchLB
-import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.shared.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.createSlideTransition

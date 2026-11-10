@@ -22,8 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.serialization.NavBackStackSerializer
-import androidx.navigation3.runtime.serialization.NavKeySerializer
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
@@ -38,7 +36,6 @@ import org.listenbrainz.android.service.ListenServiceState
 import org.listenbrainz.android.application.App
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
-import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.appupdates.AppUpdateDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
@@ -54,8 +51,10 @@ import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScree
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.navigation.NavigationItem
+import org.listenbrainz.shared.navigation.navBackStackSerializer
+import org.listenbrainz.shared.navigation.navigationSavedStateConfiguration
 import org.listenbrainz.shared.onboarding.OnboardingNavigator
-import org.listenbrainz.shared.onboarding.OnboardingStep
 import org.listenbrainz.shared.onboarding.startDestination
 import java.lang.ref.WeakReference
 
@@ -68,7 +67,7 @@ class MainActivity : ComponentActivity() {
     private val listenServiceState: ListenServiceState by inject()
 
     private lateinit var backStack: NavBackStack<NavKey>
-    private lateinit var onboardingNavigator: OnboardingNavigator<NavKey>
+    private lateinit var onboardingNavigator: OnboardingNavigator
     private var isNavigationReady by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,18 +79,14 @@ class MainActivity : ComponentActivity() {
         dashBoardViewModel.updateListeningApps(WeakReference(this))
         appUpdatesViewModel.checkForUpdatesDuringLaunch(this)
         val restoredBackStack = savedInstanceState?.getBundle(BACK_STACK_KEY)
-            ?.let { decodeFromSavedState(backStackSerializer, it) }
+            ?.let { decodeFromSavedState(navBackStackSerializer, it, navigationSavedStateConfiguration) }
         lifecycleScope.launch(Dispatchers.Main.immediate) {
             val onboardingState = dashBoardViewModel
                 .onboardingState
                 .filterNotNull()
                 .first()
 
-            val backstack = restoredBackStack ?: NavBackStack(
-                onboardingState.startDestination(
-                    home = NavigationItem.HomeScreen, keyOf = ::onboardingKey
-                )
-            )
+            val backstack = restoredBackStack ?: NavBackStack<NavKey>(onboardingState.startDestination())
 
             setUpNavigation(backstack)
         }
@@ -244,7 +239,7 @@ class MainActivity : ComponentActivity() {
         if (::backStack.isInitialized) {
             outState.putBundle(
                 BACK_STACK_KEY,
-                encodeToSavedState(backStackSerializer, backStack)
+                encodeToSavedState(navBackStackSerializer, backStack, navigationSavedStateConfiguration)
             )
         }
     }
@@ -253,8 +248,6 @@ class MainActivity : ComponentActivity() {
         this.backStack = backStack
         onboardingNavigator = OnboardingNavigator(
             backStack = backStack,
-            home = NavigationItem.HomeScreen,
-            keyOf = ::onboardingKey,
             state = { checkNotNull(dashBoardViewModel.onboardingState.value) },
             onOnboardingCompleted = dashBoardViewModel::markOnboardingCompleted
         )
@@ -279,11 +272,3 @@ class MainActivity : ComponentActivity() {
 }
 
 private const val BACK_STACK_KEY = "back_stack"
-private val backStackSerializer = NavBackStackSerializer(elementSerializer = NavKeySerializer())
-
-private fun onboardingKey(step: OnboardingStep): NavKey = when (step) {
-    OnboardingStep.INTRODUCTION -> NavigationItem.OnboardingScreens.IntroductionScreen
-    OnboardingStep.LOGIN -> NavigationItem.OnboardingScreens.TempLoginScreen
-    OnboardingStep.PERMISSIONS -> NavigationItem.OnboardingScreens.PermissionScreen
-    OnboardingStep.LISTENING_APPS -> NavigationItem.OnboardingScreens.ListeningAppScreen
-}

@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.rememberNavBackStack
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
-import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.shared.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.auth.AuthPasswordField
 import org.listenbrainz.android.ui.screens.onboarding.auth.AuthUsernameField
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.RefreshSection

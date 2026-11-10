@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
-import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.shared.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.createSlideTransition
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme

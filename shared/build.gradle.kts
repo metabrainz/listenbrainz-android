@@ -161,6 +161,9 @@ kotlin {
                 // lifecycle
                 api(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtime)
+                // navigation
+                api(libs.androidx.navigation3.runtime)
+                implementation(libs.compose.savedstate)
                 // koin
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
