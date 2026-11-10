@@ -45,6 +45,7 @@ fun AppNavigation(
     dashBoardViewModel: DashBoardViewModel,
     snackbarState: SnackbarHostState,
     settingsCallbacks: SettingsCallbacksToHomeScreen,
+    onNewsClick: () -> Unit,
     topAppBarActions: TopBarActions,
     onNavigationReorderClick: () -> Unit
 ) {
@@ -105,6 +106,7 @@ fun AppNavigation(
             ExploreScreen(
                 topAppBarActions,
                 username = username,
+                onNewsClick = onNewsClick,
             )
         }
         appComposable(

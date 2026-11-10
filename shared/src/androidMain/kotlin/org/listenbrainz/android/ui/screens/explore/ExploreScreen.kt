@@ -1,13 +1,11 @@
 package org.listenbrainz.android.ui.screens.explore
 
-import android.content.Intent
 import org.listenbrainz.shared.resources.news_card
 import org.jetbrains.compose.resources.DrawableResource
 import org.listenbrainz.shared.resources.all_projects
 import org.listenbrainz.shared.resources.yim_title
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.playlist_card_bg2
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -32,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -43,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.YearMonth
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
-import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.PreviewSurface
@@ -53,7 +49,8 @@ import org.listenbrainz.shared.model.AppNavigationItem
 @Composable
 fun ExploreScreen(
     topBarActions: TopBarActions,
-    username: String?
+    username: String?,
+    onNewsClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -92,41 +89,16 @@ fun ExploreScreen(
                 // NewsBrainz Card
                 item {
                     ExploreScreenCard(
-                        nextActivity = NewsBrainzActivity::class.java,
                         iconId = Res.drawable.all_projects,
                         title = "News",
-                        subTitle = stringResource(Res.string.news_card)
+                        subTitle = stringResource(Res.string.news_card),
+                        onClick = onNewsClick
                     )
                 }
             }
         }
     }
 }
-
-@Composable
-private fun ExploreScreenCard(
-    nextActivity: Class<out ComponentActivity>,
-    iconId: DrawableResource,
-    title: String,
-    subTitle: String,
-    iconTint: Color? = null,
-) {
-    val context = LocalContext.current
-    ExploreScreenCard(
-        iconId = iconId,
-        title = title,
-        subTitle = subTitle,
-        iconTint = iconTint,
-    ) {
-        context.startActivity(
-            Intent(
-                context,
-                nextActivity
-            )
-        )
-    }
-}
-
 
 @Composable
 private fun ExploreScreenCard(
@@ -209,7 +181,8 @@ fun ExplorePreview() {
     PreviewSurface {
         ExploreScreen(
             topBarActions = TopBarActions(),
-            username = "Jasjeet"
+            username = "Jasjeet",
+            onNewsClick = {}
         )
     }
 }

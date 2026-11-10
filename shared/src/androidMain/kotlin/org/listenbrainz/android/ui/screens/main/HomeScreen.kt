@@ -53,7 +53,8 @@ import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
 fun HomeScreen(
     dashBoardViewModel: DashBoardViewModel = koinViewModel(),
     listeningNowViewModel: ListeningNowViewModel = koinViewModel(),
-    settingsCallbacks: SettingsCallbacksToHomeScreen
+    settingsCallbacks: SettingsCallbacksToHomeScreen,
+    onNewsClick: () -> Unit
 ) {
     val dashboardUiState by dashBoardViewModel.uiState.collectAsStateWithLifecycle()
     val navController = rememberNavController()
@@ -175,6 +176,7 @@ fun HomeScreen(
                         dashBoardViewModel = dashBoardViewModel,
                         topAppBarActions = topBarActions,
                         settingsCallbacks = settingsCallbacks,
+                        onNewsClick = onNewsClick,
                         startRoute = startRoute,
                         onNavigationReorderClick = { showNavReorderOverlay = true }
                     )

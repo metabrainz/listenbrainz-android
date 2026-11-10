@@ -1,9 +1,7 @@
 package org.listenbrainz.android.ui.screens.newsbrainz
 
-import android.os.Build
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.news_share
-import android.text.Html
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -40,18 +38,19 @@ import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.text.HtmlCompat
+import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.shared.model.BlogPost
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
+import org.listenbrainz.android.util.htmlToPlainText
 import org.listenbrainz.shared.viewmodel.NewsListViewModel
 
 @Composable
 fun NewsBrainzScreen(
     modifier: Modifier = Modifier,
-    viewModel: NewsListViewModel,
+    viewModel: NewsListViewModel = koinViewModel(),
     onItemClicked: (BlogPost) -> Unit,
     onItemLongClicked: (BlogPost) -> Unit,
     onBack: () -> Unit
@@ -120,14 +119,7 @@ fun BlogCard(
             modifier = Modifier.padding(16.dp)
         ) {
 
-            val parsedTitle: String = when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> {
-                    Html.fromHtml(post.title, Html.FROM_HTML_MODE_COMPACT).toString()
-                }
-                else -> {
-                    HtmlCompat.fromHtml(post.title, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
-                }
-            }
+            val parsedTitle: String = htmlToPlainText(post.title)
             Row (verticalAlignment = Alignment.CenterVertically , modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween){
                 Text(
                     text = parsedTitle,
@@ -144,14 +136,7 @@ fun BlogCard(
 
             Spacer(Modifier.height(16.dp))
 
-            val parsedContent: String = when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> {
-                    Html.fromHtml(post.content, Html.FROM_HTML_MODE_COMPACT).toString()
-                }
-                else -> {
-                    HtmlCompat.fromHtml(post.content, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
-                }
-            }
+            val parsedContent: String = htmlToPlainText(post.content)
             Text(
                 text = parsedContent,
                 maxLines = 4,

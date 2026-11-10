@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">ListenBrainz</string>
     <string name="donate_title">Donate</string>
-    <string name="title_activity_news_brainz">NewsBrainzActivity</string>
     <string name="title_activity_settings" translatable="false">SettingsActivity</string>
     <string name="explanation_special_use" translatable="false">ListenBrainz Android needs to remain active in foreground at all times to immediately sync music activity to ListenBrainz.
         Whenever a user starts listening to a song, the song is instantly synced with ListenBrainz in the form of Playing now and when some duration of the song elapses without interruption, it is marked as

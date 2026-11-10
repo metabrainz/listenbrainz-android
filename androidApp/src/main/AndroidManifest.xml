@@ -36,11 +36,6 @@
                 tools:node="remove" />
         </provider>
 
-        <activity
-            android:name=".ui.screens.newsbrainz.NewsBrainzActivity"
-            android:label="@string/title_activity_news_brainz"
-            android:theme="@style/AppTheme" />
-
         <service
             android:name=".service.ListenSubmissionService"
             android:enabled="true"

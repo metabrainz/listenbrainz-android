@@ -1,11 +1,14 @@
 package org.listenbrainz.android.ui.screens.main
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.core.view.WindowCompat
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -17,6 +20,7 @@ import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateAvailableDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateReadyDialog
+import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzScreen
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
@@ -24,6 +28,7 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScre
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.getActivity
+import org.listenbrainz.android.util.Utils.shareLink
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.shared.navigation.NavigationItem
@@ -91,7 +96,19 @@ fun ListenBrainzApp(
                             checkForUpdates = {
                                 appUpdatesViewModel.checkForUpdates(activity = activity)
                             },
-                        )
+                        ),
+                        onNewsClick = {
+                            navigator.backStack.add(NavigationItem.NewsBrainzScreen)
+                        }
+                    )
+                }
+                entry<NavigationItem.NewsBrainzScreen> {
+                    val uriHandler = LocalUriHandler.current
+                    NewsBrainzScreen(
+                        modifier = Modifier.safeDrawingPadding(),
+                        onItemClicked = { post -> uriHandler.openUri(post.URL) },
+                        onItemLongClicked = { post -> shareLink(activity, post.URL) },
+                        onBack = { navigator.backStack.removeAt(navigator.backStack.lastIndex) }
                     )
                 }
             }
