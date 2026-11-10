@@ -3,20 +3,15 @@ package org.listenbrainz.shared.util
 import co.touchlab.kermit.Severity
 import co.touchlab.kermit.platformLogWriter
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.useContents
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.util.keyWindow
-import platform.CoreGraphics.CGRectMake
+import org.listenbrainz.android.util.presentShareSheet
 import platform.Foundation.NSFileCoordinator
 import platform.Foundation.NSFileCoordinatorReadingForUploading
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSURL
-import platform.UIKit.UIActivityViewController
-import platform.UIKit.UIViewController
-import platform.UIKit.popoverPresentationController
 
 class IosLogSubmitter(
     private val buildConfig: BuildInfo
@@ -25,7 +20,9 @@ class IosLogSubmitter(
 
     override suspend fun submitLogs() {
         val zip = withContext(Dispatchers.IO) { zipLogs() } ?: return
-        withContext(Dispatchers.Main) { share(zip) }
+        withContext(Dispatchers.Main) {
+            presentShareSheet(listOf("Please find the attached log files for ${buildConfig.applicationId}.", zip))
+        }
     }
 
     @OptIn(ExperimentalForeignApi::class)
@@ -55,30 +52,5 @@ class IosLogSubmitter(
             sharedLog.log(Severity.Error, tag = "IosLogSubmitter", message = "Failed to zip logs", throwable = null)
         }
         return zip.takeIf { isCopied }
-    }
-
-    @OptIn(ExperimentalForeignApi::class)
-    private fun share(zip: NSURL) {
-        val presenter = topViewController() ?: return
-        val shareSheet = UIActivityViewController(
-            activityItems = listOf("Please find the attached log files for ${buildConfig.applicationId}.", zip),
-            applicationActivities = null
-        )
-        // iPad shows the sheet as a popover, which needs an anchor
-        shareSheet.popoverPresentationController?.apply {
-            sourceView = presenter.view
-            presenter.view.bounds.useContents {
-                sourceRect = CGRectMake(size.width / 2, size.height / 2, 0.0, 0.0)
-            }
-        }
-        presenter.presentViewController(shareSheet, animated = true, completion = null)
-    }
-
-    private fun topViewController(): UIViewController? {
-        var controller = keyWindow()?.rootViewController
-        while (controller?.presentedViewController != null) {
-            controller = controller.presentedViewController
-        }
-        return controller
     }
 }

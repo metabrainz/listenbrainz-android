@@ -5,20 +5,12 @@ import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGSizeMake
 import platform.UIKit.NSTextAlignmentCenter
-import platform.UIKit.UIApplication
 import platform.UIKit.UIColor
 import platform.UIKit.UIFont
 import platform.UIKit.UILabel
 import platform.UIKit.UIView
-import platform.UIKit.UIWindow
-import platform.UIKit.UIWindowScene
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
-
-internal fun keyWindow(): UIWindow? = UIApplication.sharedApplication.connectedScenes
-    .filterIsInstance<UIWindowScene>()
-    .flatMap { it.windows.filterIsInstance<UIWindow>() }
-    .firstOrNull { it.isKeyWindow() }
 
 // UIKit has no toast, so this fades a label in over the key window
 @OptIn(ExperimentalForeignApi::class)

@@ -1,19 +1,19 @@
 package org.listenbrainz.shared
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.window.ComposeUIViewController
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
+import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzScreen
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.presentShareSheet
 import org.listenbrainz.shared.di.ensureKoinStarted
 import org.listenbrainz.shared.navigation.NavigationItem
 import org.listenbrainz.shared.ui.App
@@ -54,9 +54,19 @@ fun MainViewController(): UIViewController {
                         LaunchedEffect(Unit) { navigator.onboarding.next() }
                     }
                     entry<NavigationItem.HomeScreen> {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Home", color = ListenBrainzTheme.colorScheme.text)
-                        }
+                        IosHomeScreen(
+                            dashBoardViewModel = dashBoardViewModel,
+                            onNewsClick = { navigator.backStack.add(NavigationItem.NewsBrainzScreen) }
+                        )
+                    }
+                    entry<NavigationItem.NewsBrainzScreen> {
+                        val uriHandler = LocalUriHandler.current
+                        NewsBrainzScreen(
+                            modifier = Modifier.safeDrawingPadding(),
+                            onItemClicked = { post -> uriHandler.openUri(post.URL) },
+                            onItemLongClicked = { post -> presentShareSheet(listOf(post.URL)) },
+                            onBack = { navigator.backStack.removeAt(navigator.backStack.lastIndex) }
+                        )
                     }
                 }
             )
