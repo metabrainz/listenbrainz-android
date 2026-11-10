@@ -11,14 +11,14 @@ import org.listenbrainz.shared.model.ListenSubmitBody
 interface PendingListensDao {
     
     @Query("SELECT * FROM PENDING_LISTENS")
-    fun getPendingListens(): List<ListenSubmitBody.Payload>
+    suspend fun getPendingListens(): List<ListenSubmitBody.Payload>
     
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addListen(payload: ListenSubmitBody.Payload)
+    suspend fun addListen(payload: ListenSubmitBody.Payload)
     
     @Delete
-    fun deleteListens(vararg listens: ListenSubmitBody.Payload)
+    suspend fun deleteListens(vararg listens: ListenSubmitBody.Payload)
     
     @Query("DELETE FROM PENDING_LISTENS")
-    fun deleteAllPendingListens()
+    suspend fun deleteAllPendingListens()
 }

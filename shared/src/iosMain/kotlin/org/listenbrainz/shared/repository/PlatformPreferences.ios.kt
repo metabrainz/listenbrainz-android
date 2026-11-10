@@ -4,7 +4,9 @@ import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.core.Preferences
 import platform.Foundation.NSBundle
 
-actual class PlatformContext
+actual abstract class PlatformContext
+
+object IosPlatformContext : PlatformContext()
 
 actual fun getAppPackageName(context: PlatformContext): String {
     return NSBundle.mainBundle.bundleIdentifier ?: "org.listenbrainz.ios"
