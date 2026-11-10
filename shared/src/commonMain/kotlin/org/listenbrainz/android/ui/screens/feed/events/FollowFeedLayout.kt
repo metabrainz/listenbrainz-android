@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.feed.events
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.listenbrainz.shared.model.Metadata
@@ -26,7 +26,7 @@ fun FollowFeedLayout(
 }
 
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 private fun FollowFeedLayoutPreview() {
     PreviewSurface {

@@ -7,6 +7,7 @@ import kotlinx.cinterop.useContents
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
+import org.listenbrainz.android.util.keyWindow
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSFileCoordinator
 import platform.Foundation.NSFileCoordinatorReadingForUploading
@@ -14,10 +15,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSURL
 import platform.UIKit.UIActivityViewController
-import platform.UIKit.UIApplication
 import platform.UIKit.UIViewController
-import platform.UIKit.UIWindow
-import platform.UIKit.UIWindowScene
 import platform.UIKit.popoverPresentationController
 
 class IosLogSubmitter(
@@ -77,11 +75,7 @@ class IosLogSubmitter(
     }
 
     private fun topViewController(): UIViewController? {
-        val window = UIApplication.sharedApplication.connectedScenes
-            .filterIsInstance<UIWindowScene>()
-            .flatMap { it.windows.filterIsInstance<UIWindow>() }
-            .firstOrNull { it.isKeyWindow() }
-        var controller = window?.rootViewController
+        var controller = keyWindow()?.rootViewController
         while (controller?.presentedViewController != null) {
             controller = controller.presentedViewController
         }

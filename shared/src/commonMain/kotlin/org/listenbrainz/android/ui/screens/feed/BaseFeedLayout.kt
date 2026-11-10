@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.feed
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import kotlin.time.Clock
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.ic_hide
 import org.listenbrainz.shared.resources.ic_unhide
@@ -227,7 +228,7 @@ private fun BaseFeedLayoutPreview() {
             parentUser = "Jasjeet",
             event = FeedEvent(
                 id = 0,
-                created = System.currentTimeMillis(),
+                created = Clock.System.now().toEpochMilliseconds(),
                 type = "like",
                 hidden = false, metadata = Metadata(user1 = "JasjeetTest"),
                 username = "Jasjeet"

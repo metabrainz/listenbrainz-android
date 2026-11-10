@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.feed.events
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
@@ -12,10 +12,10 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.util.PreviewSurface
-import org.listenbrainz.android.util.Utils
+import org.listenbrainz.shared.util.Utils
 
 @Composable
-fun ListenFeedLayout (
+fun ListenLikeFeedLayout(
     event: FeedEvent,
     parentUser: String,
     onDeleteOrHide: () -> Unit,
@@ -32,18 +32,17 @@ fun ListenFeedLayout (
     goToArtistPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
-        eventType = FeedEventType.LISTEN,
+        eventType = FeedEventType.LIKE,
         event = event,
         parentUser = parentUser,
         onDeleteOrHide = onDeleteOrHide,
         goToUserPage = goToUserPage
     ) {
-        
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
             artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
             coverArtUrl = remember {
-                org.listenbrainz.shared.util.Utils.getCoverArtUrl(
+                Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
                     caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                 )
@@ -61,18 +60,18 @@ fun ListenFeedLayout (
                     onReview = onReview
                 )
             },
-            onClick = onClick,
-            goToArtistPage = goToArtistPage
+            goToArtistPage = goToArtistPage,
+            onClick = onClick
         )
     }
 }
 
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
-private fun ListenFeedLayoutPreview() {
+private fun ListenLikeFeedLayoutPreview() {
     PreviewSurface {
-        ListenFeedLayout(
+        ListenLikeFeedLayout(
             event = FeedEvent(
                 id = 0,
                 created = 0,

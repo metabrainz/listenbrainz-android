@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.feed.events
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
@@ -11,13 +13,14 @@ import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
 
 @Composable
-fun RecordingRecommendationFeedLayout(
+fun PinFeedLayout(
     event: FeedEvent,
-    parentUser: String,
     isHidden: Boolean,
+    parentUser: String,
     onDeleteOrHide: () -> Unit,
     onDropdownClick: () -> Unit,
     onClick: () -> Unit,
@@ -32,11 +35,13 @@ fun RecordingRecommendationFeedLayout(
     goToArtistPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
-        eventType = FeedEventType.RECORDING_RECOMMENDATION,
+        eventType = FeedEventType.RECORDING_PIN,
         event = event,
         isHidden = isHidden,
         parentUser = parentUser,
-        onDeleteOrHide = onDeleteOrHide, goToUserPage = goToUserPage) {
+        onDeleteOrHide = onDeleteOrHide,
+        goToUserPage = goToUserPage,
+    ) {
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
             artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
@@ -50,8 +55,8 @@ fun RecordingRecommendationFeedLayout(
             dropDown = {
                 SocialDropdown(
                     isExpanded = dropdownState == index,
-                    metadata = event.metadata,
                     onDismiss = onDropdownClick,
+                    metadata = event.metadata,
                     onOpenInMusicBrainz = onOpenInMusicBrainz,
                     onPin = onPin,
                     onRecommend = onRecommend,
@@ -59,6 +64,17 @@ fun RecordingRecommendationFeedLayout(
                     onReview = onReview
                 )
             },
+            blurbContent = if (!event.blurbContent.isNullOrBlank()) {
+                { modifier ->
+                    Column(modifier = modifier) {
+                        Text(
+                            text = event.blurbContent!!,
+                            style = ListenBrainzTheme.textStyles.feedBlurbContent,
+                            color = ListenBrainzTheme.colorScheme.text
+                        )
+                    }
+                }
+            } else null,
             goToArtistPage = goToArtistPage,
             onClick = onClick
         )
@@ -66,17 +82,17 @@ fun RecordingRecommendationFeedLayout(
 }
 
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
-private fun RecordingRecommendationFeedCardPreview() {
+fun PinFeedLayoutPreview() {
     PreviewSurface {
-        RecordingRecommendationFeedLayout(
+        PinFeedLayout(
             event = FeedEvent(
                 id = 0,
                 created = 0,
                 type = "like",
-                hidden = false, metadata = Metadata(),
-                username = "Jasjeet"
+                hidden = false, metadata = Metadata(blurbContent = "Good song."),
+                username = "JasjeetTest"
             ),
             onDeleteOrHide = {},
             onDropdownClick = {},
@@ -91,7 +107,7 @@ private fun RecordingRecommendationFeedCardPreview() {
             onPersonallyRecommend = {},
             onReview = {},
             goToUserPage = {},
-            goToArtistPage = {}
+            goToArtistPage = {},
         )
     }
 }

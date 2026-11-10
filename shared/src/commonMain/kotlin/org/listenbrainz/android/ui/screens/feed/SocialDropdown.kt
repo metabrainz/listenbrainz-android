@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.feed
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.DrawableResource
 import org.listenbrainz.shared.resources.Res
@@ -18,13 +18,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.getString
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import org.listenbrainz.shared.model.Metadata
@@ -39,7 +38,6 @@ import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.playlist.SelectPlaylist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Utils.getActivity
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 
 /** This layer tries to define what options in the dropdown menu are to be shown.*/
@@ -53,10 +51,9 @@ fun SocialDropdownDefault(
     onDelete: (() -> Unit)? = null,
     onDropdownDismiss: () -> Unit,
 ) {
-    if (metadata == null || LocalView.current.isInEditMode) return
+    if (metadata == null || LocalInspectionMode.current) return
 
-    val context = LocalContext.current
-    val viewModel: SocialViewModel = koinViewModel(viewModelStoreOwner = LocalContext.current.getActivity()!!)
+    val viewModel: SocialViewModel = koinViewModel()
     val uriHandler = LocalUriHandler.current
     val dialogsState = rememberDialogsState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.feed.events
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.ic_redirect
 import androidx.compose.foundation.clickable
@@ -149,7 +149,7 @@ fun ReviewFeedLayout(
 }
 
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 private fun ReviewFeedLayoutPreview() {
     PreviewSurface {

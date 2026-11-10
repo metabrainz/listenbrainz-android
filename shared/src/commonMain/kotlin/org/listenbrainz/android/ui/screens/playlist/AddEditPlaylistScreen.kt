@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.playlist
 
-import android.content.res.Configuration
-import android.widget.Toast
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
@@ -58,17 +57,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.feed.RetryButton
+import org.listenbrainz.android.util.showToast
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
@@ -85,7 +84,6 @@ fun CreateEditPlaylistScreen(
     onDismiss: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val dismissWithAnimation: () -> Unit = {
@@ -123,9 +121,7 @@ fun CreateEditPlaylistScreen(
                                 },
                                 onSave = {
                                     viewModel.saveNewOrEditedPlaylist {
-                                        scope.launch {
-                                            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                                        }
+                                        showToast(it)
                                         dismissWithAnimation()
                                     }
                                 },
@@ -535,7 +531,7 @@ private fun SearchItem(
 
 @Composable
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 fun CreateEditPlaylistScreenPreview() {
     ListenBrainzTheme {
         val allUsers = listOf("raven0us", "jasje", "hemang", "musiclover") // Example usernames

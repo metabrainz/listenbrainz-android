@@ -187,6 +187,8 @@ kotlin {
                 implementation(libs.kmpalette.androidx.palette)
                 // Paging
                 implementation(libs.androidx.paging.common)
+                implementation(libs.androidx.paging.compose)
+                implementation(libs.androidx.lifecycle.runtime.compose)
                 // KMP Workmanager ( Brewkits )
                 api(libs.kmpworker.core)
                 api(libs.kmpworker.annotations)
@@ -224,7 +226,6 @@ kotlin {
                     implementation(libs.chucker)
                 }
                 implementation(libs.androidx.paging.runtime)
-                implementation(libs.androidx.paging.compose)
                 implementation(libs.androidx.startup.runtime)
                 // Android UI, until it moves to commonMain
                 implementation(project.dependencies.platform(libs.androidx.compose.bom))
@@ -238,7 +239,6 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.navigation.compose)
                 implementation(libs.androidx.lifecycle.viewmodel.compose)
-                implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.androidx.lifecycle.viewmodel.navigation3)
                 implementation(libs.androidx.appcompat)
                 implementation(libs.androidx.browser)

@@ -1,8 +1,10 @@
 package org.listenbrainz.android.ui.screens.feed
 
-import android.content.res.Configuration.UI_MODE_NIGHT_NO
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.os.Bundle
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
+import androidx.savedstate.SavedState
+import androidx.savedstate.read
+import androidx.savedstate.savedState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -57,7 +59,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
@@ -75,7 +77,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.flow.flow
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.android.model.feed.FeedEventContent
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.Metadata
@@ -97,7 +99,6 @@ import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
-import org.listenbrainz.android.util.Utils
 import org.listenbrainz.shared.viewmodel.FeedViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.ui.screens.feed.FeedUiEventData
@@ -380,9 +381,9 @@ fun FeedScreen(
             dialogsState.deactivateDialog()
         },
         currentDialog = dialogsState.currentDialog,
-        currentEventIndex = dialogsState.metadata?.getInt(FeedDialogBundleKeys.EVENT_INDEX.name),
+        currentEventIndex = dialogsState.metadata?.read { getIntOrNull(FeedDialogBundleKeys.EVENT_INDEX.name) ?: 0 },
         pagingSource = remember(dialogsState.metadata) {
-            when (dialogsState.metadata?.getInt(FeedDialogBundleKeys.PAGE.name)) {
+            when (dialogsState.metadata?.read { getIntOrNull(FeedDialogBundleKeys.PAGE.name) ?: 0 }) {
                 0 -> myFeedPagingData
                 1 -> followListensPagingData
                 else -> similarListensPagingData
@@ -496,7 +497,7 @@ private fun MyFeed(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
+            .widthIn(max = LocalWindowInfo.current.containerDpSize.width),
         state = listState,
         contentPadding = PaddingValues(top = headerBarHeight)
     ) {
@@ -1150,8 +1151,8 @@ private enum class FeedDialogBundleKeys {
     EVENT_INDEX;
 
     companion object {
-        fun feedDialogBundle(page: Int, eventIndex: Int): Bundle {
-            return Bundle().apply {
+        fun feedDialogBundle(page: Int, eventIndex: Int): SavedState {
+            return savedState {
                 putInt(PAGE.name, page)
                 putInt(EVENT_INDEX.name, eventIndex)
             }

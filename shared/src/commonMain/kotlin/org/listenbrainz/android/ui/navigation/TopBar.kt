@@ -1,13 +1,11 @@
 package org.listenbrainz.android.ui.navigation
 
-import android.content.Context
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.ic_listenbrainz_logo_icon
 import org.listenbrainz.shared.resources.ic_search
 import org.listenbrainz.shared.resources.ic_settings
-import android.content.Intent
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.net.Uri
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -17,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,21 +33,14 @@ fun TopBar(
     modifier: Modifier = Modifier,
     title: String,
     backgroundColor: Color = Color.Transparent,
-    context: Context = LocalContext.current,
     topBarActions: TopBarActions
 ) {
+        val uriHandler = LocalUriHandler.current
         TopAppBar(
             modifier = modifier,
             title = { Text(text = title) },
             navigationIcon = {
-                IconButton(onClick = {
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse("https://listenbrainz.org")
-                        )
-                    )
-                }) {
+                IconButton(onClick = { uriHandler.openUri("https://listenbrainz.org") }) {
                     Icon(
                         painterResource(Res.drawable.ic_listenbrainz_logo_icon),
                         "ListenBrainz",

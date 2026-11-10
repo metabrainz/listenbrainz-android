@@ -1,9 +1,8 @@
 package org.listenbrainz.android.ui.screens.playlist
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.add_track_to_playlist
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,7 +21,6 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.ui.platform.LocalContext
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -30,7 +28,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
@@ -38,6 +36,7 @@ import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.util.showToast
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
@@ -52,7 +51,6 @@ fun SelectPlaylist(
     onCreateNewPlaylist: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val userPlaylistData = viewModel.userPlaylistPager.collectAsLazyPagingItems()
     val uiState by viewModel.uiState.collectAsState()
@@ -103,8 +101,7 @@ fun SelectPlaylist(
                             playlist.getPlaylistMBID()
                         ) {
                             dismissWithAnimation()
-                            Toast.makeText(context, "Track added to playlist", Toast.LENGTH_SHORT)
-                                .show()
+                            showToast("Track added to playlist")
                         }
                     },
                     onCreateNewPlaylist = onCreateNewPlaylist,
@@ -280,7 +277,7 @@ fun PlaylistItem(playlist: UserPlaylist, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 fun SelectPlaylistBasePreview() {
     val userPlaylists = List(3) { UserPlaylist("User Playlist ${it + 1}") }

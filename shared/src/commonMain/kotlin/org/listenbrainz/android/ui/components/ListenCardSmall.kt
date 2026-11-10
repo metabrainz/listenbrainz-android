@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.components
 
+import kotlin.time.Clock
 import org.listenbrainz.shared.resources.Res
 import org.jetbrains.compose.resources.DrawableResource
 import org.listenbrainz.shared.resources.ic_coverartarchive_logo_no_text
@@ -32,12 +33,12 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import kotlinx.coroutines.CoroutineScope
 import org.listenbrainz.shared.model.AdditionalInfo
@@ -313,7 +314,7 @@ private fun AlbumArt(
 ) {
     // Use this for previews
     AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
+        model = ImageRequest.Builder(LocalPlatformContext.current)
             .data(coverArtUrl)
             .build(),
         fallback = painterResource(errorAlbumArt),
@@ -386,7 +387,7 @@ private fun ListenCardSmallPreview() {
     ListenBrainzTheme {
         ListenCardSmallDefault(
             metadata = Metadata(
-                listenedAt = System.currentTimeMillis() / 1000,
+                listenedAt = Clock.System.now().epochSeconds,
                 trackMetadata = TrackMetadata(
                     trackName = "Title",
                     artistName = "Artist",
@@ -421,7 +422,7 @@ private fun ListenCardSmallNoTrailingContentPreview() {
     ListenBrainzTheme {
         ListenCardSmallDefault(
             metadata = Metadata(
-                listenedAt = System.currentTimeMillis() / 1000,
+                listenedAt = Clock.System.now().epochSeconds,
                 trackMetadata = TrackMetadata(
                     trackName = "Title",
                     artistName = "Artist",
