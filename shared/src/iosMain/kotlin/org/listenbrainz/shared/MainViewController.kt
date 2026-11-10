@@ -15,11 +15,14 @@ import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzScreen
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
+import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
+import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.shareLink
 import org.listenbrainz.shared.di.ensureKoinStarted
 import org.listenbrainz.shared.navigation.NavigationItem
 import org.listenbrainz.shared.ui.App
+import org.listenbrainz.shared.ui.fadeOnTopTransition
 import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 import platform.UIKit.UIViewController
 
@@ -57,9 +60,15 @@ fun MainViewController(): UIViewController {
                         LaunchedEffect(Unit) { navigator.onboarding.next() }
                     }
                     val goToArtistPage: (String) -> Unit = { navigator.backStack.add(NavigationItem.ArtistScreen(it)) }
+                    // Search isn't on iOS yet
+                    val topBarActions = TopBarActions(
+                        navigateToSettingsScreen = { navigator.backStack.add(NavigationItem.SettingsScreen) },
+                        popBackStackInSettingsScreen = { navigator.backStack.remove(NavigationItem.SettingsScreen) }
+                    )
                     entry<NavigationItem.HomeScreen> {
                         IosHomeScreen(
                             dashBoardViewModel = dashBoardViewModel,
+                            topBarActions = topBarActions,
                             onNewsClick = { navigator.backStack.add(NavigationItem.NewsBrainzScreen) },
                             goToArtistPage = goToArtistPage
                         )
@@ -74,7 +83,7 @@ fun MainViewController(): UIViewController {
                                 goToUserPage = {},
                                 goToAlbumPage = { navigator.backStack.add(NavigationItem.AlbumScreen(it)) },
                                 snackBarState = snackbarState,
-                                topBarActions = TopBarActions()
+                                topBarActions = topBarActions
                             )
                         }
                     }
@@ -84,7 +93,27 @@ fun MainViewController(): UIViewController {
                                 albumMbid = key.mbid,
                                 viewModel = koinViewModel(key = "album:${key.mbid}"),
                                 snackBarState = snackbarState,
-                                topBarActions = TopBarActions()
+                                topBarActions = topBarActions
+                            )
+                        }
+                    }
+                    entry<NavigationItem.SettingsScreen>(metadata = fadeOnTopTransition) {
+                        val uriHandler = LocalUriHandler.current
+                        IosPageScaffold {
+                            SettingsScreen(
+                                topBarActions = topBarActions,
+                                callbacks = SettingsCallbacksToHomeScreen(
+                                    checkForUpdates = null,
+                                    onLoginRequest = {
+                                        navigator.backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
+                                    },
+                                    onOnboardingRequest = {
+                                        dashBoardViewModel.resetOnboardingCompleted()
+                                        navigator.onboarding.restart()
+                                    }
+                                ),
+                                onNavigationReorderClick = null,
+                                onDonateClick = { uriHandler.openUri("https://metabrainz.org/donate") }
                             )
                         }
                     }

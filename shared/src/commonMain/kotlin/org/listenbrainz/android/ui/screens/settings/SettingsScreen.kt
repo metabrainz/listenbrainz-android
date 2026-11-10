@@ -1,11 +1,5 @@
 package org.listenbrainz.android.ui.screens.settings
 
-import android.content.Intent
-import android.content.res.Configuration
-import android.provider.Settings
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,87 +29,57 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
-import org.koin.androidx.compose.koinViewModel
-import androidx.lifecycle.compose.LifecycleResumeEffect
-import kotlinx.coroutines.Dispatchers
+import org.koin.compose.viewmodel.koinViewModel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.koin.compose.koinInject
 import org.listenbrainz.shared.model.AppNavigationItem
-import org.listenbrainz.shared.permission.AndroidPermission
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
-import org.listenbrainz.android.ui.screens.main.DonateActivity
-import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.util.Constants
-import org.listenbrainz.shared.viewmodel.DashBoardViewModel
-import org.listenbrainz.shared.model.PermissionStatus
-import org.listenbrainz.shared.permission.PermissionManager
-import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
-import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.SettingsViewModel
-import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.android.util.showToast
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
-    listensViewModel: ListensViewModel = koinViewModel(),
-    dashBoardViewModel: DashBoardViewModel,
     topBarActions: TopBarActions,
     callbacks: SettingsCallbacksToHomeScreen,
-    onNavigationReorderClick: () -> Unit,
-    permissionManager: PermissionManager = koinInject()
+    onNavigationReorderClick: (() -> Unit)?,
+    onDonateClick: () -> Unit,
+    listenSubmissionSettings: @Composable () -> Unit = {}
 ) {
-    val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
-    val permissions by permissionManager.statuses.collectAsState()
-    // Absent means not on this OS version, or not loaded yet: the row stays hidden
-    val batteryOptimizationStatus = permissions[AndroidPermission.BATTERY_OPTIMIZATION]
-    val isBatteryOptimizationPermissionGranted =
-        batteryOptimizationStatus != PermissionStatus.NOT_GRANTED
-                && batteryOptimizationStatus != PermissionStatus.PERMANENTLY_DENIED
-    val preferencesUiState by listensViewModel.preferencesUiState.collectAsState()
     val settingsUiState by viewModel.uiState.collectAsState()
     val isSubmittingLogs = settingsUiState.isSubmittingLogs
     SettingsScreen(
         appPreferences = viewModel.appPreferences,
-        preferencesUiState = preferencesUiState,
         callbacks = remember {
             SettingsCallbacks(
                 onLoginRequest = callbacks.onLoginRequest,
                 logout = viewModel::logout,
                 getVersion = viewModel::version,
-                fetchLinkedServices = listensViewModel::fetchLinkedServices,
-                getPackageIcon = listensViewModel::getPackageIcon,
-                getPackageLabel = listensViewModel::getPackageLabel,
-                setWhitelist = listensViewModel::setWhitelist,
+                onDonateClick = onDonateClick,
                 onOnboardingRequest = callbacks.onOnboardingRequest,
                 checkForUpdates = callbacks.checkForUpdates,
                 onNavigationReorderClick = onNavigationReorderClick
             )
         },
-        isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
-        permissionManager = permissionManager,
         topBarActions = topBarActions,
         submitLogs = {
             viewModel.logSubmit()
         },
-        isSubmittingLogs = isSubmittingLogs
+        isSubmittingLogs = isSubmittingLogs,
+        listenSubmissionSettings = listenSubmissionSettings
     )
 }
 
@@ -123,41 +87,17 @@ fun SettingsScreen(
 fun SettingsScreen(
     appPreferences: AppPreferences,
     callbacks: SettingsCallbacks,
-    preferencesUiState: PreferencesUiState,
-    isBatteryOptimizationPermissionGranted: Boolean = true,
     topBarActions: TopBarActions,
-    submitLogs:(PlatformContext)->Unit,
-    isSubmittingLogs:Boolean= false,
-    permissionManager: PermissionManager = koinInject()
+    submitLogs: () -> Unit,
+    isSubmittingLogs: Boolean = false,
+    listenSubmissionSettings: @Composable () -> Unit = {}
 ) {
-    val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    var showBlacklist by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     val darkTheme = ListenBrainzTheme.uiModeIsDark
     val scope = rememberCoroutineScope()
     var isCheckingForUpdates by remember { mutableStateOf(false) }
     var darkThemeCheckedState by remember { mutableStateOf(darkTheme) }
-
-    /** This preference state can only be changed when the user exits the app, and we always update
-     * this state when the user exits the app, this will always be true.*/
-    var isNotificationServiceAllowed by remember {
-        mutableStateOf(appPreferences.isNotificationServiceAllowed)
-    }
-    val submitListensCheckedState by appPreferences.isListeningAllowed
-        .getFlow().collectAsState(initial = true)
-    val shouldListenNewPlayers by appPreferences.shouldListenNewPlayers.getFlow()
-        .collectAsState(initial = false)
-    val indentedModifier = Modifier.padding(start = 16.dp)
-
-    LifecycleResumeEffect(key1 = Unit) {
-        scope.launch {
-            isNotificationServiceAllowed = withContext(Dispatchers.IO) {
-                appPreferences.isNotificationServiceAllowed
-            }
-        }
-        onPauseOrDispose {}
-    }
 
     val isLoggedOut by remember {
         appPreferences
@@ -183,112 +123,25 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            SettingsHeader(title = "Listen Submission")
+            listenSubmissionSettings()
 
-            Column(verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)) {
-                SettingsSwitchOption(
-                    title = "Send listens",
-                    subtitle = "Enable sending listens from this device to ListenBrainz",
-                    enabled = isNotificationServiceAllowed,
-                    isChecked = submitListensCheckedState && isNotificationServiceAllowed
-                ) { checked ->
-                    scope.launch {
-                        if (isNotificationServiceAllowed) {
-                            // Set preference
-                            appPreferences.isListeningAllowed.set(checked)
-                        }
-                    }
-                }
+            callbacks.onNavigationReorderClick?.let { onNavigationReorderClick ->
+                SettingsTextOption(
+                    title = "Reorder navigation bar",
+                    subtitle = "Change bottom navigation order",
+                    modifier = Modifier.clickable(onClick = onNavigationReorderClick)
+                )
 
-                HorizontalDivider(modifier = indentedModifier)
-
-                SettingsSwitchOption(
-                    title = "Notifications",
-                    subtitle = "Required to send listens",
-                    isChecked = isNotificationServiceAllowed
-                ) {
-                    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                    context.startActivity(intent)
-                }
-
-
-                AnimatedVisibility(isNotificationServiceAllowed && submitListensCheckedState) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)
-                    ) {
-                        HorizontalDivider(modifier = indentedModifier)
-
-                        // Blacklist
-                        SettingsTextOption(
-                            modifier = Modifier.clickable {
-                                if (isNotificationServiceAllowed) {
-                                    showBlacklist = true
-                                }
-                            },
-                            title = "Listening Apps",
-                            subtitle = "Enable sending listens from individual apps on this device",
-                            enabled = isNotificationServiceAllowed
-                        )
-
-                        HorizontalDivider(modifier = indentedModifier)
-
-                        if (!isBatteryOptimizationPermissionGranted) {
-                            SettingsTextOption(
-                                modifier = Modifier.clickable() {
-                                    scope.launch {
-                                        permissionManager.request(AndroidPermission.BATTERY_OPTIMIZATION)
-                                    }
-                                },
-                                title = "Disable Battery Optimization",
-                                subtitle = "Required to send listens",
-                            )
-
-                            HorizontalDivider(modifier = indentedModifier)
-                        }
-
-                        SettingsSwitchOption(
-                            title = "Enable new players",
-                            subtitle = "When a new music app is detected, automatically use it to submit listens",
-                            isChecked = shouldListenNewPlayers
-                        ) {
-                            scope.launch {
-                                appPreferences.shouldListenNewPlayers.set(it)
-                            }
-                        }
-                    }
-                }
-
+                HorizontalDivider()
             }
-
-            HorizontalDivider()
-
-            SettingsTextOption(
-                title = "Reorder navigation bar",
-                subtitle = "Change bottom navigation order",
-                modifier = Modifier.clickable(onClick = callbacks.onNavigationReorderClick)
-            )
-
-            HorizontalDivider()
 
             SettingsSwitchOption(
                 title = "Dark theme",
                 subtitle = "Enable the dark theme on this device",
                 isChecked = darkThemeCheckedState
             ) {
-                when (darkTheme) {
-                    false -> {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                        scope.launch {
-                            appPreferences.themePreference.set(UiMode.DARK)
-                        }
-                    }
-
-                    true -> {
-                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                        scope.launch {
-                            appPreferences.themePreference.set(UiMode.LIGHT)
-                        }
-                    }
+                scope.launch {
+                    appPreferences.themePreference.set(if (darkTheme) UiMode.LIGHT else UiMode.DARK)
                 }
                 darkThemeCheckedState = it
             }
@@ -305,34 +158,32 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            SettingsLoadingOption(
-                title = "Check for updates",
-                subtitle = "Check if a new version of the app is available",
-                isLoading = isCheckingForUpdates,
-                onClick = {
-                    scope.launch {
-                        isCheckingForUpdates = true
-                        val isAvailable = callbacks.checkForUpdates()
-                        isCheckingForUpdates = false
-                        if (!isAvailable) {
-                            Toast.makeText(
-                                context,
-                                "You are already on the latest version!!",
-                                Toast.LENGTH_SHORT
-                            ).show()
+            callbacks.checkForUpdates?.let { checkForUpdates ->
+                SettingsLoadingOption(
+                    title = "Check for updates",
+                    subtitle = "Check if a new version of the app is available",
+                    isLoading = isCheckingForUpdates,
+                    onClick = {
+                        scope.launch {
+                            isCheckingForUpdates = true
+                            val isAvailable = checkForUpdates()
+                            isCheckingForUpdates = false
+                            if (!isAvailable) {
+                                showToast("You are already on the latest version!!")
+                            }
                         }
                     }
-                }
-            )
+                )
 
-            HorizontalDivider()
+                HorizontalDivider()
+            }
 
             SettingsLoadingOption(
                 title = "Report an issue",
                 subtitle = "Submit app logs for further investigation",
                 isLoading = isSubmittingLogs,
                 onClick = {
-                    submitLogs(context)
+                    submitLogs()
                 }
             )
 
@@ -370,17 +221,13 @@ fun SettingsScreen(
 
             SettingsHyperlink(
                 modifier = Modifier.clickable {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.data = Constants.ABOUT_URL.toUri()
-                    context.startActivity(intent)
+                    uriHandler.openUri(Constants.ABOUT_URL)
                 },
                 title = "About ListenBrainz"
             )
 
             SettingsHyperlink(
-                modifier = Modifier.clickable {
-                    context.startActivity(Intent(context, DonateActivity::class.java))
-                },
+                modifier = Modifier.clickable(onClick = callbacks.onDonateClick),
                 title = "Support MetaBrainz"
             )
 
@@ -447,17 +294,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.settings))
 
-            // BlackList Dialog
-            if (showBlacklist) {
-                ListeningAppsList(
-                    preferencesUiState = preferencesUiState,
-                    fetchLinkedServices = callbacks.fetchLinkedServices,
-                    getPackageIcon = callbacks.getPackageIcon,
-                    getPackageLabel = callbacks.getPackageLabel,
-                    setWhitelist = callbacks.setWhitelist,
-                ) { showBlacklist = false }
-            }
-
             if (showLogoutDialog) {
                 AlertDialog(
                     title = {
@@ -489,12 +325,7 @@ fun SettingsScreen(
                             onClick = {
                                 callbacks.logout()
                                 showLogoutDialog = false
-                                Toast.makeText(
-                                    context,
-                                    "Logged out successfully!",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
+                                showToast("Logged out successfully!")
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
                         ) {
@@ -507,32 +338,5 @@ fun SettingsScreen(
                 )
             }
         }
-    }
-}
-
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun SettingsScreenPreview() {
-    ListenBrainzTheme {
-        SettingsScreen(
-            appPreferences = AppPreferencesImpl(LocalContext.current),
-            preferencesUiState = PreferencesUiState(),
-            callbacks = SettingsCallbacks(
-                logout = {},
-                getVersion = { "1.0.0" },
-                fetchLinkedServices = {},
-                getPackageIcon = { null },
-                getPackageLabel = { "" },
-                setWhitelist = {},
-                onLoginRequest = {},
-                onOnboardingRequest = {},
-                checkForUpdates = suspend{false},
-                onNavigationReorderClick = {}
-            ),
-            topBarActions = TopBarActions(),
-            submitLogs = {},
-            isSubmittingLogs = false
-        )
     }
 }

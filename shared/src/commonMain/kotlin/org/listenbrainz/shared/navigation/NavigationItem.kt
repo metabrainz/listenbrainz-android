@@ -28,6 +28,9 @@ sealed interface NavigationItem :NavKey{
     data object NewsBrainzScreen: NavigationItem
 
     @Serializable
+    data object SettingsScreen: NavigationItem
+
+    @Serializable
     data class ArtistScreen(val mbid: String): NavigationItem
 
     @Serializable

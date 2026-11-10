@@ -1,5 +1,9 @@
 package org.listenbrainz.android.ui.navigation
 
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
+import org.listenbrainz.android.ui.screens.main.DonateActivity
+import org.listenbrainz.android.ui.screens.settings.ListenSubmissionSettings
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -134,11 +138,13 @@ fun AppNavigation(
         appComposable(
             route = AppNavigationItem.Settings.route
         ) {
+            val context = LocalContext.current
             SettingsScreen(
-                dashBoardViewModel = dashBoardViewModel,
                 callbacks = settingsCallbacks,
                 topBarActions = topAppBarActions,
-                onNavigationReorderClick = onNavigationReorderClick
+                onNavigationReorderClick = onNavigationReorderClick,
+                onDonateClick = { context.startActivity(Intent(context, DonateActivity::class.java)) },
+                listenSubmissionSettings = { ListenSubmissionSettings() }
             )
         }
         appComposable(

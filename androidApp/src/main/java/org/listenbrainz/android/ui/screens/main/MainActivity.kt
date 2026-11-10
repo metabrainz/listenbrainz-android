@@ -40,19 +40,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Sets Ui mode for XML layouts.
+    // Keeps AppCompat's night mode in step with the theme preference.
     private fun setUiMode() {
         lifecycleScope.launch {
-            when (dashBoardViewModel.appPreferences.themePreference.get()) {
-                UiMode.DARK -> AppCompatDelegate.setDefaultNightMode(
-                    AppCompatDelegate.MODE_NIGHT_YES
-                )
+            dashBoardViewModel.appPreferences.themePreference.getFlow().collect { uiMode ->
+                when (uiMode) {
+                    UiMode.DARK -> AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_YES
+                    )
 
-                UiMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(
-                    AppCompatDelegate.MODE_NIGHT_NO
-                )
+                    UiMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_NO
+                    )
 
-                else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                }
             }
         }
     }

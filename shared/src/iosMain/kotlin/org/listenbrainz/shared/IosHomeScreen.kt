@@ -42,6 +42,7 @@ private val homeTabs = listOf(AppNavigationItem.Feed, AppNavigationItem.Explore,
 @Composable
 fun IosHomeScreen(
     dashBoardViewModel: DashBoardViewModel,
+    topBarActions: TopBarActions,
     onNewsClick: () -> Unit,
     goToArtistPage: (String) -> Unit
 ) {
@@ -52,8 +53,6 @@ fun IosHomeScreen(
     var scrollToTopState by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarState = remember { SnackbarHostState() }
-    // Search, Settings and playlists aren't on iOS yet
-    val topBarActions = remember { TopBarActions() }
 
     val goToUserProfile: (String) -> Unit = { username ->
         profileUsername = username
