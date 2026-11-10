@@ -69,6 +69,7 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -517,7 +518,10 @@ private fun MyFeed(
                 ShimmerMyFeedItem(shimmerInstance)
             }
         } else {
-            items(pagingData.itemCount) { index ->
+            items(
+                count = pagingData.itemCount,
+                contentType = pagingData.itemContentType { item -> item.eventType }
+            ) { index ->
                 pagingData[index]?.apply {
                     AnimatedVisibility(
                         visible = uiState.isDeletedMap[event.id] != true,
@@ -631,7 +635,10 @@ fun FollowListens(
             }
         } else {
 
-            items(count = pagingData.itemCount) { index: Int ->
+            items(
+                count = pagingData.itemCount,
+                contentType = { "listen" }
+            ) { index: Int ->
 
                 pagingData[index]?.apply {
 
@@ -767,7 +774,10 @@ fun SimilarListens(
             }
         } else {
 
-            items(count = pagingData.itemCount) { index: Int ->
+            items(
+                count = pagingData.itemCount,
+                contentType = { "listen" }
+            ) { index: Int ->
 
                 pagingData[index]?.run {
 
