@@ -18,17 +18,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.dropShadow
-import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
-import org.listenbrainz.android.ui.screens.onboarding.auth.templogin.TempLoginCard
-import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.screens.onboarding.auth.templogin.LoginCard
 import org.listenbrainz.shared.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.viewmodel.UserViewModel
@@ -89,7 +85,7 @@ fun ProfileScreen(
                 )
             } else {
                 val scope = rememberCoroutineScope()
-                TempLoginCard(
+                LoginCard(
                     modifier = Modifier
                         .fillMaxHeight()
                         .wrapContentHeight(),

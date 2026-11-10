@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.screens.onboarding.auth.templogin
 
 import android.content.res.Configuration
 import org.listenbrainz.shared.resources.Res
-import org.listenbrainz.shared.resources.musicbrainz_logo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -54,9 +53,7 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBac
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
-import org.listenbrainz.shared.resources.ic_listenbrainz_logo
 import org.listenbrainz.shared.resources.ic_listenbrainz_logo_icon
-import org.listenbrainz.shared.resources.listens_icon
 import org.listenbrainz.shared.ui.screens.onboarding.auth.templogin.TempLoginState
 import org.listenbrainz.shared.ui.screens.onboarding.auth.templogin.TempLoginUiState
 import org.listenbrainz.shared.viewmodel.TempLoginViewModel
@@ -69,7 +66,7 @@ fun TempLoginScreen(
     onLoginFinished: () -> Unit
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        TempLoginCard(
+        LoginCard(
             modifier = modifier
                 .align(Alignment.Center)
                 .padding(horizontal = 24.dp, vertical = 16.dp),
@@ -85,7 +82,7 @@ fun TempLoginScreen(
 }
 
 @Composable
-fun TempLoginCard(
+fun LoginCard(
     modifier: Modifier = Modifier,
     onLoginFinished: () -> Unit
 ) {
@@ -111,7 +108,7 @@ fun TempLoginCard(
         }
     }
 
-    TempLoginCard(
+    LoginCard(
         modifier = modifier,
         uiState = uiState,
         onWebLoginClick = {
@@ -124,7 +121,7 @@ fun TempLoginCard(
 }
 
 @Composable
-fun TempLoginCard(
+fun LoginCard(
     modifier: Modifier = Modifier,
     uiState: TempLoginUiState,
     onWebLoginClick: () -> Unit,
@@ -286,9 +283,9 @@ private fun TokenHelpSection() {
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun TempLoginScreenLayoutPreview() {
+fun LoginScreenLayoutPreview() {
     ListenBrainzTheme {
-        TempLoginCard(
+        LoginCard(
             uiState = TempLoginUiState(),
             onWebLoginClick = {},
             onTokenChange = {},
