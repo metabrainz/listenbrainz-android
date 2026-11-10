@@ -42,7 +42,7 @@ import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateAvailableDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateReadyDialog
-import org.listenbrainz.android.ui.screens.onboarding.auth.login.TempLoginScreen
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
@@ -114,7 +114,7 @@ class MainActivity : ComponentActivity() {
                                 onboardingNavigator.next()
                             }
                         }
-                        entry<NavigationItem.OnboardingScreens.TempLoginScreen> {
+                        entry<NavigationItem.OnboardingScreens.LoginScreen> {
                             LaunchedEffect(Unit) {
                                 dashBoardViewModel.appPreferences.getLoginStatusFlow()
                                     .collectLatest {
@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                             }
-                            TempLoginScreen(onLoginFinished = {
+                            LoginScreen(onLoginFinished = {
                                 //Handled above in LaunchedEffect
                             })
                         }
@@ -147,7 +147,7 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 settingsCallbacks = SettingsCallbacksToHomeScreen(
                                     onLoginRequest = {
-                                        backStack.add(NavigationItem.OnboardingScreens.TempLoginScreen)
+                                        backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
                                     },
                                     onOnboardingRequest = {
                                         dashBoardViewModel.resetOnboardingCompleted()

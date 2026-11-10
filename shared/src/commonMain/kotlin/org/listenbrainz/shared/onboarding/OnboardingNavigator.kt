@@ -6,7 +6,7 @@ import org.listenbrainz.shared.navigation.NavigationItem
 /** Onboarding screens, in the order they are shown. */
 enum class OnboardingStep(val key: NavigationItem.OnboardingScreens) {
     INTRODUCTION(NavigationItem.OnboardingScreens.IntroductionScreen),
-    LOGIN(NavigationItem.OnboardingScreens.TempLoginScreen),
+    LOGIN(NavigationItem.OnboardingScreens.LoginScreen),
     PERMISSIONS(NavigationItem.OnboardingScreens.PermissionScreen),
     LISTENING_APPS(NavigationItem.OnboardingScreens.ListeningAppScreen)
 }

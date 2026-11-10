@@ -28,7 +28,7 @@ import org.listenbrainz.android.ui.theme.onboardingGradient
 @Composable
 fun OnboardingScreenBackground(backStack: NavBackStack<NavKey>){
         AnimatedContent(targetState = backStack.last() in listOf(
-            NavigationItem.OnboardingScreens.TempLoginScreen,
+            NavigationItem.OnboardingScreens.LoginScreen,
             NavigationItem.OnboardingScreens.PermissionScreen,
             NavigationItem.OnboardingScreens.ListeningAppScreen
         ),
@@ -58,7 +58,7 @@ fun OnboardingScreenBackground(backStack: NavBackStack<NavKey>){
 @Composable
 fun OnboardingScreenBackgroundPreview() {
     ListenBrainzTheme {
-        val backstack = rememberNavBackStack(NavigationItem.OnboardingScreens.TempLoginScreen)
+        val backstack = rememberNavBackStack(NavigationItem.OnboardingScreens.LoginScreen)
         OnboardingScreenBackground(backstack)
     }
 }

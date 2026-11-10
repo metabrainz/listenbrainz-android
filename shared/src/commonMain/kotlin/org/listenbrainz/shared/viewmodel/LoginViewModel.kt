@@ -12,31 +12,31 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.listens.ListensRepository
-import org.listenbrainz.shared.ui.screens.onboarding.auth.login.TempLoginState
-import org.listenbrainz.shared.ui.screens.onboarding.auth.login.TempLoginUiState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginUiState
 import org.listenbrainz.shared.util.Log
 
-class TempLoginViewModel(
+class LoginViewModel(
     private val listensRepository: ListensRepository,
     private val appPreferences: AppPreferences,
     private val ioDispatcher: CoroutineDispatcher,
     private val logger: Log = Log
-) : BaseViewModel<TempLoginUiState>() {
+) : BaseViewModel<LoginUiState>() {
 
-    private val TAG = "TempLoginViewModel"
-    private val tempLoginUIState = MutableStateFlow(TempLoginUiState())
+    private val TAG = "LoginViewModel"
+    private val loginUiState = MutableStateFlow(LoginUiState())
 
-    override val uiState: StateFlow<TempLoginUiState> = createUiStateFlow()
+    override val uiState: StateFlow<LoginUiState> = createUiStateFlow()
 
-    override fun createUiStateFlow(): StateFlow<TempLoginUiState> {
-        return combine(tempLoginUIState)
+    override fun createUiStateFlow(): StateFlow<LoginUiState> {
+        return combine(loginUiState)
         {
             it[0]
-        }.stateIn(viewModelScope, initialValue = TempLoginUiState(), started = SharingStarted.Lazily)
+        }.stateIn(viewModelScope, initialValue = LoginUiState(), started = SharingStarted.Lazily)
     }
 
     fun setToken(token: String) {
-        tempLoginUIState.update {
+        loginUiState.update {
             it.copy(
                 token = token,
                 errorMessage = null,
@@ -44,9 +44,9 @@ class TempLoginViewModel(
         }
     }
     private fun setError(message: String) {
-        tempLoginUIState.update {
+        loginUiState.update {
             it.copy(
-                loginState = TempLoginState.Error(message),
+                loginState = LoginState.Error(message),
                 errorMessage = message
             )
         }
@@ -65,13 +65,13 @@ class TempLoginViewModel(
             setError("Token cannot be empty")
             return
         }
-        if (uiState.value.loginState is TempLoginState.VerifyingToken) {
+        if (uiState.value.loginState is LoginState.VerifyingToken) {
             return
         }
 
-        tempLoginUIState.update {
+        loginUiState.update {
             it.copy(
-                loginState = TempLoginState.VerifyingToken,
+                loginState = LoginState.VerifyingToken,
                 errorMessage = null
             )
         }
@@ -86,8 +86,8 @@ class TempLoginViewModel(
                 if (result.isSuccess && validation != null && validation.valid) {
                     appPreferences.username.set(validation.username ?: "")
                     appPreferences.lbAccessToken.set(token)
-                    tempLoginUIState.update {
-                        it.copy(loginState = TempLoginState.Success("Login successful"))
+                    loginUiState.update {
+                        it.copy(loginState = LoginState.Success("Login successful"))
                     }
                     onLoginFinished()
                 } else {

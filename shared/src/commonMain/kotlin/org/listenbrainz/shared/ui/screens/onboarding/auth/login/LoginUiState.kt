@@ -1,16 +1,16 @@
 package org.listenbrainz.shared.ui.screens.onboarding.auth.login
 
-data class TempLoginUiState(
+data class LoginUiState(
     val token: String = "",
-    val loginState: TempLoginState = TempLoginState.Initial,
+    val loginState: LoginState = LoginState.Initial,
     val errorMessage: String? = null
 )
 
-sealed class TempLoginState {
-    data object Initial : TempLoginState()
-    data object VerifyingToken : TempLoginState()
+sealed class LoginState {
+    data object Initial : LoginState()
+    data object VerifyingToken : LoginState()
 
-    data class Error(val message: String) : TempLoginState()
+    data class Error(val message: String) : LoginState()
 
-    data class Success(val message: String) : TempLoginState()
+    data class Success(val message: String) : LoginState()
 }

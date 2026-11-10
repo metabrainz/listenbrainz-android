@@ -8,7 +8,7 @@ import org.listenbrainz.shared.viewmodel.FeaturesViewModel
 import org.listenbrainz.shared.viewmodel.AlbumViewModel
 import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.shared.viewmodel.FeedViewModel
-import org.listenbrainz.shared.viewmodel.TempLoginViewModel
+import org.listenbrainz.shared.viewmodel.LoginViewModel
 import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
@@ -30,5 +30,5 @@ val sharedViewModelModule = module {
     viewModel { FeedViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { SearchViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { UserViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER))) }
-    viewModel { TempLoginViewModel(get(),get(),get(named(IO_DISPATCHER))) }
+    viewModel { LoginViewModel(get(),get(),get(named(IO_DISPATCHER))) }
 }

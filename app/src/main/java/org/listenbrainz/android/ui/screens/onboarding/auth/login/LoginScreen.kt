@@ -52,14 +52,14 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.shared.resources.ic_listenbrainz_logo_icon
-import org.listenbrainz.shared.ui.screens.onboarding.auth.login.TempLoginState
-import org.listenbrainz.shared.ui.screens.onboarding.auth.login.TempLoginUiState
-import org.listenbrainz.shared.viewmodel.TempLoginViewModel
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginUiState
+import org.listenbrainz.shared.viewmodel.LoginViewModel
 
 private const val TOKEN_SETTINGS_URL = "https://listenbrainz.org/settings/"
 
 @Composable
-fun TempLoginScreen(
+fun LoginScreen(
     modifier: Modifier = Modifier,
     onLoginFinished: () -> Unit
 ) {
@@ -84,7 +84,7 @@ fun LoginCard(
     modifier: Modifier = Modifier,
     onLoginFinished: () -> Unit
 ) {
-    val viewmodel = koinViewModel<TempLoginViewModel>()
+    val viewmodel = koinViewModel<LoginViewModel>()
     val uiState by viewmodel.uiState.collectAsState()
     var isWebLoginVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -121,7 +121,7 @@ fun LoginCard(
 @Composable
 fun LoginCard(
     modifier: Modifier = Modifier,
-    uiState: TempLoginUiState,
+    uiState: LoginUiState,
     onWebLoginClick: () -> Unit,
     onTokenChange: (String) -> Unit,
     onSubmitToken: () -> Unit,
@@ -130,7 +130,7 @@ fun LoginCard(
         modifier = modifier,
         token = uiState.token,
         error = uiState.errorMessage,
-        isVerifying = uiState.loginState is TempLoginState.VerifyingToken,
+        isVerifying = uiState.loginState is LoginState.VerifyingToken,
         onWebLoginClick = onWebLoginClick,
         onTokenChange = onTokenChange,
         onSubmitToken = onSubmitToken,
@@ -284,7 +284,7 @@ private fun TokenHelpSection() {
 fun LoginScreenLayoutPreview() {
     ListenBrainzTheme {
         LoginCard(
-            uiState = TempLoginUiState(),
+            uiState = LoginUiState(),
             onWebLoginClick = {},
             onTokenChange = {},
             onSubmitToken = {}
