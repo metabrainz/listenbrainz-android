@@ -53,6 +53,8 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSup
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.android.viewmodel.LoginConsentViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.shared.repository.PlatformContext
 
 data class LoginConsentScreenUIState(
@@ -63,9 +65,8 @@ data class LoginConsentScreenUIState(
 )
 
 @Composable
-fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
-    val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
-    val uiState = dashboardUiState.consentScreenUIState
+fun ConsentScreenDataInitializer(loginConsentViewModel: LoginConsentViewModel = koinViewModel()){
+    val uiState by loginConsentViewModel.uiState.collectAsState()
 
     if(uiState.data == null) {
         //Setting up consent screen content
@@ -90,7 +91,7 @@ fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
                     }
                     webViewClient = ConsentWebViewClient(
                         onLoadData = { text ->
-                            dashBoardViewModel.changeConsentScreenUIState(
+                            loginConsentViewModel.changeConsentScreenUIState(
                                 uiState.copy(
                                     data = text,
                                     isLoading = false,
@@ -99,7 +100,7 @@ fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
                             )
                         },
                         onError = { error ->
-                            dashBoardViewModel.changeConsentScreenUIState(
+                            loginConsentViewModel.changeConsentScreenUIState(
                                 uiState.copy(
                                     isLoading = false,
                                     errorMessage = error
@@ -110,7 +111,7 @@ fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
                     clearCookies()
                     loadUrl("https://listenbrainz.org/login")
                     settings.javaScriptEnabled = true
-                    dashBoardViewModel.changeConsentScreenUIState(
+                    loginConsentViewModel.changeConsentScreenUIState(
                         uiState.copy(
                             webView = this
                         )
@@ -123,9 +124,10 @@ fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
 
 @Composable
 fun LoginConsentScreen(dashBoardViewModel: DashBoardViewModel,
+                       loginConsentViewModel: LoginConsentViewModel = koinViewModel(),
                        onProceedToLoginScreen: () -> Unit) {
     val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
-    val uiState = dashboardUiState.consentScreenUIState
+    val uiState by loginConsentViewModel.uiState.collectAsState()
     val isLogSubmitting = dashboardUiState.isSubmittingLogs
     LoginConsentScreenLayout(
         html = uiState.data ?: "",
@@ -133,7 +135,7 @@ fun LoginConsentScreen(dashBoardViewModel: DashBoardViewModel,
         errorMessage = uiState.errorMessage,
         onClickNext = onProceedToLoginScreen,
         onRetry = {
-            dashBoardViewModel.onLoadConsentScreen()
+            loginConsentViewModel.onLoadConsentScreen()
         },
         submitLogs = {
             dashBoardViewModel.logSubmit()

@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
 
                 SetStatusAndNavigationBarTheme(backStack)
                 OnboardingScreenBackground(backStack)
-                // ConsentScreenDataInitializer(dashBoardViewModel)
+                // ConsentScreenDataInitializer()
                 NavDisplay(
                     backStack = backStack,
                     onBack = { backStack.removeAt(backStack.lastIndex) },

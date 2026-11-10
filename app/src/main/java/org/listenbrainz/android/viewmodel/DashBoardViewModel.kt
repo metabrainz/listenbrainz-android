@@ -6,13 +6,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreenUIState
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.onboarding.OnboardingState
@@ -25,7 +22,6 @@ data class DashBoardUiState(
     val username: String? = null,
     val navBarOrder: List<AppNavigationItem>? = null,
     val onBoardingCompleted: Boolean = false,
-    val consentScreenUIState: LoginConsentScreenUIState = LoginConsentScreenUIState(),
     val isSubmittingLogs: Boolean = false
 )
 
@@ -65,43 +61,25 @@ class DashBoardViewModel(
     private val _onboardingCompletedState = appPreferences.onboardingCompleted.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    private val _consentScreenUIState = MutableStateFlow(LoginConsentScreenUIState())
-
     private val _submittingLogs = MutableStateFlow(false)
 
     val uiState: StateFlow<DashBoardUiState> = combine(
         usernameFlow,
         navBarOrderFlow,
         _onboardingCompletedState,
-        _consentScreenUIState,
         _submittingLogs
     ) { flows ->
         DashBoardUiState(
             username = flows[0] as? String,
             navBarOrder = flows[1] as? List<AppNavigationItem>,
             onBoardingCompleted = flows[2] as Boolean,
-            consentScreenUIState = flows[3] as LoginConsentScreenUIState,
-            isSubmittingLogs = flows[4] as Boolean
+            isSubmittingLogs = flows[3] as Boolean
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = DashBoardUiState()
     )
-
-    init {
-        viewModelScope.launch {
-            val cacheData = appPreferences.consentScreenDataCache.getFlow().first()
-            if (cacheData.isNotEmpty()) {
-                _consentScreenUIState.update { uIState ->
-                    uIState.copy(
-                        data = cacheData,
-                        isLoading = false
-                    )
-                }
-            }
-        }
-    }
 
     fun logSubmit() {
         if (_submittingLogs.value) {
@@ -115,17 +93,6 @@ class DashBoardViewModel(
                 logger.e("Unable to submit logs: $e")
             } finally {
                 _submittingLogs.value = false
-            }
-        }
-    }
-
-    fun changeConsentScreenUIState(consentScreenUIState: LoginConsentScreenUIState) {
-        _consentScreenUIState.update {
-            consentScreenUIState
-        }
-        if (consentScreenUIState.data?.isNotEmpty() == true) {
-            viewModelScope.launch {
-                appPreferences.consentScreenDataCache.set(consentScreenUIState.data)
             }
         }
     }
@@ -145,16 +112,6 @@ class DashBoardViewModel(
     }
 
     fun isOnboardingCompleted(): Boolean = _onboardingCompletedState.value
-
-    fun onLoadConsentScreen() {
-        _consentScreenUIState.update { it ->
-            it.copy(
-                isLoading = true,
-                errorMessage = null,
-            )
-        }
-        _consentScreenUIState.value.webView?.loadUrl("https://listenbrainz.org/login")
-    }
 
     suspend fun isNotificationListenerServiceAllowed() =
         appPreferences.isNotificationServiceAllowed
