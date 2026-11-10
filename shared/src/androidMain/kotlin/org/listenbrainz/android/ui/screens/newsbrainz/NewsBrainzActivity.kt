@@ -8,11 +8,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.ui.Modifier
-import com.aemerse.share.SharableItem
-import com.aemerse.share.Share
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Utils.shareLink
 import org.listenbrainz.shared.viewmodel.NewsListViewModel
 
 class NewsBrainzActivity : ComponentActivity() {
@@ -33,25 +31,7 @@ class NewsBrainzActivity : ComponentActivity() {
                         startActivity(intent)
                     },
                     onItemLongClicked = { post ->
-                        Share.with(context = this)
-                            .item(SharableItem(
-                                pictureUrl = null,
-                                data = post.URL + "\n",
-                                shareAppLink = true,
-                                downloadOurAppMessage = "Download our app"
-                            ),
-                                onStart = { Log.d("onStart Sharing") },
-                                onFinish = { isSuccessful: Boolean, errorMessage: String ->
-                                    when {
-                                        isSuccessful -> {
-                                            Log.d("Successfully shared")
-                                        }
-                                        else -> {
-                                            Log.e("error happened : $errorMessage")
-                                        }
-                                    }
-                                }
-                            )
+                        shareLink(this, post.URL)
                     }
                 ) {
                     finish()

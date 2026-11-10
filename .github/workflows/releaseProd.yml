@@ -7,6 +7,12 @@ on:
   push:
     paths:
       - 'androidApp/**'
+      - 'shared/**'
+      - 'spotify-app-remote/**'
+      - 'gradle/**'
+      - '*.gradle'
+      - '*.gradle.kts'
+      - 'gradle.properties'
     branches: [ prod ]
 
 jobs:

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="notification_listening_title">♫ Listening now</string>
+    <string name="notification_listening_title" translatable="false">♫ Listening now</string>
 
     <!-- Listen Submission Notification Idle States -->
     <string-array name="notification_idle_messages">
@@ -20,5 +20,5 @@
         <item>So silent...</item>
     </string-array>
     <string name="toast_feedback_fail">No email client found</string>
-    <string name="error_apk_install">Error starting APK installation</string>
+    <string name="error_apk_install" translatable="false">Error starting APK installation</string>
 </resources>

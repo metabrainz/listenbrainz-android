@@ -109,9 +109,7 @@ kotlin {
         }
     }
 
-    // Linking the framework needs the iOS SDK from a full Xcode install, so it is only declared
-    // when the build can link: when Xcode drives it, or when xcode-select points at Xcode.app.
-    // Otherwise the iOS targets still compile to klibs and `gradlew build` stays green.
+    // Linking the framework needs a full Xcode install
     val invokedByXcode = providers.environmentVariable("SDK_NAME").isPresent
     val xcodeSelected = runCatching {
         providers.exec {
@@ -238,7 +236,6 @@ kotlin {
                 implementation(libs.androidx.compose.animation)
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.navigation.compose)
-                implementation(libs.androidx.navigation3.ui)
                 implementation(libs.androidx.lifecycle.viewmodel.compose)
                 implementation(libs.androidx.lifecycle.runtime.compose)
                 implementation(libs.androidx.lifecycle.viewmodel.navigation3)
@@ -247,12 +244,9 @@ kotlin {
                 implementation(libs.koin.android)
                 implementation(libs.koin.androidx.compose)
                 implementation(libs.material)
-                implementation(libs.lottie.compose)
-                implementation(libs.share.android)
                 implementation(libs.reorderable)
                 implementation(libs.google.accompanist.permissions)
                 implementation(libs.app.update.ktx)
-                implementation(libs.jsoup)
                 implementation(libs.vico.compose)
             }
         }

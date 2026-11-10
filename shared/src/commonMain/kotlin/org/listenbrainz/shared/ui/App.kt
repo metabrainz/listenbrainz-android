@@ -20,19 +20,12 @@ import org.listenbrainz.shared.onboarding.OnboardingNavigator
 import org.listenbrainz.shared.onboarding.startDestination
 import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 
-/** What screens use to navigate. */
 class AppNavigator internal constructor(
     val backStack: NavBackStack<NavKey>,
     val onboarding: OnboardingNavigator
 )
 
-/**
- * The app's navigation host. Draws nothing until the onboarding state has loaded, so the first
- * screen is known before anything is shown.
- *
- * @param entries the screens, provided by the platform until they move to this module.
- * @param decorations drawn behind the screens, e.g. backgrounds and system bar styling.
- */
+/** Draws nothing until the onboarding state has loaded, so the first screen is known. */
 @Composable
 fun App(
     entries: EntryProviderScope<NavKey>.(AppNavigator) -> Unit,

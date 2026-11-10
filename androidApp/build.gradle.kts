@@ -133,24 +133,7 @@ dependencies {
     // AndroidX libraries
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.androidx.lifecycle.viewmodel)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.extensions)
-    implementation(libs.androidx.browser)
-    implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.paging.runtime)
-    implementation(libs.androidx.paging.compose)
-    implementation(libs.androidx.palette.ktx)
-
-    //Room DB
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
 
     // Networking
     implementation(libs.kotlinx.serialization.json)
@@ -163,63 +146,22 @@ dependencies {
     implementation(libs.ktor.client.logging)
     implementation(libs.ktorfit.lib)
 
-    // Image loading and processing
-    implementation(libs.coil.compose)
-    implementation(libs.coil.ktor)
-    implementation(libs.coil.svg)
-
     // Compose
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
-    implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.tooling)
-    implementation(libs.androidx.compose.ui.util)
-    implementation(libs.androidx.compose.material)
-    implementation(libs.androidx.compose.material.icons.extended)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material3.window.size)
-    implementation(libs.androidx.compose.animation)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.navigation.compose)
 
     // Dependency Injection - Koin
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
-    implementation(libs.koin.androidx.compose)
-    implementation(libs.koin.androidx.workmanager)
-    implementation(libs.androidx.startup.runtime)
 
     // UI Components
     implementation(libs.material)
-    implementation(libs.lottie)
-    implementation(libs.lottie.compose)
-    implementation(libs.onboarding)
-    implementation(libs.share.android)
-    implementation(libs.reorderable)
-
-    // Accompanist
-    implementation(libs.google.accompanist.permissions)
-    implementation(libs.google.accompanist.systemuicontroller)
 
     // Google Play Core for in-app updates
     implementation(libs.app.update)
-    implementation(libs.app.update.ktx)
-
-    // Networking and parsing
-    implementation(libs.jsoup)
-    implementation(libs.socket.io) {
-        exclude(group = "org.json", module = "json")
-    }
-
-    // Date time
-    implementation(libs.kotlinx.datetime)
-
-    // Charts
-    implementation(libs.vico.compose)
 
     // Testing - Kotlin Test
     testImplementation(libs.kotlin.test)
@@ -232,10 +174,4 @@ dependencies {
     // Chucker
     debugImplementation(libs.chucker)
     releaseImplementation(libs.chucker.noop)
-
-    //Navigation 3 API
-    implementation(libs.androidx.navigation3.ui)
-    implementation(libs.androidx.navigation3.runtime)
-    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    implementation(libs.compose.shimmer)
 }
