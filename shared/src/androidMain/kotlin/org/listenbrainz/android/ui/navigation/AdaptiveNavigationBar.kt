@@ -39,7 +39,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
+import org.listenbrainz.shared.R
 import org.listenbrainz.android.ui.screens.listeningNow.ListeningNowCard
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme

@@ -19,4 +19,6 @@
         <item>Hit me with your best track</item>
         <item>So silent...</item>
     </string-array>
+    <string name="toast_feedback_fail">No email client found</string>
+    <string name="error_apk_install">Error starting APK installation</string>
 </resources>

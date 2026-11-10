@@ -2,7 +2,6 @@
 <resources>
     <color name="colorPrimary">#EB743B</color>
     <color name="colorPrimaryLight">#FFCC80</color>
-    <color name="colorPrimaryDark">#996b34</color>
     <color name="colorAccent">#D81B60</color>
     <!-- Base -->
     <color name="black">#ffffff</color>
@@ -18,7 +17,6 @@
     <color name="orange">#FF7100</color>
     <color name="blue_diff">#007afe</color>
     <color name="green_diff">#08a045</color>
-    <color name="gray">#263238</color>
 
     <!-- Theme -->
     <color name="aux_text">#666666</color>

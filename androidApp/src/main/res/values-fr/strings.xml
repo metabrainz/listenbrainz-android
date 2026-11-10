@@ -2,5 +2,4 @@
 <resources>
     <string name="app_name">ListenBrainz</string>
     <string name="donate_title">Faire un don</string>
-    <string name="toast_feedback_fail">Aucun client e-mail trouvé</string>
 </resources>

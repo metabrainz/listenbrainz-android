@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="toast_feedback_fail">Kein E-Mail-Client gefunden</string>
+</resources>

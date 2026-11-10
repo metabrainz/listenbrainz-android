@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import org.listenbrainz.android.R
+import org.listenbrainz.shared.R
 import org.listenbrainz.shared.model.InstallSource
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem

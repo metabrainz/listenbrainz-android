@@ -4,7 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.browser.customtabs.CustomTabsIntent
-import org.listenbrainz.android.R
+import org.listenbrainz.shared.R
 
 class DonateActivity : ComponentActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {

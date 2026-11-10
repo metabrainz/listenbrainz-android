@@ -2,6 +2,5 @@
 <resources>
     <string name="app_name">ListenBrainz</string>
     <string name="donate_title">捐赠</string>
-    <string name="toast_feedback_fail">未找到电子邮件客户端</string>
     <string name="title_activity_news_brainz">NewsBrainz 活动</string>
 </resources>

@@ -69,7 +69,6 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.jetbrains.compose.resources.painterResource

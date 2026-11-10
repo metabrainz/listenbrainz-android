@@ -25,7 +25,7 @@ import androidx.compose.ui.res.colorResource
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.listenbrainz.android.R
+import org.listenbrainz.shared.R
 import org.listenbrainz.shared.model.AppNavigationItem
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableLazyListState

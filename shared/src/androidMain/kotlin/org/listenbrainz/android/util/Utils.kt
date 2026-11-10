@@ -55,7 +55,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import org.listenbrainz.android.R
+import org.listenbrainz.shared.R
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Constants
 import java.io.*
