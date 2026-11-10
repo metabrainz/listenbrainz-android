@@ -24,11 +24,15 @@ import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Utils.getAllInstalledApps
 import org.listenbrainz.android.util.Utils.getListeningApps
 import org.listenbrainz.shared.model.AppNavigationItem
+import org.listenbrainz.shared.onboarding.OnboardingState
+import org.listenbrainz.shared.permission.PermissionManager
+import org.listenbrainz.shared.permission.PermissionScope
+import org.listenbrainz.shared.permission.missing
 import org.listenbrainz.shared.util.LogSubmitter
 import java.lang.ref.WeakReference
 
 data class DashBoardUiState(
-    val username:String?= null,
+    val username: String? = null,
     val navBarOrder: List<AppNavigationItem>? = null,
     val onBoardingCompleted: Boolean = false,
     val listeningApps: List<AppInfo> = emptyList(),
@@ -41,8 +45,24 @@ class DashBoardViewModel(
     val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val logSubmitter: LogSubmitter,
-    private val logger:Log = Log
+    private val permissionManager: PermissionManager,
+    private val logger: Log = Log
 ) : ViewModel() {
+
+    /** Null until the stored values have loaded. */
+    val onboardingState: StateFlow<OnboardingState?> = combine(
+        appPreferences.onboardingCompleted.getFlow(),
+        appPreferences.lbAccessToken.getFlow(),
+        permissionManager.statuses
+    ) { isOnboardingCompleted, accessToken, statuses ->
+        OnboardingState(
+            isOnboardingCompleted = isOnboardingCompleted,
+            isUserLoggedIn = accessToken.isNotEmpty(),
+            isPermissionMissing = statuses
+                .missing(permissionManager.permissionsFor(PermissionScope.ONBOARDING))
+                .isNotEmpty()
+        )
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val usernameFlow = appPreferences.username.getFlow()
 
@@ -72,7 +92,7 @@ class DashBoardViewModel(
         _allApps,
         _consentScreenUIState,
         _submittingLogs
-    ){ flows ->
+    ) { flows ->
         DashBoardUiState(
             username = flows[0] as? String,
             navBarOrder = flows[1] as? List<AppNavigationItem>,
@@ -91,7 +111,7 @@ class DashBoardViewModel(
     init {
         viewModelScope.launch {
             val cacheData = appPreferences.consentScreenDataCache.getFlow().first()
-            if(cacheData.isNotEmpty()){
+            if (cacheData.isNotEmpty()) {
                 _consentScreenUIState.update { uIState ->
                     uIState.copy(
                         data = cacheData,
@@ -102,15 +122,15 @@ class DashBoardViewModel(
         }
     }
 
-    fun logSubmit(){
-        if(_submittingLogs.value){
+    fun logSubmit() {
+        if (_submittingLogs.value) {
             return
         }
         viewModelScope.launch {
             _submittingLogs.value = true
             try {
                 logSubmitter.submitLogs()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 logger.e("Unable to submit logs: $e")
             } finally {
                 _submittingLogs.value = false
@@ -284,7 +304,7 @@ class DashBoardViewModel(
         _consentScreenUIState.update {
             consentScreenUIState
         }
-        if(consentScreenUIState.data?.isNotEmpty() == true) {
+        if (consentScreenUIState.data?.isNotEmpty() == true) {
             viewModelScope.launch {
                 appPreferences.consentScreenDataCache.set(consentScreenUIState.data)
             }

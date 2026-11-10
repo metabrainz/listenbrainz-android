@@ -14,6 +14,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -25,9 +27,11 @@ import androidx.navigation3.runtime.serialization.NavKeySerializer
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.decodeFromSavedState
 import androidx.savedstate.serialization.encodeToSavedState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.service.ListenServiceState
@@ -50,9 +54,9 @@ import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScree
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.shared.permission.PermissionManager
-import org.listenbrainz.shared.permission.PermissionScope
-import org.listenbrainz.shared.permission.missing
+import org.listenbrainz.shared.onboarding.OnboardingNavigator
+import org.listenbrainz.shared.onboarding.OnboardingStep
+import org.listenbrainz.shared.onboarding.startDestination
 import java.lang.ref.WeakReference
 
 class MainActivity : ComponentActivity() {
@@ -62,26 +66,38 @@ class MainActivity : ComponentActivity() {
     private val appUpdatesViewModel: AppUpdatesViewModel by viewModel()
 
     private val listenServiceState: ListenServiceState by inject()
-    private val permissionManager: PermissionManager by inject()
 
     private lateinit var backStack: NavBackStack<NavKey>
+    private lateinit var onboardingNavigator: OnboardingNavigator<NavKey>
+    private var isNavigationReady by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSplashScreen()
+        installSplashScreen().setKeepOnScreenCondition { !isNavigationReady }
         enableEdgeToEdge()
 
         setUiMode()
         dashBoardViewModel.updateListeningApps(WeakReference(this))
         appUpdatesViewModel.checkForUpdatesDuringLaunch(this)
-        backStack = savedInstanceState?.getBundle(BACK_STACK_KEY)
+        val restoredBackStack = savedInstanceState?.getBundle(BACK_STACK_KEY)
             ?.let { decodeFromSavedState(backStackSerializer, it) }
-            ?: NavBackStack(
-                pendingOnboardingSteps(refreshPermissions = true).firstOrNull()
-                    ?: NavigationItem.HomeScreen
+        lifecycleScope.launch(Dispatchers.Main.immediate) {
+            val onboardingState = dashBoardViewModel
+                .onboardingState
+                .filterNotNull()
+                .first()
+
+            val backstack = restoredBackStack ?: NavBackStack(
+                onboardingState.startDestination(
+                    home = NavigationItem.HomeScreen, keyOf = ::onboardingKey
+                )
             )
 
+            setUpNavigation(backstack)
+        }
+
         setContent {
+            if (!isNavigationReady) return@setContent
             ListenBrainzTheme {
                 DisposableEffect(Unit) {
                     dashBoardViewModel.connectToSpotify()
@@ -92,14 +108,14 @@ class MainActivity : ComponentActivity() {
 
                 SetStatusAndNavigationBarTheme(backStack)
                 OnboardingScreenBackground(backStack)
-//                ConsentScreenDataInitializer(dashBoardViewModel)
+                // ConsentScreenDataInitializer(dashBoardViewModel)
                 NavDisplay(
                     backStack = backStack,
                     onBack = { backStack.removeAt(backStack.lastIndex) },
                     entryProvider = entryProvider {
                         entry<NavigationItem.OnboardingScreens.IntroductionScreen> {
                             IntroductionScreens {
-                                navigateInOnboarding()
+                                onboardingNavigator.next()
                             }
                         }
                         entry<NavigationItem.OnboardingScreens.TempLoginScreen> {
@@ -107,8 +123,7 @@ class MainActivity : ComponentActivity() {
                                 dashBoardViewModel.appPreferences.getLoginStatusFlow()
                                     .collectLatest {
                                         if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
-                                            backStack.remove(NavigationItem.OnboardingScreens.TempLoginScreen)
-                                            navigateInOnboarding()
+                                            onboardingNavigator.onLoggedIn()
                                         }
                                     }
                             }
@@ -119,17 +134,16 @@ class MainActivity : ComponentActivity() {
                         entry<NavigationItem.OnboardingScreens.PermissionScreen> {
                             PermissionScreen(
                                 onExit = {
-                                    navigateInOnboarding()
+                                    onboardingNavigator.next()
                                 },
                                 onExitAfterGrantingAllPermissions = {
-                                    navigateInOnboarding()
-                                    backStack.remove(NavigationItem.OnboardingScreens.PermissionScreen)
+                                    onboardingNavigator.onPermissionsGranted()
                                 })
                         }
                         entry<NavigationItem.OnboardingScreens.ListeningAppScreen> {
                             ListeningAppSelectionScreen(
                                 onClickNext = {
-                                    navigateInOnboarding()
+                                    onboardingNavigator.next()
                                 }
                             )
                         }
@@ -141,10 +155,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     onOnboardingRequest = {
                                         dashBoardViewModel.resetOnboardingCompleted()
-                                        backStack.add(
-                                            pendingOnboardingSteps(onboardingCompleted = false).firstOrNull()
-                                                ?: NavigationItem.HomeScreen
-                                        )
+                                        onboardingNavigator.restart()
                                     },
                                     checkForUpdates = {
                                         appUpdatesViewModel.checkForUpdates(
@@ -230,54 +241,24 @@ class MainActivity : ComponentActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putBundle(BACK_STACK_KEY, encodeToSavedState(backStackSerializer, backStack))
-    }
-
-    /**
-     * Onboarding screens that still apply, in the order they are shown.
-     *
-     * Blocks the main thread, so the next screen is known before the UI is displayed or updated.
-     * @param onboardingCompleted overrides the stored value, which may not be written yet.
-     */
-    private fun pendingOnboardingSteps(
-        onboardingCompleted: Boolean? = null,
-        refreshPermissions: Boolean = false
-    ): List<NavigationItem.OnboardingScreens> = runBlocking {
-        val appPreferences = dashBoardViewModel.appPreferences
-        val isOnboardingCompleted = onboardingCompleted ?: appPreferences.onboardingCompleted.get()
-        val isUserLoggedIn = appPreferences.isUserLoggedIn()
-        val statuses = if (refreshPermissions) permissionManager.refresh() else permissionManager.statuses.value
-        val isPermissionMissing = statuses
-            .missing(permissionManager.permissionsFor(PermissionScope.ONBOARDING))
-            .isNotEmpty()
-
-        onboardingSteps.filter { step ->
-            when (step) {
-                NavigationItem.OnboardingScreens.TempLoginScreen -> !isUserLoggedIn
-                NavigationItem.OnboardingScreens.PermissionScreen -> !isOnboardingCompleted && isPermissionMissing
-                NavigationItem.OnboardingScreens.IntroductionScreen,
-                NavigationItem.OnboardingScreens.ListeningAppScreen -> !isOnboardingCompleted
-                NavigationItem.OnboardingScreens.LoginConsentScreen,
-                NavigationItem.OnboardingScreens.LoginScreen -> false
-            }
+        if (::backStack.isInitialized) {
+            outState.putBundle(
+                BACK_STACK_KEY,
+                encodeToSavedState(backStackSerializer, backStack)
+            )
         }
     }
 
-    /** Shows the pending onboarding screen after the current one, or completes onboarding. */
-    private fun navigateInOnboarding() {
-        val currentIndex = onboardingSteps.indexOf(backStack.lastOrNull())
-        val next = pendingOnboardingSteps().firstOrNull { onboardingSteps.indexOf(it) > currentIndex }
-        if (next != null) {
-            backStack.add(next)
-            return
-        }
-
-        dashBoardViewModel.markOnboardingCompleted()
-        // Onboarding started from inside the app returns to where it was, otherwise to home
-        if (backStack.all { it is NavigationItem.OnboardingScreens }) {
-            backStack.add(NavigationItem.HomeScreen)
-        }
-        backStack.removeAll { it is NavigationItem.OnboardingScreens }
+    private fun setUpNavigation(backStack: NavBackStack<NavKey>) {
+        this.backStack = backStack
+        onboardingNavigator = OnboardingNavigator(
+            backStack = backStack,
+            home = NavigationItem.HomeScreen,
+            keyOf = ::onboardingKey,
+            state = { checkNotNull(dashBoardViewModel.onboardingState.value) },
+            onOnboardingCompleted = dashBoardViewModel::markOnboardingCompleted
+        )
+        isNavigationReady = true
     }
 
 
@@ -300,9 +281,9 @@ class MainActivity : ComponentActivity() {
 private const val BACK_STACK_KEY = "back_stack"
 private val backStackSerializer = NavBackStackSerializer(elementSerializer = NavKeySerializer())
 
-private val onboardingSteps = listOf(
-    NavigationItem.OnboardingScreens.IntroductionScreen,
-    NavigationItem.OnboardingScreens.TempLoginScreen,
-    NavigationItem.OnboardingScreens.PermissionScreen,
-    NavigationItem.OnboardingScreens.ListeningAppScreen
-)
+private fun onboardingKey(step: OnboardingStep): NavKey = when (step) {
+    OnboardingStep.INTRODUCTION -> NavigationItem.OnboardingScreens.IntroductionScreen
+    OnboardingStep.LOGIN -> NavigationItem.OnboardingScreens.TempLoginScreen
+    OnboardingStep.PERMISSIONS -> NavigationItem.OnboardingScreens.PermissionScreen
+    OnboardingStep.LISTENING_APPS -> NavigationItem.OnboardingScreens.ListeningAppScreen
+}

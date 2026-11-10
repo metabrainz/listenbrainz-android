@@ -214,7 +214,7 @@ val repositoryModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { DashBoardViewModel(get(), get(), get()) }
+    viewModel { DashBoardViewModel(get(), get(), get(), get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
 }
 
