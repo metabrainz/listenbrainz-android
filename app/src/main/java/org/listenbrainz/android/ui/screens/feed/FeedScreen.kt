@@ -240,10 +240,7 @@ fun FeedScreen(
                 .fillMaxSize()
                 .pullRefresh(state = pullRefreshState)
         ) {
-            HorizontalPager(
-                state = pagerState,
-                beyondViewportPageCount = 1
-            ) { position ->
+            HorizontalPager(state = pagerState) { position ->
                 when (position) {
                     0 -> MyFeed(
                         listState = myFeedListState,
