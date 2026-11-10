@@ -379,16 +379,18 @@ fun ListensScreen(
                             }
                         }
 
+                        val allListensState = rememberLazyListState()
                         var height by remember { mutableIntStateOf(0) }
                         val count by remember {
                             derivedStateOf {
                                 if (height == 0) {
                                     return@derivedStateOf 0
                                 }
-                                listState.layoutInfo.viewportSize.height / height
+                                allListensState.layoutInfo.viewportSize.height / height
                             }
                         }
                         LazyColumn(
+                            state = allListensState,
                             contentPadding = PaddingValues(bottom = 16.dp),
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
