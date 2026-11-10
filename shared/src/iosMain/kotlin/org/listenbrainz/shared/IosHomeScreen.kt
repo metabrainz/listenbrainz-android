@@ -12,6 +12,8 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,11 +31,12 @@ import org.jetbrains.compose.resources.painterResource
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
+import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 
-private val homeTabs = listOf(AppNavigationItem.Feed, AppNavigationItem.Explore)
+private val homeTabs = listOf(AppNavigationItem.Feed, AppNavigationItem.Explore, AppNavigationItem.Profile)
 
 /** Stands in for HomeScreen, with only the tabs whose screens are common so far. */
 @Composable
@@ -41,16 +44,34 @@ fun IosHomeScreen(
     dashBoardViewModel: DashBoardViewModel,
     onNewsClick: () -> Unit
 ) {
+    val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
     var selectedTab by rememberSaveable { mutableStateOf(0) }
+    // Another user's profile, or null for the logged-in user's
+    var profileUsername by rememberSaveable { mutableStateOf<String?>(null) }
     var scrollToTopState by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    // Search, Settings, profiles and artists aren't on iOS yet
+    val snackbarState = remember { SnackbarHostState() }
+    // Search, Settings, artists and playlists aren't on iOS yet
     val topBarActions = remember { TopBarActions() }
+
+    val goToUserProfile: (String) -> Unit = { username ->
+        profileUsername = username
+        selectedTab = homeTabs.indexOf(AppNavigationItem.Profile)
+    }
+    val onScrollToTop: (suspend () -> Unit) -> Unit = { scrollToTop ->
+        scope.launch {
+            if (scrollToTopState) {
+                scrollToTop()
+                scrollToTopState = false
+            }
+        }
+    }
 
     Scaffold(
         containerColor = ListenBrainzTheme.colorScheme.background,
         // The screens pad for the status bar themselves
         contentWindowInsets = WindowInsets.captionBar,
+        snackbarHost = { SnackbarHost(snackbarState) },
         bottomBar = {
             BottomNavigation(
                 backgroundColor = ListenBrainzTheme.colorScheme.nav,
@@ -74,6 +95,7 @@ fun IosHomeScreen(
                         selected = selected,
                         onClick = {
                             if (selected) scrollToTopState = true
+                            if (item == AppNavigationItem.Profile) profileUsername = null
                             selectedTab = index
                         },
                         modifier = Modifier.navigationBarsPadding()
@@ -87,26 +109,27 @@ fun IosHomeScreen(
                 AppNavigationItem.Feed -> FeedScreen(
                     scrollToTopState = scrollToTopState,
                     topAppBarActions = topBarActions,
-                    onScrollToTop = { scrollToTop ->
-                        scope.launch {
-                            if (scrollToTopState) {
-                                scrollToTop()
-                                scrollToTopState = false
-                            }
-                        }
-                    },
-                    goToUserPage = {},
+                    onScrollToTop = onScrollToTop,
+                    goToUserPage = goToUserProfile,
                     goToArtistPage = {}
                 )
 
-                else -> {
-                    val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
-                    ExploreScreen(
-                        topBarActions = topBarActions,
-                        username = dashBoardUiState.username,
-                        onNewsClick = onNewsClick
-                    )
-                }
+                AppNavigationItem.Profile -> ProfileScreen(
+                    scrollRequestState = scrollToTopState,
+                    onScrollToTop = onScrollToTop,
+                    username = profileUsername ?: dashBoardUiState.username,
+                    topBarActions = topBarActions,
+                    snackbarState = snackbarState,
+                    goToUserProfile = goToUserProfile,
+                    goToArtistPage = {},
+                    goToPlaylist = {}
+                )
+
+                else -> ExploreScreen(
+                    topBarActions = topBarActions,
+                    username = dashBoardUiState.username,
+                    onNewsClick = onNewsClick
+                )
             }
         }
     }
