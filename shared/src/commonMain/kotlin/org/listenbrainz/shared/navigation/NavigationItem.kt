@@ -1,10 +1,12 @@
-package org.listenbrainz.android.ui.navigation
+package org.listenbrainz.shared.navigation
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface NavigationItem :NavKey{
 
+    @Serializable
     sealed interface OnboardingScreens: NavigationItem {
         @Serializable
         data object IntroductionScreen : OnboardingScreens
