@@ -47,7 +47,7 @@ import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.shared.model.recordingSearch.RecordingData
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Utils.formatDurationSeconds
+import org.listenbrainz.android.util.formatDurationSeconds
 import org.listenbrainz.shared.ui.screens.playlist.PlaylistDetailUIState
 
 @Composable

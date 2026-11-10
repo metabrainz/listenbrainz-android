@@ -89,8 +89,8 @@ import org.listenbrainz.shared.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
-import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
-import org.listenbrainz.android.util.Utils.Spacer
+import org.listenbrainz.android.util.LaunchedEffectUnit
+import org.listenbrainz.android.util.Spacer
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.viewmodel.UserViewModel

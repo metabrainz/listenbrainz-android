@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.new_app_bg_light
-import org.listenbrainz.android.util.Utils.Spacer
+import org.listenbrainz.android.util.Spacer
 
 @Composable
 fun MusicBrainzButton(onClick: () -> Unit) {

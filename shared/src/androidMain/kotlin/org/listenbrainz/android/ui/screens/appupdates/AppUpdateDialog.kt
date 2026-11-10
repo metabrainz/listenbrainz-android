@@ -53,7 +53,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
-import org.listenbrainz.android.util.Utils.toDp
+import org.listenbrainz.android.util.toDp
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 
 @Composable

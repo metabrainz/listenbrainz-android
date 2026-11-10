@@ -93,7 +93,7 @@ import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegac
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.Utils
-import org.listenbrainz.android.util.Utils.formatDurationSeconds
+import org.listenbrainz.android.util.formatDurationSeconds
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.shared.util.Utils.removeHtmlTags
 import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel

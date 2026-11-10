@@ -24,36 +24,21 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.DisposableEffectResult
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.shared.R
 import org.listenbrainz.shared.util.Log
@@ -84,17 +69,6 @@ object Utils {
     ) = Toast.makeText(this, message, length).show()
     
 
-    fun List<Placeable>.measureSize(): IntSize {
-        var width = 0
-        var height = 0
-        forEach {
-            width += it.width
-            height += it.height
-        }
-
-        return IntSize(width, height)
-    }
-
     fun sendFeedback(context: Context) {
         try {
             context.startActivity(emailIntent(Constants.FEEDBACK_EMAIL, Constants.FEEDBACK_SUBJECT))
@@ -103,31 +77,6 @@ object Utils {
         }
     }
 
-
-    @Composable
-    fun LaunchedEffectUnit(block: suspend CoroutineScope.() -> Unit) = LaunchedEffect(Unit, block)
-
-    @Composable
-    fun LaunchedEffectUnitMainThread(block: () -> Unit) = DisposableEffect(Unit) {
-        block()
-        EmptyDisposableEffectResult
-    }
-
-    @Composable
-    fun LaunchedEffectMainThread(vararg keys: Any?, block: () -> Unit) = DisposableEffect(*keys) {
-        block()
-        EmptyDisposableEffectResult
-    }
-
-    @Composable
-    fun LaunchedEffectMainThread(key1: Any?, block: () -> Unit) = DisposableEffect(key1) {
-        block()
-        EmptyDisposableEffectResult
-    }
-
-    private val EmptyDisposableEffectResult = object : DisposableEffectResult {
-        override fun dispose() = Unit
-    }
 
     fun Context.getNavigationBarHeightInPixels(): Int {
         val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
@@ -149,11 +98,6 @@ object Utils {
     }
 
     @Composable
-    fun getStatusBarHeight() =
-        WindowInsets.statusBars.asPaddingValues()
-            .calculateTopPadding()
-
-    @Composable
     fun getDisplayCutoutHeight() =
         if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
             WindowInsets.displayCutout.asPaddingValues()
@@ -163,44 +107,12 @@ object Utils {
                 .calculateStartPadding(LocalLayoutDirection.current)
         }
 
-    @Composable
-    fun getNavigationBarHeight() =
-        WindowInsets.navigationBars.asPaddingValues()
-            .calculateBottomPadding()
-
-    @Composable
-    fun HorizontalSpacer(width: Dp) = Spacer(Modifier.width(width))
-
-    @Composable
-    fun VerticalSpacer(height: Dp) = Spacer(Modifier.height(height))
-
-    @Composable
-    fun ColumnScope.Spacer(height: Dp) = Spacer(modifier = Modifier.height(height))
-
-    @Composable
-    fun RowScope.Spacer(height: Dp) = Spacer(modifier = Modifier.width(height))
-
-    @Composable
-    fun Int.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
-    @Composable
-    fun Float.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
-
-    @Composable
-    fun Int.toSp() = with(LocalDensity.current) { this@toSp.toSp() }
-    @Composable
-    fun Float.toSp() = with(LocalDensity.current) { this@toSp.toSp() }
-
-    @Composable
-    fun Dp.toPx() = with(LocalDensity.current) { this@toPx.toPx() }
-
     fun Number.toDp(context: Context) = (this.toFloat() / context.resources.displayMetrics.density).dp
     fun Number.toDp(density: Int) = (this.toFloat() / density).dp
 
     fun Dp.toPx(context: Context) = this.value * context.resources.displayMetrics.density
     fun Dp.toPx(density: Int) = this.value * density
 
-    @Composable
-    fun TextUnit.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
     fun TextUnit.toDp(context: Context) {
         val density = Density(context)
         return with(density) { this@toDp.toDp() }
@@ -488,20 +400,6 @@ object Utils {
         }
         context.startActivity(Intent.createChooser(intent, "Share link via"))
     }
-
-    //Format duration in seconds to HH:MM:SS format or MM:SS format
-    fun formatDurationSeconds(seconds: Int): String {
-        val hours = seconds / 3600
-        val minutes = (seconds % 3600) / 60
-        val secs = seconds % 60
-
-        return if (hours > 0) {
-            String.format("%02d:%02d:%02d", hours, minutes, secs)
-        } else {
-            String.format("%02d:%02d", minutes, secs)
-        }
-    }
-
 
     /**
      * Compares the current app version with the latest version from GitHub.
