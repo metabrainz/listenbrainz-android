@@ -1,10 +1,8 @@
 package org.listenbrainz.shared.navigation
 
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.serialization.NavBackStackSerializer
 import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
@@ -17,6 +15,3 @@ val navigationSavedStateConfiguration = SavedStateConfiguration {
         }
     }
 }
-
-/** Use with [navigationSavedStateConfiguration]. */
-val navBackStackSerializer = NavBackStackSerializer(PolymorphicSerializer(NavKey::class))
