@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.profile.stats
 
-import android.text.TextUtils
 import org.jetbrains.compose.resources.stringResource
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.globe
@@ -45,32 +44,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
-import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
-import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
+import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
+import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.compose.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.Fill
+import com.patrykandpatrick.vico.compose.common.Insets
 import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
-import com.patrykandpatrick.vico.compose.common.of
-import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
-import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
-import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
-import com.patrykandpatrick.vico.core.common.Dimensions
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
@@ -354,17 +352,13 @@ fun StatsScreen(
                                 }
 
                                 LaunchedEffect(data) {
-                                    withContext(Dispatchers.Default) {
-                                        while (isActive) {
-                                            modelProducer.runTransaction {
-                                                columnSeries {
-                                                    if (listenCountsFirstPart.isNotEmpty()) {
-                                                        series(y = listenCountsFirstPart)
-                                                    }
-                                                    if (listenCountsSecondPart.isNotEmpty()) {
-                                                        series(y = listenCountsSecondPart)
-                                                    }
-                                                }
+                                    modelProducer.runTransaction {
+                                        columnSeries {
+                                            if (listenCountsFirstPart.isNotEmpty()) {
+                                                series(y = listenCountsFirstPart)
+                                            }
+                                            if (listenCountsSecondPart.isNotEmpty()) {
+                                                series(y = listenCountsSecondPart)
                                             }
                                         }
                                     }
@@ -374,11 +368,11 @@ fun StatsScreen(
                                     ColumnCartesianLayer.ColumnProvider.series(
                                         listOf(
                                             rememberLineComponent(
-                                                color = ListenBrainzTheme.colorScheme.lbSignature,
+                                                fill = Fill(ListenBrainzTheme.colorScheme.lbSignature),
                                                 thickness = 25.dp,
                                             ),
                                             rememberLineComponent(
-                                                color = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+                                                fill = Fill(ListenBrainzTheme.colorScheme.lbSignatureInverse),
                                                 thickness = 25.dp,
                                             )
                                         )
@@ -393,26 +387,32 @@ fun StatsScreen(
                                     chart = rememberCartesianChart(
                                         rememberColumnCartesianLayer(
                                             columnProvider = columnProvider,
-                                            spacing = 25.dp,
-                                            mergeMode = { ColumnCartesianLayer.MergeMode.Grouped },
+                                            columnCollectionSpacing = 25.dp,
+                                            mergeMode = { ColumnCartesianLayer.MergeMode.Grouped() },
                                         ),
-                                        startAxis = rememberStartAxis(
+                                        startAxis = VerticalAxis.rememberStart(
                                             label = rememberTextComponent(
-                                                color = ListenBrainzTheme.colorScheme.text,
-                                                textSize = 11.sp,
-                                                padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
+                                                style = TextStyle(
+                                                    color = ListenBrainzTheme.colorScheme.text,
+                                                    fontSize = 11.sp
+                                                ),
+                                                padding = Insets(ListenBrainzTheme.paddings.tinyPadding)
                                             )
                                         ),
-                                        bottomAxis = rememberBottomAxis(
+                                        bottomAxis = HorizontalAxis.rememberBottom(
                                             label = rememberTextComponent(
-                                                ellipsize = TextUtils.TruncateAt.MARQUEE,
-                                                textSize = 11.sp,
-                                                color = ListenBrainzTheme.colorScheme.text,
-                                                padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
+                                                style = TextStyle(
+                                                    color = ListenBrainzTheme.colorScheme.text,
+                                                    fontSize = 11.sp
+                                                ),
+                                                overflow = TextOverflow.Clip,
+                                                padding = Insets(ListenBrainzTheme.paddings.tinyPadding)
                                             ),
                                             guideline = null,
-                                            valueFormatter = { value, chartValues, verticalAxisPosition ->
-                                                valueFormatter(value.toInt(), statsRangeState)
+                                            valueFormatter = remember(statsRangeState) {
+                                                CartesianValueFormatter { _, value, _ ->
+                                                    valueFormatter(value.toInt(), statsRangeState)
+                                                }
                                             },
                                         ),
                                     ),

@@ -153,6 +153,7 @@ kotlin {
                 implementation(libs.compose.material3)
                 implementation(libs.compose.material.icons.extended)
                 implementation(libs.compose.shimmer)
+                implementation(libs.vico.compose)
                 // datastore
                 implementation(libs.datastore.preferences.core)
                 implementation(libs.kotlinx.serialization.json)
@@ -248,7 +249,6 @@ kotlin {
                 implementation(libs.reorderable)
                 implementation(libs.google.accompanist.permissions)
                 implementation(libs.app.update.ktx)
-                implementation(libs.vico.compose)
             }
         }
 
