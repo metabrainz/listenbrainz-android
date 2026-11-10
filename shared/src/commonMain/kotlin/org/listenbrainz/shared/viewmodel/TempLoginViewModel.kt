@@ -52,6 +52,12 @@ class TempLoginViewModel(
         }
     }
 
+    /** Verifies and saves a token read from the website. */
+    fun submitToken(token: String, onLoginFinished: () -> Unit) {
+        setToken(token)
+        submitToken(onLoginFinished)
+    }
+
     fun submitToken(onLoginFinished: () -> Unit) {
         val token = uiState.value.token.trim()
 

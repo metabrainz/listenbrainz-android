@@ -24,6 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,9 +43,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.screens.onboarding.auth.AuthPasswordField
+import org.listenbrainz.android.ui.screens.onboarding.auth.weblogin.WebLoginScreen
+import org.listenbrainz.android.ui.screens.onboarding.auth.weblogin.clearWebLoginSession
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
@@ -84,10 +91,33 @@ fun TempLoginCard(
 ) {
     val viewmodel = koinViewModel<TempLoginViewModel>()
     val uiState by viewmodel.uiState.collectAsState()
+    var isWebLoginVisible by rememberSaveable { mutableStateOf(false) }
+
+    if (isWebLoginVisible) {
+        Dialog(
+            onDismissRequest = { isWebLoginVisible = false },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false
+            )
+        ) {
+            WebLoginScreen(
+                onTokenFound = { token ->
+                    isWebLoginVisible = false
+                    viewmodel.submitToken(token) { onLoginFinished() }
+                },
+                onClose = { isWebLoginVisible = false }
+            )
+        }
+    }
 
     TempLoginCard(
         modifier = modifier,
         uiState = uiState,
+        onWebLoginClick = {
+            clearWebLoginSession()
+            isWebLoginVisible = true
+        },
         onTokenChange = viewmodel::setToken,
         onSubmitToken = { viewmodel.submitToken { onLoginFinished() } }
     )
@@ -97,6 +127,7 @@ fun TempLoginCard(
 fun TempLoginCard(
     modifier: Modifier = Modifier,
     uiState: TempLoginUiState,
+    onWebLoginClick: () -> Unit,
     onTokenChange: (String) -> Unit,
     onSubmitToken: () -> Unit,
 ) {
@@ -105,6 +136,7 @@ fun TempLoginCard(
         token = uiState.token,
         error = uiState.errorMessage,
         isVerifying = uiState.loginState is TempLoginState.VerifyingToken,
+        onWebLoginClick = onWebLoginClick,
         onTokenChange = onTokenChange,
         onSubmitToken = onSubmitToken,
     )
@@ -115,6 +147,7 @@ private fun TokenCard(
     token: String,
     error: String?,
     isVerifying: Boolean,
+    onWebLoginClick: () -> Unit,
     onTokenChange: (String) -> Unit,
     onSubmitToken: () -> Unit,
     modifier: Modifier = Modifier
@@ -140,6 +173,24 @@ private fun TokenCard(
             TokenHeader()
 
             Spacer(Modifier.height(32.dp))
+
+            OnboardingYellowButton(
+                modifier = Modifier.fillMaxWidth(),
+                text = "Log in with ListenBrainz",
+                isEnabled = !isVerifying,
+                onClick = onWebLoginClick
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                text = "Or paste your user token",
+                style = MaterialTheme.typography.bodyMedium,
+                color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(Modifier.height(16.dp))
 
             AuthPasswordField(
                 password = token,
@@ -168,7 +219,7 @@ private fun TokenCard(
 
             OnboardingYellowButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = if (isVerifying) "Verifying..." else "Log in",
+                text = if (isVerifying) "Verifying..." else "Log in with token",
                 isEnabled = !isVerifying && token.isNotBlank(),
                 onClick = onSubmitToken
             )
@@ -186,7 +237,7 @@ private fun TokenHeader() {
         )
         Spacer(Modifier.height(24.dp))
         Text(
-            text = "Log in with a token",
+            text = "Log in",
             style = MaterialTheme.typography.headlineMedium,
             color = ListenBrainzTheme.colorScheme.text,
             fontWeight = FontWeight.Bold,
@@ -194,7 +245,7 @@ private fun TokenHeader() {
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Paste the user token from your ListenBrainz account",
+            text = "Sign in on the ListenBrainz website, or use your user token",
             style = MaterialTheme.typography.bodyMedium,
             color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
             fontWeight = FontWeight.Medium,
@@ -239,6 +290,7 @@ fun TempLoginScreenLayoutPreview() {
     ListenBrainzTheme {
         TempLoginCard(
             uiState = TempLoginUiState(),
+            onWebLoginClick = {},
             onTokenChange = {},
             onSubmitToken = {}
         )
