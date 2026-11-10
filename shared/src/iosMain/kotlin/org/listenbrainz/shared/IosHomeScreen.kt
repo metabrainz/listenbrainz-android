@@ -1,6 +1,8 @@
 package org.listenbrainz.shared
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.captionBar
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -47,6 +49,8 @@ fun IosHomeScreen(
 
     Scaffold(
         containerColor = ListenBrainzTheme.colorScheme.background,
+        // The screens pad for the status bar themselves
+        contentWindowInsets = WindowInsets.captionBar,
         bottomBar = {
             BottomNavigation(
                 backgroundColor = ListenBrainzTheme.colorScheme.nav,
