@@ -8,6 +8,9 @@ import androidx.compose.ui.window.ComposeUIViewController
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
+import org.listenbrainz.android.ui.navigation.TopBarActions
+import org.listenbrainz.android.ui.screens.album.AlbumScreen
+import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzScreen
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
@@ -53,11 +56,37 @@ fun MainViewController(): UIViewController {
                     entry<NavigationItem.OnboardingScreens.ListeningAppScreen> {
                         LaunchedEffect(Unit) { navigator.onboarding.next() }
                     }
+                    val goToArtistPage: (String) -> Unit = { navigator.backStack.add(NavigationItem.ArtistScreen(it)) }
                     entry<NavigationItem.HomeScreen> {
                         IosHomeScreen(
                             dashBoardViewModel = dashBoardViewModel,
-                            onNewsClick = { navigator.backStack.add(NavigationItem.NewsBrainzScreen) }
+                            onNewsClick = { navigator.backStack.add(NavigationItem.NewsBrainzScreen) },
+                            goToArtistPage = goToArtistPage
                         )
+                    }
+                    // Entries share a ViewModelStore, so each page keys its view model
+                    entry<NavigationItem.ArtistScreen> { key ->
+                        IosPageScaffold { snackbarState ->
+                            ArtistScreen(
+                                artistMbid = key.mbid,
+                                viewModel = koinViewModel(key = "artist:${key.mbid}"),
+                                goToArtistPage = goToArtistPage,
+                                goToUserPage = {},
+                                goToAlbumPage = { navigator.backStack.add(NavigationItem.AlbumScreen(it)) },
+                                snackBarState = snackbarState,
+                                topBarActions = TopBarActions()
+                            )
+                        }
+                    }
+                    entry<NavigationItem.AlbumScreen> { key ->
+                        IosPageScaffold { snackbarState ->
+                            AlbumScreen(
+                                albumMbid = key.mbid,
+                                viewModel = koinViewModel(key = "album:${key.mbid}"),
+                                snackBarState = snackbarState,
+                                topBarActions = TopBarActions()
+                            )
+                        }
                     }
                     entry<NavigationItem.NewsBrainzScreen> {
                         val uriHandler = LocalUriHandler.current

@@ -42,7 +42,8 @@ private val homeTabs = listOf(AppNavigationItem.Feed, AppNavigationItem.Explore,
 @Composable
 fun IosHomeScreen(
     dashBoardViewModel: DashBoardViewModel,
-    onNewsClick: () -> Unit
+    onNewsClick: () -> Unit,
+    goToArtistPage: (String) -> Unit
 ) {
     val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
     var selectedTab by rememberSaveable { mutableStateOf(0) }
@@ -51,7 +52,7 @@ fun IosHomeScreen(
     var scrollToTopState by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarState = remember { SnackbarHostState() }
-    // Search, Settings, artists and playlists aren't on iOS yet
+    // Search, Settings and playlists aren't on iOS yet
     val topBarActions = remember { TopBarActions() }
 
     val goToUserProfile: (String) -> Unit = { username ->
@@ -111,7 +112,7 @@ fun IosHomeScreen(
                     topAppBarActions = topBarActions,
                     onScrollToTop = onScrollToTop,
                     goToUserPage = goToUserProfile,
-                    goToArtistPage = {}
+                    goToArtistPage = goToArtistPage
                 )
 
                 AppNavigationItem.Profile -> ProfileScreen(
@@ -121,7 +122,7 @@ fun IosHomeScreen(
                     topBarActions = topBarActions,
                     snackbarState = snackbarState,
                     goToUserProfile = goToUserProfile,
-                    goToArtistPage = {},
+                    goToArtistPage = goToArtistPage,
                     goToPlaylist = {}
                 )
 
@@ -131,6 +132,21 @@ fun IosHomeScreen(
                     onNewsClick = onNewsClick
                 )
             }
+        }
+    }
+}
+
+/** Hosts a page pushed over the home screen, with somewhere to show its snackbars. */
+@Composable
+fun IosPageScaffold(content: @Composable (SnackbarHostState) -> Unit) {
+    val snackbarState = remember { SnackbarHostState() }
+    Scaffold(
+        containerColor = ListenBrainzTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets.captionBar,
+        snackbarHost = { SnackbarHost(snackbarState) }
+    ) { padding ->
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            content(snackbarState)
         }
     }
 }
