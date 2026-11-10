@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth.login
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import org.listenbrainz.shared.resources.Res
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -54,9 +54,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.screens.onboarding.auth.AuthPasswordField
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
@@ -100,21 +98,13 @@ fun LoginCard(
     var isWebLoginVisible by rememberSaveable { mutableStateOf(false) }
 
     if (isWebLoginVisible) {
-        Dialog(
-            onDismissRequest = { isWebLoginVisible = false },
-            properties = DialogProperties(
-                usePlatformDefaultWidth = false,
-                decorFitsSystemWindows = false
-            )
-        ) {
-            WebLoginScreen(
-                onTokenFound = { token ->
-                    isWebLoginVisible = false
-                    viewmodel.submitToken(token) { onLoginFinished() }
-                },
-                onClose = { isWebLoginVisible = false }
-            )
-        }
+        WebLoginDialog(
+            onTokenFound = { token ->
+                isWebLoginVisible = false
+                viewmodel.submitToken(token) { onLoginFinished() }
+            },
+            onDismiss = { isWebLoginVisible = false }
+        )
     }
 
     LoginCard(
@@ -330,7 +320,7 @@ private fun TokenHelpSection() {
 }
 
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 fun LoginScreenLayoutPreview() {
     ListenBrainzTheme {

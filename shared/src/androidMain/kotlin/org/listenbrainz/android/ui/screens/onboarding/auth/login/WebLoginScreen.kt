@@ -21,19 +21,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import org.json.JSONTokener
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.ui.screens.onboarding.auth.login.WebLogin
 
-/** Clears the website session, so the next [WebLoginScreen] starts logged out. */
-fun clearWebLoginSession() {
+actual fun clearWebLoginSession() {
     CookieManager.getInstance().removeAllCookies(null)
     CookieManager.getInstance().flush()
 }
 
+@Composable
+actual fun WebLoginDialog(onTokenFound: (String) -> Unit, onDismiss: () -> Unit) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        WebLoginScreen(onTokenFound = onTokenFound, onClose = onDismiss)
+    }
+}
+
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun WebLoginScreen(
+private fun WebLoginScreen(
     onTokenFound: (String) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier

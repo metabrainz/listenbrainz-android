@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.onboarding.permissions
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import org.listenbrainz.shared.resources.permission_screen_rationale
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.ic_redirect
@@ -30,13 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -44,7 +43,6 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.shared.permission.AppPermission
 import org.listenbrainz.shared.permission.PermissionManager
 import org.listenbrainz.shared.permission.PermissionScope
-import org.listenbrainz.shared.permission.AndroidPermission
 import org.listenbrainz.shared.permission.missing
 import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
@@ -56,7 +54,9 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 import org.listenbrainz.shared.model.PermissionStatus
-import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.navigation.navigationSavedStateConfiguration
+import org.listenbrainz.shared.ui.screens.onboarding.permissions.PermissionInfo
+import org.listenbrainz.shared.ui.screens.onboarding.permissions.SendNotificationsInfo
 
 @Composable
 fun PermissionScreen(
@@ -101,7 +101,6 @@ private fun PermissionScreenBase(
     submitLogs:()->Unit,
     isSubmitting:Boolean
 ) {
-    val context = LocalContext.current
     FloatingContentAwareLayout(
         modifier = Modifier
             .fillMaxSize(),
@@ -255,15 +254,14 @@ fun PermissionCard(
 
 
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 private fun PermissionScreenPreview() {
     ListenBrainzTheme {
-        OnboardingScreenBackground(backStack = rememberNavBackStack(NavigationItem.OnboardingScreens.PermissionScreen))
+        OnboardingScreenBackground(backStack = rememberNavBackStack(navigationSavedStateConfiguration, NavigationItem.OnboardingScreens.PermissionScreen))
         PermissionScreenBase(
             permissions = mapOf(
-                AndroidPermission.READ_NOTIFICATIONS to PermissionStatus.PERMANENTLY_DENIED,
-                AndroidPermission.BATTERY_OPTIMIZATION to PermissionStatus.NOT_GRANTED
+                PreviewPermission(SendNotificationsInfo) to PermissionStatus.PERMANENTLY_DENIED
             ),
             onGrantPermissionClick = {},
             onRejectPermissionClick = {},
@@ -271,4 +269,8 @@ private fun PermissionScreenPreview() {
             isSubmitting = false
         )
     }
+}
+
+private data class PreviewPermission(override val info: PermissionInfo) : AppPermission {
+    override val id = info.title
 }

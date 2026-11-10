@@ -162,6 +162,7 @@ kotlin {
                 // navigation
                 api(libs.androidx.navigation3.runtime)
                 implementation(libs.compose.navigation3.ui)
+                implementation(libs.compose.navigationevent)
                 implementation(libs.compose.savedstate)
                 // koin
                 implementation(libs.koin.core)

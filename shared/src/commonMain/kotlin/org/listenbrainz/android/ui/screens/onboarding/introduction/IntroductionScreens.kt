@@ -1,8 +1,6 @@
 package org.listenbrainz.android.ui.screens.onboarding.introduction
 
-import android.content.res.Configuration
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.SizeTransform
@@ -45,9 +43,11 @@ import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -57,7 +57,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -69,6 +68,11 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.navigationevent.DirectNavigationEventInput
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.jetbrains.compose.resources.painterResource
@@ -99,8 +103,9 @@ fun createSlideTransition(
 fun IntroductionScreens(onOnboardingComplete: () -> Unit) {
     val screenCount = IntroScreenDataEnum.entries.size
     var currentScreen by rememberSaveable { mutableIntStateOf(1) }
-    BackHandler(
-        enabled = currentScreen != 1,
+    NavigationBackHandler(
+        state = rememberNavigationEventState(NavigationEventInfo.None),
+        isBackEnabled = currentScreen != 1,
     ) {
         if (currentScreen > 1) {
             currentScreen--
@@ -313,13 +318,18 @@ private fun IndicatorComposable(
 @Composable
 fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (() -> Unit)? = null) {
     val haptic = LocalHapticFeedback.current
-    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    val backDispatcher = LocalNavigationEventDispatcherOwner.current?.navigationEventDispatcher
+    val backInput = remember { DirectNavigationEventInput() }
+    DisposableEffect(backDispatcher) {
+        backDispatcher?.addInput(backInput)
+        onDispose { backDispatcher?.removeInput(backInput) }
+    }
     IconButton(
         modifier = modifier,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.Confirm)
             if (onBackPress != null) onBackPress()
-            else backDispatcher?.onBackPressed()
+            else backInput.backCompleted()
         },
         colors = IconButtonDefaults.iconButtonColors(
             //Suitable with the background
@@ -393,7 +403,7 @@ private fun AnimatedYellowButton(
 }
 
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 fun IntroductionScreen2Preview() {
     ListenBrainzTheme {
@@ -402,7 +412,7 @@ fun IntroductionScreen2Preview() {
 }
 
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 fun IntroductionScreen1Preview() {
     ListenBrainzTheme {
@@ -411,7 +421,7 @@ fun IntroductionScreen1Preview() {
 }
 
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 fun IntroductionScreen3Preview() {
     ListenBrainzTheme {
