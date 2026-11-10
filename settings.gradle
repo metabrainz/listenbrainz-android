@@ -16,6 +16,5 @@ dependencyResolutionManagement {
 }
 
 include(":androidApp")
-include(":sharedTest")
 include(":spotify-app-remote")
 include(":shared")

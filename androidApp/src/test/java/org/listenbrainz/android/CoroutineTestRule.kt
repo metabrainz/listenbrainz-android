@@ -1,4 +1,4 @@
-package org.listenbrainz.sharedtest.utils
+package org.listenbrainz.android
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

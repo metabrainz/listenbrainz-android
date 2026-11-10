@@ -9,7 +9,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.runner.RunWith
-import org.listenbrainz.sharedtest.utils.CoroutineTestRule
 import org.mockito.junit.MockitoJUnitRunner
 
 

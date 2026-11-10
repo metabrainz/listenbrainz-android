@@ -228,22 +228,6 @@ dependencies {
     testImplementation(libs.androidx.arch.core.testing)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
-    testImplementation(project(":sharedTest"))
-
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.work.testing)
-    androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
-    androidTestImplementation(libs.androidx.test.espresso.intents)
-    androidTestImplementation(libs.koin.test)
-    androidTestImplementation(libs.koin.test.junit4)
-    androidTestImplementation(project(":sharedTest"))
-
-    debugImplementation(libs.androidx.test.monitor)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    implementation(libs.androidx.test.ext.junit.ktx)
 
     // Chucker
     debugImplementation(libs.chucker)
