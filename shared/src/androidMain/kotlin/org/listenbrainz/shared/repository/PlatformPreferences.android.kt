@@ -34,7 +34,6 @@ actual fun settingsPlatformDataMigrations(
                 PreferenceKeys.IS_LISTENING_ALLOWED.name,
                 PreferenceKeys.SHOULD_LISTEN_NEW_PLAYERS.name,
                 PreferenceKeys.PERMISSIONS_REQUESTED.name,
-                PreferenceKeys.CONSENT_SCREEN_CACHE.name,
                 PreferenceKeys.INSTALL_SOURCE.name,
                 PreferenceKeys.APP_LAUNCH_COUNT.name,
                 PreferenceKeys.LAST_VERSION_CHECK_LAUNCH_COUNT.name,

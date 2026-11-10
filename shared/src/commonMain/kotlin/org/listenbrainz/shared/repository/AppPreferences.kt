@@ -48,8 +48,6 @@ interface AppPreferences {
 
     val isNotificationServiceAllowed: Boolean
 
-    /** Cache for Login Consent Screen Data */
-    val consentScreenDataCache: DataStorePreference<String>
 
     val installSource: DataStorePreference<InstallSource>
     

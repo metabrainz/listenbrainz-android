@@ -40,7 +40,6 @@ fun ProfileScreen(
     goToUserProfile: (String) -> Unit,
     goToArtistPage: (String) -> Unit,
     goToPlaylist: (String) -> Unit,
-    navigateToCreateAccount: () -> Unit,
     socialViewModel: SocialViewModel = koinViewModel(),
 ) {
     val scrollState = rememberScrollState()

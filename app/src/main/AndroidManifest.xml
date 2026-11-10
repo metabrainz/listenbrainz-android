@@ -86,10 +86,6 @@
             android:label="@string/donate_title"
             android:theme="@style/AppTheme"/>
 
-        <activity 
-            android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity"
-            android:theme="@style/AppTheme"/>
-
 
         <provider
             android:name="androidx.core.content.FileProvider"

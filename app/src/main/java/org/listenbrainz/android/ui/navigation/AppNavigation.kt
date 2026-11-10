@@ -127,7 +127,6 @@ fun AppNavigation(
                 goToArtistPage = ::goToArtistPage,
                 goToPlaylist = ::goToPlaylist,
                 topBarActions = topAppBarActions,
-                navigateToCreateAccount = settingsCallbacks.navigateToCreateAccount
             )
         }
         appComposable(

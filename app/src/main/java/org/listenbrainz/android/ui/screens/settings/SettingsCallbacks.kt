@@ -24,6 +24,5 @@ data class SettingsCallbacks(
 data class SettingsCallbacksToHomeScreen(
     val checkForUpdates: suspend () -> Boolean,
     val onLoginRequest: () -> Unit,
-    val onOnboardingRequest: () -> Unit,
-    val navigateToCreateAccount : () -> Unit
+    val onOnboardingRequest: () -> Unit
 )

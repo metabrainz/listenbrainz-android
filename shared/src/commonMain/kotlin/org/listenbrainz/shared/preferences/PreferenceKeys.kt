@@ -27,7 +27,6 @@ object PreferenceKeys {
     val PERMISSIONS_REQUESTED = stringPreferencesKey("requested_permissions")
     
     // Login consent
-    val CONSENT_SCREEN_CACHE = stringPreferencesKey("login_consent_screen_cache")
     
     // Install source
     val INSTALL_SOURCE = stringPreferencesKey("install_source")

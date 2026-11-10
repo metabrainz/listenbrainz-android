@@ -42,7 +42,6 @@ import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateAvailableDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateReadyDialog
-import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.ListenBrainzCreateAccountScreen
 import org.listenbrainz.android.ui.screens.onboarding.auth.templogin.TempLoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
@@ -159,16 +158,8 @@ class MainActivity : ComponentActivity() {
                                             activity = this@MainActivity
                                         )
                                     },
-                                    navigateToCreateAccount = {
-                                        backStack.add(NavigationItem.CreateAccountScreen)
-                                    },
                                 )
                             )
-                        }
-                        entry<NavigationItem.CreateAccountScreen> {
-                            ListenBrainzCreateAccountScreen(){
-                                backStack.remove(NavigationItem.CreateAccountScreen)
-                            }
                         }
                     },
                     transitionSpec = {
@@ -220,7 +211,7 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(backStack.lastIndex, uiMode) {
             val isStatusBarIconColorLight =
-                if (backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens || backStack[backStack.lastIndex] == NavigationItem.CreateAccountScreen) {
+                if (backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens) {
                     true
                 } else {
                     when (uiMode) {

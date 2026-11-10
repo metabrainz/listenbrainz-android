@@ -14,12 +14,6 @@ sealed interface NavigationItem :NavKey{
         @Serializable
         data object PermissionScreen : OnboardingScreens
 
-        @Serializable
-        data object LoginConsentScreen : OnboardingScreens
-
-        @Serializable
-        data object LoginScreen : OnboardingScreens
-
         /* Temporary token based login */
         @Serializable
         data object TempLoginScreen : OnboardingScreens
@@ -29,8 +23,4 @@ sealed interface NavigationItem :NavKey{
     }
 
     @Serializable
-    data object HomeScreen: NavigationItem
-
-    @Serializable
-    data object CreateAccountScreen: NavigationItem
-}
+    data object HomeScreen: NavigationItem}

@@ -284,19 +284,6 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
             }
         }
 
-    override val consentScreenDataCache: DataStorePreference<String>
-        get() = object : DataStorePreference<String> {
-            override fun getFlow(): Flow<String> = mapData { prefs ->
-                prefs[PreferenceKeys.CONSENT_SCREEN_CACHE] ?: ""
-            }
-
-            override suspend fun set(value: String) {
-                dataStore().edit { prefs ->
-                    prefs[PreferenceKeys.CONSENT_SCREEN_CACHE] = value
-                }
-            }
-        }
-
     override val linkedServices: DataStorePreference<List<LinkedService>>
         get() = object : DataStorePreference<List<LinkedService>> {
             override fun getFlow(): Flow<List<LinkedService>> = mapData { prefs ->
