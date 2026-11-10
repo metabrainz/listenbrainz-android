@@ -1,0 +1,7 @@
+TEAM_ID=
+BUNDLE_ID=org.listenbrainz.ios
+APP_NAME=ListenBrainz
+
+// Developer-specific values live in the gitignored Local.xcconfig next to this file,
+// e.g. TEAM_ID=XXXXXXXXXX. Committed defaults above; local values win.
+#include? "Local.xcconfig"

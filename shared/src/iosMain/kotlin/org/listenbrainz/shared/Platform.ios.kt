@@ -17,6 +17,7 @@ import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.IosFileLogWriter
 import org.listenbrainz.shared.util.IosLogSubmitter
 import org.listenbrainz.shared.util.LogSubmitter
+import org.listenbrainz.shared.util.iosLogDirectory
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
@@ -42,11 +43,7 @@ actual fun provideLogger(
         platformLogWriter()
     )
 
-    val logFileDirectory = NSSearchPathForDirectoriesInDomains(
-        directory = NSDocumentDirectory,
-        domainMask = NSUserDomainMask,
-        expandTilde = true
-    ).firstOrNull() as? String
+    val logFileDirectory = iosLogDirectory()
 
     if(logFileDirectory != null){
         writers.add(IosFileLogWriter(logFileDirectory, buildInfo))

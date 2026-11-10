@@ -50,13 +50,11 @@ class IosRemotePlaybackHandlerImpl(
 
     // no support for ios right now
     override suspend fun connectToSpotify(onError: (ResponseError) -> Unit) {
-        TODO("Not yet implemented")
+        onError(ResponseError.DoesNotExist())
     }
 
     // no support for ios right now
-    override suspend fun disconnectSpotify() {
-        TODO("Not yet implemented")
-    }
+    override suspend fun disconnectSpotify() = Unit
 
     // no support for ios right now
     override suspend fun fetchSpotifyTrackCoverArt(playerState: SharedPlayerState?): ListenBitmap {
@@ -69,14 +67,10 @@ class IosRemotePlaybackHandlerImpl(
     }
 
     // no support for ios right now
-    override fun play(onPlay: () -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override fun play(onPlay: () -> Unit) = Unit
 
     // no support for ios right now
-    override fun pause(onPause: () -> Unit) {
-        TODO("Not yet implemented")
-    }
+    override fun pause(onPause: () -> Unit) = Unit
 
     // no support for ios right now
     override fun getPlayerState(): Flow<SharedPlayerState?> {

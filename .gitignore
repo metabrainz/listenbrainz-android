@@ -20,3 +20,8 @@ sentry.properties
 
 shared/.idea
 gradle/gradle-daemon-jvm.properties
+
+# Xcode
+iosApp/Configuration/Local.xcconfig
+xcuserdata/
+DerivedData/
