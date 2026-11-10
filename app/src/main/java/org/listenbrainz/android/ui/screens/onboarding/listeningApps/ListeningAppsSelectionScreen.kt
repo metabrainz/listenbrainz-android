@@ -74,7 +74,7 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSup
 import org.listenbrainz.android.ui.screens.onboarding.introduction.createSlideTransition
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListeningAppsViewModel
 import org.listenbrainz.shared.model.PermissionStatus
 import org.listenbrainz.shared.permission.PermissionManager

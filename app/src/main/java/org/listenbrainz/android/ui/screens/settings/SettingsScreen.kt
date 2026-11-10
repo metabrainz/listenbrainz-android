@@ -64,7 +64,7 @@ import org.listenbrainz.android.ui.screens.main.DonateActivity
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.util.Constants
-import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 import org.listenbrainz.shared.model.PermissionStatus
 import org.listenbrainz.shared.permission.PermissionManager
 import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState

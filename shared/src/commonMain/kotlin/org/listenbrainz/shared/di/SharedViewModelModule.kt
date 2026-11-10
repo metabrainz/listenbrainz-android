@@ -4,6 +4,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.shared.viewmodel.NewsListViewModel
+import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 import org.listenbrainz.shared.viewmodel.FeaturesViewModel
 import org.listenbrainz.shared.viewmodel.AlbumViewModel
 import org.listenbrainz.shared.viewmodel.ArtistViewModel
@@ -18,6 +19,7 @@ import org.listenbrainz.shared.viewmodel.UserViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 
 val sharedViewModelModule = module {
+    viewModel { DashBoardViewModel(get(), get(), get(), get()) }
     viewModel { SettingsViewModel(get(),get()) }
     viewModel { NewsListViewModel(get(),get(named(IO_DISPATCHER))) }
     viewModel { FeaturesViewModel(get()) }

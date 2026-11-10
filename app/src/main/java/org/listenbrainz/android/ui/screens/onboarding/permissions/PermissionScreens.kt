@@ -54,7 +54,7 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBac
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_yellow
-import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 import org.listenbrainz.shared.model.PermissionStatus
 import org.listenbrainz.shared.repository.PlatformContext
 

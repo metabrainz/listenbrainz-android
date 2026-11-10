@@ -34,7 +34,7 @@ import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.screens.search.BaseSearchScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
-import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 
 @Composable
 fun AppNavigation(

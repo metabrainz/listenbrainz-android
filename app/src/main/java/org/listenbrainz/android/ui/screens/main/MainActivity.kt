@@ -49,7 +49,7 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScre
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
-import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListeningAppsViewModel
 import org.listenbrainz.shared.navigation.NavigationItem
 import org.listenbrainz.shared.navigation.navBackStackSerializer
