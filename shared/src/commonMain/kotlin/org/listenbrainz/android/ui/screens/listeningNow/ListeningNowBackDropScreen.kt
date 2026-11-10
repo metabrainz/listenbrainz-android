@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.listeningNow
 
-import android.content.res.Configuration
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,11 +25,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
 import kotlin.math.max
@@ -50,7 +49,7 @@ fun ListeningNowBackDropScreen(
     backdropScaffoldState: BackdropScaffoldState,
     listeningNowViewModel: ListeningNowViewModel = koinViewModel(),
     paddingValues: PaddingValues,
-    isLandscape: Boolean = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE,
+    isLandscape: Boolean = LocalWindowInfo.current.containerSize.let { it.width > it.height },
     backLayerContent: @Composable () -> Unit
 ) {
     var maxDelta by rememberSaveable {

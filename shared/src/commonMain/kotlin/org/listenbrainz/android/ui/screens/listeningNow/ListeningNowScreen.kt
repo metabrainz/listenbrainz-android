@@ -1,10 +1,8 @@
 package org.listenbrainz.android.ui.screens.listeningNow
 
-import android.util.Log
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.ic_arrow_down
 import org.listenbrainz.shared.resources.ic_erroralbumart
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,7 +44,10 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
+import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.android.ui.components.basicMarquee
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.model.AdditionalInfo
@@ -54,6 +55,7 @@ import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.shared.viewmodel.ListeningNowUIState
 import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
+import org.listenbrainz.shared.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,10 +72,11 @@ fun ListeningNowScreen(
         }
     }
 
-    if (backdropScaffoldState.isConcealed) {
-        BackHandler {
-            onNavigateBack()
-        }
+    NavigationBackHandler(
+        state = rememberNavigationEventState(NavigationEventInfo.None),
+        isBackEnabled = backdropScaffoldState.isConcealed,
+    ) {
+        onNavigateBack()
     }
 
     ListeningNowLayout(
@@ -130,13 +133,13 @@ fun ListeningNowLayout(
                     placeholder = painterResource(Res.drawable.ic_erroralbumart),
                     error = painterResource(Res.drawable.ic_erroralbumart),
                     onLoading = {
-                        Log.d("ListeningNowScreen", "Loading image...")
+                        Log.d("Loading image...", "ListeningNowScreen")
                     },
                     onError = {
-                        Log.d("ListeningNowScreen", "Error loading image" )
+                        Log.d("Error loading image", "ListeningNowScreen")
                     },
                     onSuccess = {
-                        Log.d("ListeningNowScreen", "Image loaded successfully" )
+                        Log.d("Image loaded successfully", "ListeningNowScreen")
                     }
                 )
 
