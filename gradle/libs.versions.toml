@@ -35,7 +35,6 @@ kotlinxSerializationJson = "1.10.0"
 coil = "3.6.3"
 
 material = "1.13.0"
-lottie = "6.6.0"
 koinAndroidxCompose = "4.1.1"
 startup = "1.2.0"
 socketIo = "2.1.1"
@@ -133,7 +132,6 @@ androidx-paging-common = { module = "androidx.paging:paging-common", version.ref
 app-update = { module = "com.google.android.play:app-update", version.ref = "appUpdate" }
 app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "appUpdateKtx" }
 google-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
-google-accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
@@ -142,7 +140,6 @@ coil-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coi
 coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
 
 material = { module = "com.google.android.material:material", version.ref = "material" }
-lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
 
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinTest" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlinTest" }
