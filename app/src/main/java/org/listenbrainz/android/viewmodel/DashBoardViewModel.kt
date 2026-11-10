@@ -111,14 +111,6 @@ class DashBoardViewModel(
         setOnboardingCompleted(false)
     }
 
-    fun isOnboardingCompleted(): Boolean = _onboardingCompletedState.value
-
-    suspend fun isNotificationListenerServiceAllowed() =
-        appPreferences.isNotificationServiceAllowed
-                && appPreferences.isListeningAllowed.get()
-                && appPreferences.lbAccessToken.get().isNotEmpty()
-
-
     fun connectToSpotify() {
         viewModelScope.launch {
             remotePlaybackHandler.connectToSpotify {
