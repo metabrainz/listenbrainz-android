@@ -75,6 +75,7 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.createSlideTr
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.android.viewmodel.ListeningAppsViewModel
 import org.listenbrainz.shared.model.PermissionStatus
 import org.listenbrainz.shared.permission.PermissionManager
 import org.listenbrainz.shared.repository.PlatformContext
@@ -83,13 +84,15 @@ import org.listenbrainz.shared.repository.PlatformContext
 @Composable
 fun ListeningAppSelectionScreen(
     dashBoardViewModel: DashBoardViewModel = koinViewModel(),
+    listeningAppsViewModel: ListeningAppsViewModel = koinViewModel(),
     permissionManager: PermissionManager = koinInject(),
     onClickNext: () -> Unit
 ) {
     val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
-    val listeningApps = dashboardUiState.listeningApps
-    val allApps = dashboardUiState.allApps
-    val isListening by dashBoardViewModel.appPreferences.isListeningAllowed.getFlow()
+    val listeningAppsUiState by listeningAppsViewModel.uiState.collectAsState()
+    val listeningApps = listeningAppsUiState.listeningApps
+    val allApps = listeningAppsUiState.allApps
+    val isListening by listeningAppsViewModel.isListeningAllowed
         .collectAsState(initial = true)
     val permissions by permissionManager.statuses.collectAsState()
 
@@ -108,8 +111,8 @@ fun ListeningAppSelectionScreen(
     ListeningAppScreenLayout(
         apps = listeningApps,
         isListening = isListening,
-        onCheckedChange = dashBoardViewModel::onAppCheckChange,
-        onListeningCheckChange = dashBoardViewModel::onListeningStatusChange,
+        onCheckedChange = listeningAppsViewModel::onAppCheckChange,
+        onListeningCheckChange = listeningAppsViewModel::onListeningStatusChange,
         isInPermissionState = isInPermissionState,
         missingPermissions = missingPermissions,
         permissionStatus = permissions,
@@ -149,7 +152,7 @@ fun ListeningAppSelectionScreen(
                     }
                 },
                 onListeningAppsAdded = {
-                    dashBoardViewModel.addListeningApps(it)
+                    listeningAppsViewModel.addListeningApps(it)
                 }
             )
         }

@@ -51,18 +51,20 @@ import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScree
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.android.viewmodel.ListeningAppsViewModel
 import org.listenbrainz.shared.navigation.NavigationItem
 import org.listenbrainz.shared.navigation.navBackStackSerializer
 import org.listenbrainz.shared.navigation.navigationSavedStateConfiguration
 import org.listenbrainz.shared.onboarding.OnboardingNavigator
 import org.listenbrainz.shared.onboarding.startDestination
-import java.lang.ref.WeakReference
 
 class MainActivity : ComponentActivity() {
 
     private val dashBoardViewModel: DashBoardViewModel by viewModel()
 
     private val appUpdatesViewModel: AppUpdatesViewModel by viewModel()
+
+    private val listeningAppsViewModel: ListeningAppsViewModel by viewModel()
 
     private val listenServiceState: ListenServiceState by inject()
 
@@ -76,7 +78,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setUiMode()
-        dashBoardViewModel.updateListeningApps(WeakReference(this))
+        listeningAppsViewModel.updateListeningApps()
         appUpdatesViewModel.checkForUpdatesDuringLaunch(this)
         val restoredBackStack = savedInstanceState?.getBundle(BACK_STACK_KEY)
             ?.let { decodeFromSavedState(navBackStackSerializer, it, navigationSavedStateConfiguration) }
