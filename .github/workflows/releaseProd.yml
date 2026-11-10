@@ -6,7 +6,7 @@ on:
     types: [ created ]
   push:
     paths:
-      - 'app/**'
+      - 'androidApp/**'
     branches: [ prod ]
 
 jobs:
@@ -61,7 +61,7 @@ jobs:
       - name: Configure Keystore
         run: |
           echo "$ANDROID_KEYSTORE_FILE" > keystore.jks.b64
-          base64 -d -i keystore.jks.b64 > app/keystore.jks
+          base64 -d -i keystore.jks.b64 > androidApp/keystore.jks
           echo "storeFile=keystore.jks" >> keystore.properties
           echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> keystore.properties
           echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> keystore.properties

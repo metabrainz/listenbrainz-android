@@ -11,12 +11,12 @@ shared/build
 play_config.json
 .kotlin
 /spotify-app-remote/build
-/app/release
+/androidApp/release
 
 # Sentry Config File
 sentry.properties
-/app/.idea
-/app/github
+/androidApp/.idea
+/androidApp/github
 
 shared/.idea
 gradle/gradle-daemon-jvm.properties

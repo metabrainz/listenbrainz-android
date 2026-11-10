@@ -76,5 +76,5 @@ dependencies {
     implementation(project(":shared"))
 
     // App module dependency
-    implementation(project(":app"))
+    implementation(project(":androidApp"))
 }
