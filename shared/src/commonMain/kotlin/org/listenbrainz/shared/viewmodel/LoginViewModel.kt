@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.listens.ListensRepository
-import org.listenbrainz.shared.ui.screens.onboarding.auth.templogin.TempLoginState
-import org.listenbrainz.shared.ui.screens.onboarding.auth.templogin.TempLoginUiState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.TempLoginState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.TempLoginUiState
 import org.listenbrainz.shared.util.Log
 
 class TempLoginViewModel(

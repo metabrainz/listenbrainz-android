@@ -42,7 +42,7 @@ import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateAvailableDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateReadyDialog
-import org.listenbrainz.android.ui.screens.onboarding.auth.templogin.TempLoginScreen
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.TempLoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen

@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.onboarding.auth.weblogin
+package org.listenbrainz.android.ui.screens.onboarding.auth.login
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import org.json.JSONTokener
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.shared.ui.screens.onboarding.auth.weblogin.WebLogin
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.WebLogin
 
 /** Clears the website session, so the next [WebLoginScreen] starts logged out. */
 fun clearWebLoginSession() {

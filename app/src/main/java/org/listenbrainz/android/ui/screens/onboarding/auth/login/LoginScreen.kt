@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.onboarding.auth.templogin
+package org.listenbrainz.android.ui.screens.onboarding.auth.login
 
 import android.content.res.Configuration
 import org.listenbrainz.shared.resources.Res
@@ -47,15 +47,13 @@ import androidx.compose.ui.window.DialogProperties
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.screens.onboarding.auth.AuthPasswordField
-import org.listenbrainz.android.ui.screens.onboarding.auth.weblogin.WebLoginScreen
-import org.listenbrainz.android.ui.screens.onboarding.auth.weblogin.clearWebLoginSession
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.shared.resources.ic_listenbrainz_logo_icon
-import org.listenbrainz.shared.ui.screens.onboarding.auth.templogin.TempLoginState
-import org.listenbrainz.shared.ui.screens.onboarding.auth.templogin.TempLoginUiState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.TempLoginState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.TempLoginUiState
 import org.listenbrainz.shared.viewmodel.TempLoginViewModel
 
 private const val TOKEN_SETTINGS_URL = "https://listenbrainz.org/settings/"

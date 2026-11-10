@@ -1,4 +1,4 @@
-package org.listenbrainz.shared.ui.screens.onboarding.auth.weblogin
+package org.listenbrainz.shared.ui.screens.onboarding.auth.login
 
 import io.ktor.http.Url
 
