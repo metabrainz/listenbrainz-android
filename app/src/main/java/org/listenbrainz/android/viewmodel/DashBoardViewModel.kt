@@ -1,13 +1,11 @@
 package org.listenbrainz.android.viewmodel
 
 import android.app.Activity
-import android.app.Application
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.createBitmap
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +18,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.permission.PermissionHandler
 import org.listenbrainz.shared.permission.isPermissionPermanentlyDeclined
-import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreenUIState
@@ -47,12 +44,11 @@ data class DashBoardUiState(
 
 class DashBoardViewModel(
     val appPreferences: AppPreferences,
-    application: Application,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val logSubmitter: LogSubmitter,
     private val permissionHandler: PermissionHandler,
     private val logger:Log = Log
-) : AndroidViewModel(application) {
+) : ViewModel() {
 
     private val usernameFlow = appPreferences.username.getFlow()
     val permissionStatusFlow = MutableStateFlow(emptyMap<AppPermission, PermissionStatus>())
@@ -133,24 +129,6 @@ class DashBoardViewModel(
             }
         }
     }
-
-    // Sets Ui mode for XML layouts.
-    fun setUiMode() {
-        viewModelScope.launch {
-            when (appPreferences.themePreference.get()) {
-                UiMode.DARK -> AppCompatDelegate.setDefaultNightMode(
-                    AppCompatDelegate.MODE_NIGHT_YES
-                )
-
-                UiMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(
-                    AppCompatDelegate.MODE_NIGHT_NO
-                )
-
-                else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            }
-        }
-    }
-
 
     fun updatePermissionStatus(activity: WeakReference<Activity>) {
         viewModelScope.launch {

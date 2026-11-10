@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -67,7 +68,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         enableEdgeToEdge()
 
-        dashBoardViewModel.setUiMode()
+        setUiMode()
         dashBoardViewModel.updatePermissionStatus(WeakReference(this))
         dashBoardViewModel.updateListeningApps(WeakReference(this))
         appUpdatesViewModel.checkForUpdatesDuringLaunch(this)
@@ -198,6 +199,23 @@ class MainActivity : ComponentActivity() {
                 PlayStoreUpdateAvailableDialog(appUpdatesViewModel)
             }
 
+        }
+    }
+
+    // Sets Ui mode for XML layouts.
+    private fun setUiMode() {
+        lifecycleScope.launch {
+            when (dashBoardViewModel.appPreferences.themePreference.get()) {
+                UiMode.DARK -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
+
+                UiMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_NO
+                )
+
+                else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
         }
     }
 
