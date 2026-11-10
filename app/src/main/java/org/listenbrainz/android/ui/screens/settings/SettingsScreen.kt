@@ -159,8 +159,11 @@ fun SettingsScreen(
         onPauseOrDispose {}
     }
 
-    val isLoggedOut by appPreferences.getLoginStatusFlow()
-        .map { it == Constants.Strings.STATUS_LOGGED_OUT }.collectAsState(initial = false)
+    val isLoggedOut by remember {
+        appPreferences
+            .getLoginStatusFlow()
+            .map { it == Constants.Strings.STATUS_LOGGED_OUT }
+    }.collectAsState(initial = false)
 
     Column {
         TopBar(
