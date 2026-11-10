@@ -42,13 +42,12 @@ fun SettingsSwitchOption(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
-            SettingsText(
-                title = title,
-                subtitle = subtitle,
-                enabled = enabled
-            )
-        }
+        SettingsText(
+            modifier = Modifier.weight(1f),
+            title = title,
+            subtitle = subtitle,
+            enabled = enabled
+        )
 
         SwitchLB(
             checked = isChecked,
@@ -168,7 +167,7 @@ fun SettingsLoadingOption(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = ListenBrainzTheme.paddings.settings)
-            .clickable(enabled = !isLoading){
+            .clickable(enabled = !isLoading) {
                 onClick()
             },
         horizontalArrangement = Arrangement.SpaceBetween,
