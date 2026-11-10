@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.components.dialogs
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import org.listenbrainz.shared.resources.cb_review_tc
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.ic_critiquebrainz_logo
@@ -50,7 +50,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import java.util.Locale
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -75,7 +74,7 @@ fun ReviewEnabledDialog(
     }
     var selectedLocale by rememberSaveable {
         // TODO: Save previously used locale
-        mutableStateOf(Locale.getDefault().language)
+        mutableStateOf(defaultLanguage().code)
     }
     var isCheckBoxTicked by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -222,7 +221,7 @@ fun ReviewEnabledDialog(
                 mutableStateOf(mapOf<String,String>())
             }
             val availableLocales = remember {
-                Locale.getAvailableLocales()
+                availableLanguages()
             }
             
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -243,13 +242,13 @@ fun ReviewEnabledDialog(
                         // Searching for
                         scope.launch(Dispatchers.Default) {
                             localeSearchResult = availableLocales.associate {
-                                Pair(it.displayLanguage, it.language)
+                                Pair(it.displayName, it.code)
                             }.filter { entry ->
                                 entry.key.startsWith(text, ignoreCase = true)
                             }
                         }
                     },
-                    placeholder = "Default: ${Locale.getDefault().displayLanguage}",
+                    placeholder = "Default: ${defaultLanguage().displayName}",
                     searchResult = localeSearchResult.entries.toList(),
                     onItemClick = { locale ->
                         keyboardController?.hide()

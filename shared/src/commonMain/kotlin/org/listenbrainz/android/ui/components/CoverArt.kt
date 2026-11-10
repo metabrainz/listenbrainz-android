@@ -1,11 +1,9 @@
 package org.listenbrainz.android.ui.components
 
-import android.content.Intent
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.DrawableResource
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.playlist_card_bg1
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -19,13 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import org.listenbrainz.android.util.CoverArtImageLinkExtractor
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min
+import kotlin.math.sqrt
 
 /**
  * Composable to display cover art images in a grid layout.
@@ -53,14 +53,14 @@ fun CoverArtComposable(
             )
         }
     } else {
-        val context = LocalContext.current
+        val uriHandler = LocalUriHandler.current
         val (imageLinks, anchorLinks, actualGridSize) = remember(coverArt) {
             val noOfImages = CoverArtImageLinkExtractor.getImageCount(coverArt)
             val imageLinks = CoverArtImageLinkExtractor.extractImageLinks(coverArt).toMutableList()
             val anchorLinks = CoverArtImageLinkExtractor.extractAnchorLinks(coverArt).toMutableList()
             var gridSize = maxGridSize
             if(noOfImages < maxGridSize * maxGridSize) {
-                gridSize = floor(Math.sqrt(noOfImages.toDouble())).toInt()
+                gridSize = floor(sqrt(noOfImages.toDouble())).toInt()
             }
             Triple(imageLinks.toList(), anchorLinks.toList(), gridSize)
         }
@@ -71,8 +71,7 @@ fun CoverArtComposable(
                 anchorLinks = anchorLinks,
                 isClickable = areImagesClickable,
                 onClickImage = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
-                    context.startActivity(intent)
+                    uriHandler.openUri(it)
                 }
             )
         }
@@ -115,7 +114,7 @@ private fun ImageGridCover(
                                 .aspectRatio(1f) // Keeps images square
                         ) {
                             AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
+                                model = ImageRequest.Builder(LocalPlatformContext.current)
                                     .data(imageUrls[imageIndex])
                                     .build(),
                                 fallback = painterResource(errorImage),

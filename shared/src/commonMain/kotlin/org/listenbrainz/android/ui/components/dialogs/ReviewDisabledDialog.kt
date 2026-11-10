@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.components.dialogs
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.ic_critiquebrainz_logo
 import androidx.compose.foundation.Image
@@ -124,7 +124,7 @@ fun ReviewDisabledDialog(
 }
 
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 private fun ReviewDisabledDialogPreview(){
     ListenBrainzTheme {

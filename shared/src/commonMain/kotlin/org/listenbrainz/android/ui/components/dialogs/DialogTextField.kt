@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.components.dialogs
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.Text
@@ -46,7 +46,7 @@ fun DialogTextField(
 }
 
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 private fun DialogTextFieldPreview(){
     ListenBrainzTheme {

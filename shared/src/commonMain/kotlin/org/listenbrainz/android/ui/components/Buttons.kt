@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.components
 
-import android.content.res.Configuration
+import androidx.compose.ui.tooling.preview.AndroidUiModes
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.DrawableResource
 import org.listenbrainz.shared.resources.Res
@@ -143,7 +143,7 @@ fun OnboardingYellowButton(
 
 
 @Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true, uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
 @Composable
 fun OnboardingYellowButtonPreview() {
     ListenBrainzTheme {

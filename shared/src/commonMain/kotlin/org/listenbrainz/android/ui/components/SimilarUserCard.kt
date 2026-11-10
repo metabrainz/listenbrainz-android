@@ -1,9 +1,9 @@
 package org.listenbrainz.android.ui.components
 
-import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_NO
 import org.listenbrainz.shared.resources.roboto_regular
 import org.listenbrainz.shared.resources.Res
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
-import java.text.DecimalFormat
+import kotlin.math.roundToInt
 
 /**
  * Select an appropriate cardBackground that goes with the given theme.
@@ -121,7 +121,7 @@ fun SimilarUserCard(
                 
                 // Similarity Text
                 Text(
-                    text = "${DecimalFormat("#.#").format(similarity*10)}/10",
+                    text = "${formatScore(similarity * 10)}/10",
                     color = if (uiModeIsDark) Color.White else Color.Black.copy(alpha = 0.4f),
                     fontFamily = FontFamily(Font(Res.font.roboto_regular)),
                     textAlign = TextAlign.Center,
@@ -142,4 +142,10 @@ fun Preview(){
     ListenBrainzTheme {
         SimilarUserCard(index = 0, userName = "jasje", similarity = 0.80f, goToUserPage = {})
     }
+}
+
+/** Rounds to one decimal place, dropping a trailing ".0". */
+private fun formatScore(score: Float): String {
+    val tenths = (score * 10).roundToInt()
+    return if (tenths % 10 == 0) "${tenths / 10}" else "${tenths / 10}.${tenths % 10}"
 }

@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.components.dialogs
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -15,7 +15,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -31,11 +31,12 @@ fun BaseDialog(
     footer: @Composable BoxScope.() -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        val windowSize = LocalWindowInfo.current.containerDpSize
         Surface(
             modifier = Modifier
                 .sizeIn(
-                    maxWidth = LocalConfiguration.current.screenWidthDp.dp - LocalConfiguration.current.screenWidthDp.dp / 18,
-                    maxHeight = LocalConfiguration.current.screenHeightDp.dp - 24.dp
+                    maxWidth = windowSize.width - windowSize.width / 18,
+                    maxHeight = windowSize.height - 24.dp
                 )
                 .verticalScroll(rememberScrollState()),
             shape = ListenBrainzTheme.shapes.dialogs,

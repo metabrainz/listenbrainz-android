@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.components.dialogs
 
-import android.os.Bundle
+import androidx.savedstate.SavedState
+import androidx.savedstate.savedState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -21,19 +22,19 @@ fun rememberDialogsState(): DialogsState {
 @Stable
 class DialogsState(
     initialDialog: Dialog,
-    initialMetadata: Bundle? = null
+    initialMetadata: SavedState? = null
 ) {
     
     /** True if any dialog is active.*/
     var currentDialog: Dialog by mutableStateOf(initialDialog)
         private set
     
-    var metadata: Bundle? by mutableStateOf(initialMetadata)
+    var metadata: SavedState? by mutableStateOf(initialMetadata)
         private set
     
     fun activateDialog(
         dialog: Dialog,
-        metadata: Bundle = Bundle(),
+        metadata: SavedState = savedState(),
     ) {
         // Activation order is important!
         this.metadata = metadata
@@ -47,11 +48,11 @@ class DialogsState(
     }
     
     companion object {
-        class DialogsStateSaver : Saver<DialogsState, Pair<Int, Bundle?>> {
-            override fun restore(value: Pair<Int, Bundle?>): DialogsState
+        class DialogsStateSaver : Saver<DialogsState, Pair<Int, SavedState?>> {
+            override fun restore(value: Pair<Int, SavedState?>): DialogsState
                     = DialogsState(Dialog.getDialogFromOrdinal(value.first), value.second)
         
-            override fun SaverScope.save(value: DialogsState): Pair<Int, Bundle?> {
+            override fun SaverScope.save(value: DialogsState): Pair<Int, SavedState?> {
                 return Pair(value.currentDialog.ordinal, value.metadata)
             }
         }
