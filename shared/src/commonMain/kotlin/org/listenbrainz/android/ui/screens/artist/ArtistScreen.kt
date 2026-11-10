@@ -1,13 +1,10 @@
 package org.listenbrainz.android.ui.screens.artist
 
-import android.webkit.WebView
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.ic_coverartarchive_logo_no_text
 import org.listenbrainz.shared.resources.lb_radio_play_button
 import org.listenbrainz.shared.resources.listeners_icon
 import org.listenbrainz.shared.resources.listens_icon
-import android.webkit.WebViewClient
-import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -59,7 +56,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
@@ -67,9 +63,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
 import coil3.request.ImageRequest
 import org.listenbrainz.android.ui.components.ratingbar.RatingBar
 import org.listenbrainz.android.ui.components.ratingbar.RatingBarStyle
@@ -99,10 +95,9 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_light
 import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.lb_purple_night
-import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.measureSize
 import org.listenbrainz.shared.util.Utils.removeHtmlTags
-import org.listenbrainz.android.util.Utils.showToast
+import org.listenbrainz.android.util.showToast
 import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.util.ArtistLinksEnum
@@ -268,7 +263,6 @@ fun BioCard(
                         val radioButtonPlaceables = subcompose("radioButton") {
                             if (displayRadioButton) {
                                 val uriHandler = LocalUriHandler.current
-                                val context = LocalContext.current
                                 LbRadioButton(
                                     modifier = Modifier
                                         .padding(start = 8.dp)
@@ -277,7 +271,7 @@ fun BioCard(
                                     if (artistMbid != null) {
                                         uriHandler.openUri("https://listenbrainz.org/explore/lb-radio/?prompt=artist:($artistMbid)&mode=easy")
                                     } else {
-                                        context.showToast("Sorry, cannot play radio right now.")
+                                        showToast("Sorry, cannot play radio right now.")
                                     }
                                 }
                             }
@@ -340,7 +334,7 @@ fun BioCard(
                             )
                         } else {
                             AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
+                                model = ImageRequest.Builder(LocalPlatformContext.current)
                                     .data(coverArt)
                                     .build(),
                                 fallback = painterResource(Res.drawable.ic_coverartarchive_logo_no_text),
@@ -723,7 +717,7 @@ private fun AlbumsCard(
                             val coverArt =
                                 org.listenbrainz.shared.util.Utils.getCoverArtUrl(album?.caaReleaseMbid, album?.caaId, 500)
                             AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
+                                model = ImageRequest.Builder(LocalPlatformContext.current)
                                     .data(coverArt)
                                     .build(),
                                 fallback = painterResource(Res.drawable.ic_coverartarchive_logo_no_text),
@@ -1001,7 +995,6 @@ private fun LinkCard(
     url: String,
 ) {
     val uriHandler = LocalUriHandler.current
-    val context = LocalContext.current
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
@@ -1011,9 +1004,7 @@ private fun LinkCard(
                 try {
                     uriHandler.openUri(url)
                 } catch (err: Error) {
-                    Toast
-                        .makeText(context, "Some unknown error occurred", Toast.LENGTH_SHORT)
-                        .show()
+                    showToast("Some unknown error occurred")
                 }
             }
     ) {
@@ -1063,71 +1054,4 @@ private fun LbRadioButton(
             )
         }
     }
-}
-
-/**
- * A Composable function that renders an SVG string using a WebView.
- *
- * Previously used to display cover art in Artist and Album screens.
- * Although currently unused, this function can be reused for rendering inline SVG content
- * with flexible dimensions in the future.
- *
- * @param svgContent The raw SVG markup as a string.
- * @param width The desired width of the WebView.
- * @param height The desired height of the WebView.
- */
-@Composable
-fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
-    val context = LocalContext.current
-    val webView = remember { WebView(context) }
-
-    LaunchedEffect(svgContent) {
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                // Optionally, handle size adjustments or interactions if needed
-            }
-        }
-
-        val htmlContent = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        overflow: auto; /* Ensure scrollbars appear if necessary */
-                    }
-                    svg {
-                        width: 100%;
-                        height: auto; /* Adjust to fit content */
-                    }
-                </style>
-            </head>
-            <body>
-                <div id="svg-container">
-                    $svgContent
-                </div>
-            </body>
-            </html>
-        """
-
-        webView.loadDataWithBaseURL(
-            null,
-            htmlContent,
-            "text/html",
-            "UTF-8",
-            null
-        )
-    }
-
-    AndroidView(
-        factory = { webView },
-        update = { view -> },
-        modifier = Modifier
-            .width(width)
-            .height(height)
-            .clip(RoundedCornerShape(8.dp))
-    )
 }
