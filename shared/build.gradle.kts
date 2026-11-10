@@ -109,28 +109,24 @@ kotlin {
         }
     }
 
-    // For iOS targets, this is also where you should
-    // configure native binary output. For more information, see:
-    // https://kotlinlang.org/docs/multiplatform-build-native-binaries.html#build-xcframeworks
+    // Linking the framework needs the iOS SDK from a full Xcode install, so it is only declared
+    // when the build can link: when Xcode drives it, or when xcode-select points at Xcode.app.
+    // Otherwise the iOS targets still compile to klibs and `gradlew build` stays green.
+    val invokedByXcode = providers.environmentVariable("SDK_NAME").isPresent
+    val xcodeSelected = runCatching {
+        providers.exec {
+            commandLine("xcode-select", "-p")
+            isIgnoreExitValue = true
+        }.standardOutput.asText.get().contains("Xcode.app")
+    }.getOrDefault(false)
 
-    // A step-by-step guide on how to include this library in an XCode
-    // project can be found here:
-    // https://developer.android.com/kotlin/multiplatform/migrate
-    val xcfName = "sharedKit"
-
-    iosArm64 {
-        binaries.framework {
-            baseName = xcfName
-            export(libs.kmpnotifier.core)
-            export(libs.kmpnotifier.local)
-        }
-    }
-
-    iosSimulatorArm64 {
-        binaries.framework {
-            baseName = xcfName
-            export(libs.kmpnotifier.core)
-            export(libs.kmpnotifier.local)
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        if (invokedByXcode || xcodeSelected) {
+            target.binaries.framework {
+                baseName = "sharedKit"
+                export(libs.kmpnotifier.core)
+                export(libs.kmpnotifier.local)
+            }
         }
     }
 
