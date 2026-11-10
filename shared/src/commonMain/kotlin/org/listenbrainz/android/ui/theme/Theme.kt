@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.theme
 
-import android.content.Context
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.BorderStroke
@@ -28,7 +27,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -39,8 +38,9 @@ import com.valentinilk.shimmer.LocalShimmerTheme
 import com.valentinilk.shimmer.ShimmerTheme
 import com.valentinilk.shimmer.shimmerSpec
 import org.listenbrainz.shared.model.UiMode
+import kotlinx.coroutines.flow.flowOf
+import org.koin.compose.koinInject
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.shared.repository.AppPreferencesImpl
 
 /** ColorScheme for the whole app. */
 data class ColorScheme(
@@ -339,11 +339,13 @@ fun onScreenUiModeIsDark() : Boolean {
 @Composable
 fun ListenBrainzTheme(
     systemTheme: Boolean = isSystemInDarkTheme(),
-    context: Context = LocalContext.current,
-    appPreferences: AppPreferences = AppPreferencesImpl(context),
+    appPreferences: AppPreferences? = if (LocalInspectionMode.current) null else koinInject(),
     content: @Composable () -> Unit
 ) {
-    val uiMode by appPreferences.themePreference.getFlow().collectAsState(initial = UiMode.FOLLOW_SYSTEM)
+    val uiModeFlow = remember(appPreferences) {
+        appPreferences?.themePreference?.getFlow() ?: flowOf(UiMode.FOLLOW_SYSTEM)
+    }
+    val uiMode by uiModeFlow.collectAsState(initial = UiMode.FOLLOW_SYSTEM)
     val isDark = when (uiMode) {
         UiMode.DARK -> true
         UiMode.LIGHT -> false

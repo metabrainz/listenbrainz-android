@@ -151,6 +151,9 @@ kotlin {
                 implementation(libs.compose.foundation)
                 api(libs.compose.resources)
                 implementation(libs.compose.ui.tooling.preview)
+                implementation(libs.compose.material)
+                implementation(libs.compose.material3)
+                implementation(libs.compose.shimmer)
                 // datastore
                 implementation(libs.datastore.preferences.core)
                 implementation(libs.kotlinx.serialization.json)
@@ -250,7 +253,6 @@ kotlin {
                 implementation(libs.app.update.ktx)
                 implementation(libs.jsoup)
                 implementation(libs.vico.compose)
-                implementation(libs.compose.shimmer)
             }
         }
 
