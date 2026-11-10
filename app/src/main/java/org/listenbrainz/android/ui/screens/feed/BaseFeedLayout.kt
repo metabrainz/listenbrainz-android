@@ -8,7 +8,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -30,19 +29,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.SubcomposeLayout
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,6 +49,8 @@ import org.listenbrainz.shared.model.feed.FeedEventType.Companion.getTimeStringF
 import org.listenbrainz.shared.model.feed.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
+
+private val EventIconSize = 19.dp
 
 @Composable
 fun BaseFeedLayout(
@@ -65,56 +63,34 @@ fun BaseFeedLayout(
     goToUserPage: (String) -> Unit,
     content: @Composable () -> Unit,
 ) {
-    // Content that is to be measured for horizontal line.
-    @Composable
-    fun MainContent() {
-        // Since width of the event icon is 19 dp, 19/2 = 9.5 dp
-        Column(Modifier.padding(start = ListenBrainzTheme.paddings.insideCard + 9.5.dp)) {
-            AnimatedVisibility(
-                visible = !isHidden,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                content()
-            }
-            
-            Spacer(modifier = Modifier.height(4.dp))
-            
-            Box(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(24.dp),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Date(
-                    event = event,
-                    eventType = eventType,
-                    parentUser = parentUser,
-                    onActionClick = onDeleteOrHide,
-                    isHidden = isHidden
-                )
-            }
-        }
-    }
-    
-    // Actual content
-    Column(
+    val lineColor = ListenBrainzTheme.colorScheme.hint
+    val lineTopGap = ListenBrainzTheme.paddings.insideCard
+
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(
                 start = ListenBrainzTheme.paddings.horizontal,
                 top = ListenBrainzTheme.paddings.vertical,
                 end = ListenBrainzTheme.paddings.horizontal
-            ),
+            )
+            .drawBehind {
+                val x = EventIconSize.toPx() / 2
+                drawLine(
+                    color = lineColor,
+                    start = Offset(x, (EventIconSize + lineTopGap).toPx()),
+                    end = Offset(x, size.height),
+                    strokeWidth = 5f,
+                    cap = StrokeCap.Round
+                )
+            },
     ) {
-    
-        // Icon and Tagline
-        Row {
-        
-            EventIcon(eventType)
-    
-            Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.insideCard))
-            
+        EventIcon(eventType)
+
+        Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.insideCard))
+
+        Column(modifier = Modifier.weight(1f)) {
+            // Tagline
             AnimatedContent(
                 targetState = isHidden,
                 label = "tagline"
@@ -140,24 +116,37 @@ fun BaseFeedLayout(
                         fontWeight = FontWeight.Light
                     )
                 }
-                
             }
-            
-        }
-        
-        Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.insideCard))
-        
-        // Horizontal line and Main Content
-        Row {
-            
-            DynamicHorizontalLine {
-                MainContent()
+
+            Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.insideCard))
+
+            // Main Content
+            AnimatedVisibility(
+                visible = !isHidden,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                content()
             }
-            
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Box(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .height(24.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Date(
+                    event = event,
+                    eventType = eventType,
+                    parentUser = parentUser,
+                    onActionClick = onDeleteOrHide,
+                    isHidden = isHidden
+                )
+            }
         }
-    
     }
-    
 }
 
 @Composable
@@ -217,80 +206,13 @@ fun Date(
 }
 
 
-/** Line that automatically adjusts to match its height according to the content passed.
- * @param Content Content to match height of. */
-@Composable
-private fun DynamicHorizontalLine(Content: @Composable () -> Unit) {
-    
-    SubcomposeLayout(modifier = Modifier.padding(start = (9.5).dp)) { constraints: Constraints ->
-        
-        val mainPlaceables: List<Placeable> = subcompose("content", Content)
-            .map {
-                it.measure(constraints)
-            }
-        
-        var height = 0
-        var width = 0
-        
-        // Get height of card and any other composables.
-        mainPlaceables.forEach {
-            height += it.height
-            width += it.width
-        }
-        
-        val dependentPlaceables: List<Placeable> = subcompose("line") {
-            HorizontalLine(height = height.toDp())
-        }
-            .map { measurable: Measurable ->
-                measurable.measure(constraints)
-            }
-        
-        dependentPlaceables.forEach {
-            width += it.width
-        }
-        
-        layout(height = height, width = width) {
-            
-            dependentPlaceables.forEach { placeable: Placeable ->
-                /** Our icon is 19 dp and line width is 2 dp.*/
-                placeable.placeRelative(0, 0)
-            }
-            
-            mainPlaceables.forEach { placeable: Placeable ->
-                placeable.placeRelative(0, 0)
-            }
-            
-        }
-    }
-}
-
-
 @Composable
 private fun EventIcon(eventType: FeedEventType) {
     Image(
-        modifier = Modifier.size(19.dp),
+        modifier = Modifier.size(EventIconSize),
         painter = painterResource(eventType.icon),
         contentDescription = eventType.name
     )
-}
-
-
-@Composable
-private fun HorizontalLine(
-    height: Dp,
-    color: Color = ListenBrainzTheme.colorScheme.hint
-) {
-    Canvas(
-        modifier = Modifier.height(height)
-    ) {
-        drawLine(
-            color = color,
-            start = Offset.Zero,
-            end = Offset(0f, this.size.height),
-            strokeWidth = 5f,
-            cap = StrokeCap.Round
-        )
-    }
 }
 
 
