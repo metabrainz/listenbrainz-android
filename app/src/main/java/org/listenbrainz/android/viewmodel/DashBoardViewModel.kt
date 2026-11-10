@@ -16,8 +16,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.listenbrainz.shared.permission.PermissionHandler
-import org.listenbrainz.shared.permission.isPermissionPermanentlyDeclined
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreenUIState
@@ -26,15 +24,12 @@ import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Utils.getAllInstalledApps
 import org.listenbrainz.android.util.Utils.getListeningApps
 import org.listenbrainz.shared.model.AppNavigationItem
-import org.listenbrainz.shared.model.PermissionStatus
-import org.listenbrainz.shared.ui.screens.onboarding.permissions.AppPermission
 import org.listenbrainz.shared.util.LogSubmitter
 import java.lang.ref.WeakReference
 
 data class DashBoardUiState(
     val username:String?= null,
     val navBarOrder: List<AppNavigationItem>? = null,
-    val permissionRequestedAtLeastOnce: List<String> = emptyList(),
     val onBoardingCompleted: Boolean = false,
     val listeningApps: List<AppInfo> = emptyList(),
     val allApps: List<AppInfo> = emptyList(),
@@ -46,12 +41,10 @@ class DashBoardViewModel(
     val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val logSubmitter: LogSubmitter,
-    private val permissionHandler: PermissionHandler,
     private val logger:Log = Log
 ) : ViewModel() {
 
     private val usernameFlow = appPreferences.username.getFlow()
-    val permissionStatusFlow = MutableStateFlow(emptyMap<AppPermission, PermissionStatus>())
 
     private val navBarOrderFlow = appPreferences.navBarOrder
         .getFlow()
@@ -61,8 +54,6 @@ class DashBoardViewModel(
             initialValue = null
         )
 
-    private val permissionsRequestedAtleastOnce = appPreferences.requestedPermissionsList.getFlow()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     private val _onboardingCompletedState = appPreferences.onboardingCompleted.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
@@ -75,9 +66,7 @@ class DashBoardViewModel(
 
     val uiState: StateFlow<DashBoardUiState> = combine(
         usernameFlow,
-        permissionStatusFlow,
         navBarOrderFlow,
-        permissionsRequestedAtleastOnce,
         _onboardingCompletedState,
         _listeningAppsFlow,
         _allApps,
@@ -86,13 +75,12 @@ class DashBoardViewModel(
     ){ flows ->
         DashBoardUiState(
             username = flows[0] as? String,
-            navBarOrder = flows[2] as? List<AppNavigationItem>,
-            permissionRequestedAtLeastOnce = flows[3] as List<String>,
-            onBoardingCompleted = flows[4] as Boolean,
-            listeningApps = flows[5] as List<AppInfo>,
-            allApps = flows[6] as List<AppInfo>,
-            consentScreenUIState = flows[7] as LoginConsentScreenUIState,
-            isSubmittingLogs = flows[8] as Boolean
+            navBarOrder = flows[1] as? List<AppNavigationItem>,
+            onBoardingCompleted = flows[2] as Boolean,
+            listeningApps = flows[3] as List<AppInfo>,
+            allApps = flows[4] as List<AppInfo>,
+            consentScreenUIState = flows[5] as LoginConsentScreenUIState,
+            isSubmittingLogs = flows[6] as Boolean
         )
     }.stateIn(
         scope = viewModelScope,
@@ -126,44 +114,6 @@ class DashBoardViewModel(
                 logger.e("Unable to submit logs: $e")
             } finally {
                 _submittingLogs.value = false
-            }
-        }
-    }
-
-    fun updatePermissionStatus(activity: WeakReference<Activity>) {
-        viewModelScope.launch {
-            val requiredPermissions = permissionHandler.getAllRelevantPermissions()
-            val permissionMap = mutableMapOf<AppPermission, PermissionStatus>()
-            val permissionsRequestedOnce = appPreferences.requestedPermissionsList.get()
-            requiredPermissions.forEach { permission ->
-                if (permissionHandler.isGranted(permission)) {
-                    permissionMap[permission] = PermissionStatus.GRANTED
-                    // This is to ensure that the permission is marked as requested
-                    // (for devices which already gave permission before any prompt)
-                    markPermissionAsRequested(permission)
-                } else if (
-                    permission.isPermissionPermanentlyDeclined(
-                        activity = activity.get() ?: return@launch,
-                        permissionsRequestedOnce = permissionsRequestedOnce
-                    )
-                ) {
-                    permissionMap[permission] = PermissionStatus.DENIED_TWICE
-                } else {
-                    permissionMap[permission] = PermissionStatus.NOT_REQUESTED
-                }
-            }
-            permissionStatusFlow.emit(permissionMap)
-        }
-    }
-
-    fun markPermissionAsRequested(permission: AppPermission) {
-        viewModelScope.launch {
-            val storageKey = permissionHandler.storageKey(permission)
-            val permissions =
-                appPreferences.requestedPermissionsList.getFlow().firstOrNull()?.toMutableList()
-            if (permissions != null && !permissions.contains(storageKey)) {
-                permissions.add(storageKey)
-                appPreferences.requestedPermissionsList.set(permissions)
             }
         }
     }

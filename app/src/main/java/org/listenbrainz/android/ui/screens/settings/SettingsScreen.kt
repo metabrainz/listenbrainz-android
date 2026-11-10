@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -55,8 +54,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import org.listenbrainz.shared.model.AppNavigationItem
-import org.listenbrainz.shared.permission.AndroidPermissionEnum
-import org.listenbrainz.shared.permission.isPermissionApplicable
+import org.listenbrainz.shared.permission.AndroidPermission
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.AppPreferencesImpl
@@ -68,7 +66,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.shared.model.PermissionStatus
-import org.listenbrainz.shared.permission.PermissionHandler
+import org.listenbrainz.shared.permission.PermissionManager
 import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.SettingsViewModel
@@ -81,12 +79,16 @@ fun SettingsScreen(
     dashBoardViewModel: DashBoardViewModel,
     topBarActions: TopBarActions,
     callbacks: SettingsCallbacksToHomeScreen,
-    onNavigationReorderClick: () -> Unit
+    onNavigationReorderClick: () -> Unit,
+    permissionManager: PermissionManager = koinInject()
 ) {
     val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
-    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
+    val permissions by permissionManager.statuses.collectAsState()
+    // Absent means not on this OS version, or not loaded yet: the row stays hidden
+    val batteryOptimizationStatus = permissions[AndroidPermission.BATTERY_OPTIMIZATION]
     val isBatteryOptimizationPermissionGranted =
-        permissions[AndroidPermissionEnum.BATTERY_OPTIMIZATION] == PermissionStatus.GRANTED
+        batteryOptimizationStatus != PermissionStatus.NOT_GRANTED
+                && batteryOptimizationStatus != PermissionStatus.PERMANENTLY_DENIED
     val preferencesUiState by listensViewModel.preferencesUiState.collectAsState()
     val settingsUiState by viewModel.uiState.collectAsState()
     val isSubmittingLogs = settingsUiState.isSubmittingLogs
@@ -108,6 +110,7 @@ fun SettingsScreen(
             )
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
+        permissionManager = permissionManager,
         topBarActions = topBarActions,
         submitLogs = {
             viewModel.logSubmit()
@@ -125,11 +128,10 @@ fun SettingsScreen(
     topBarActions: TopBarActions,
     submitLogs:(PlatformContext)->Unit,
     isSubmittingLogs:Boolean= false,
-    permissionHandler: PermissionHandler = koinInject()
+    permissionManager: PermissionManager = koinInject()
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    val activity = LocalActivity.current
     var showBlacklist by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     val darkTheme = ListenBrainzTheme.uiModeIsDark
@@ -227,17 +229,11 @@ fun SettingsScreen(
 
                         HorizontalDivider(modifier = indentedModifier)
 
-                        if (!isBatteryOptimizationPermissionGranted && AndroidPermissionEnum.BATTERY_OPTIMIZATION.isPermissionApplicable()) {
+                        if (!isBatteryOptimizationPermissionGranted) {
                             SettingsTextOption(
                                 modifier = Modifier.clickable() {
-                                    if (activity != null) {
-                                        scope.launch {
-                                            //Last two permissions are not required for Battery Optimization permission
-                                            permissionHandler.requestPermission(
-                                                permission = AndroidPermissionEnum.BATTERY_OPTIMIZATION,
-                                                activity = activity
-                                            )
-                                        }
+                                    scope.launch {
+                                        permissionManager.request(AndroidPermission.BATTERY_OPTIMIZATION)
                                     }
                                 },
                                 title = "Disable Battery Optimization",

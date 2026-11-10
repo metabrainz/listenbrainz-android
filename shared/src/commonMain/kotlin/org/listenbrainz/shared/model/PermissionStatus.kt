@@ -1,8 +1,8 @@
 package org.listenbrainz.shared.model
 
-enum class PermissionStatus{
-    NOT_REQUESTED,
+enum class PermissionStatus {
     GRANTED,
-    DENIED_ONCE,
-    DENIED_TWICE
+    /** A request will show a system prompt or the relevant settings page (never asked, or declined once). */
+    NOT_GRANTED,
+    PERMANENTLY_DENIED
 }

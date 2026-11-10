@@ -25,7 +25,6 @@ import org.listenbrainz.android.di.appModules
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.ListenServiceState
 import org.listenbrainz.android.service.ListenSubmissionService
-import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.android.util.Utils.isServiceRunning
 import org.listenbrainz.shared.util.Log
 

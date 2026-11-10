@@ -1,8 +1,8 @@
 package org.listenbrainz.shared.di
 
 import org.koin.dsl.module
-import org.listenbrainz.shared.permission.PermissionHandler
-import org.listenbrainz.shared.providePermissionHandler
+import org.listenbrainz.shared.permission.PermissionManager
+import org.listenbrainz.shared.providePermissionManager
 import org.listenbrainz.shared.provideRemotePlaybackHandler
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.YouTubeApiService
@@ -30,7 +30,7 @@ val platformModule = module {
         provideSharedNotificationManager()
     }
 
-    single<PermissionHandler> {
-        providePermissionHandler()
+    single<PermissionManager> {
+        providePermissionManager(get())
     }
 }

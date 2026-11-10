@@ -7,7 +7,6 @@ import org.listenbrainz.shared.resources.listen_permission_rationale
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.add_track_to_playlist
 import android.widget.Toast
-import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
@@ -28,6 +27,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -61,7 +61,10 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.listenbrainz.shared.model.Listen
-import org.listenbrainz.shared.permission.AndroidPermissionEnum
+import org.listenbrainz.shared.permission.AndroidPermission
+import org.listenbrainz.shared.permission.AppPermission
+import org.listenbrainz.shared.permission.PermissionScope
+import org.listenbrainz.shared.permission.missing
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.components.SwitchLB
@@ -73,15 +76,14 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.shared.model.PermissionStatus
-import org.listenbrainz.shared.permission.PermissionHandler
+import org.listenbrainz.shared.permission.PermissionManager
 import org.listenbrainz.shared.repository.PlatformContext
-import org.listenbrainz.shared.ui.screens.onboarding.permissions.AppPermission
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListeningAppSelectionScreen(
     dashBoardViewModel: DashBoardViewModel = koinViewModel(),
-    permissionHandler: PermissionHandler = koinInject(),
+    permissionManager: PermissionManager = koinInject(),
     onClickNext: () -> Unit
 ) {
     val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
@@ -89,15 +91,13 @@ fun ListeningAppSelectionScreen(
     val allApps = dashboardUiState.allApps
     val isListening by dashBoardViewModel.appPreferences.isListeningAllowed.getFlow()
         .collectAsState(initial = true)
-    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
+    val permissions by permissionManager.statuses.collectAsState()
 
-    val notificationPermission = permissions[AndroidPermissionEnum.READ_NOTIFICATIONS]
-    val batteryOptPermission = permissions[AndroidPermissionEnum.BATTERY_OPTIMIZATION]
+    val missingPermissions = permissions.missing(
+        permissionManager.permissionsFor(PermissionScope.LISTEN_SUBMISSION)
+    )
+    val isInPermissionState = missingPermissions.isNotEmpty()
 
-    val isInPermissionState = notificationPermission != PermissionStatus.GRANTED ||
-            batteryOptPermission != PermissionStatus.GRANTED
-
-    val activity = LocalActivity.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isBottomSheetVisible by remember {
         mutableStateOf(false)
@@ -111,20 +111,10 @@ fun ListeningAppSelectionScreen(
         onCheckedChange = dashBoardViewModel::onAppCheckChange,
         onListeningCheckChange = dashBoardViewModel::onListeningStatusChange,
         isInPermissionState = isInPermissionState,
+        missingPermissions = missingPermissions,
         permissionStatus = permissions,
         onGrantPermissionClick = { permission ->
-            if (activity != null) {
-                scope.launch {
-                    val permissionsRequestedOnce =
-                        dashboardUiState.permissionRequestedAtLeastOnce
-                    permissionHandler.requestPermission(
-                        permission = permission,
-                        activity = activity,
-                        permissionRequestedOnce = permissionsRequestedOnce) {
-                        dashBoardViewModel.markPermissionAsRequested(permission)
-                    }
-                }
-            }
+            scope.launch { permissionManager.request(permission) }
         },
         onClickNext = onClickNext,
         onAddMoreAppsButtonClick = {
@@ -175,6 +165,7 @@ fun ListeningAppScreenLayout(
     onListeningCheckChange: (Boolean) -> Unit,
     onAddMoreAppsButtonClick: () -> Unit,
     isInPermissionState: Boolean,
+    missingPermissions: List<AppPermission>,
     permissionStatus: Map<AppPermission, PermissionStatus>,
     onGrantPermissionClick: (AppPermission) -> Unit,
     onClickNext: () -> Unit,
@@ -230,34 +221,15 @@ fun ListeningAppScreenLayout(
             }
 
             if (isInPermissionState) {
-                item {
+                items(missingPermissions) { permission ->
                     Spacer(Modifier.height(32.dp))
-
-                    if (permissionStatus[AndroidPermissionEnum.READ_NOTIFICATIONS] != PermissionStatus.GRANTED) {
-                        PermissionCard(
-                            permissionEnum = AndroidPermissionEnum.READ_NOTIFICATIONS,
-                            isPermanentlyDecline = true,
-                            onClick = {
-                                onGrantPermissionClick(AndroidPermissionEnum.READ_NOTIFICATIONS)
-                            },
-                            isDisabled = !isListening,
-                        )
-                    }
-                }
-
-                item {
-                    Spacer(Modifier.height(32.dp))
-
-                    if (permissionStatus[AndroidPermissionEnum.BATTERY_OPTIMIZATION] != PermissionStatus.GRANTED) {
-                        PermissionCard(
-                            permissionEnum = AndroidPermissionEnum.BATTERY_OPTIMIZATION,
-                            isPermanentlyDecline = false,
-                            onClick = {
-                                onGrantPermissionClick(AndroidPermissionEnum.BATTERY_OPTIMIZATION)
-                            },
-                            isDisabled = !isListening,
-                        )
-                    }
+                    PermissionCard(
+                        permissionEnum = permission,
+                        isPermanentlyDecline = permissionStatus[permission] == PermissionStatus.PERMANENTLY_DENIED
+                                || permission == AndroidPermission.READ_NOTIFICATIONS,
+                        onClick = { onGrantPermissionClick(permission) },
+                        isDisabled = !isListening,
+                    )
                 }
             }
 
@@ -468,7 +440,14 @@ fun ListeningAppLayoutPreview() {
             onCheckedChange = { _, _ -> },
             onListeningCheckChange = {},
             isInPermissionState = true,
-            permissionStatus = emptyMap(),
+            missingPermissions = listOf(
+                AndroidPermission.READ_NOTIFICATIONS,
+                AndroidPermission.BATTERY_OPTIMIZATION
+            ),
+            permissionStatus = mapOf(
+                AndroidPermission.READ_NOTIFICATIONS to PermissionStatus.NOT_GRANTED,
+                AndroidPermission.BATTERY_OPTIMIZATION to PermissionStatus.NOT_GRANTED
+            ),
             onGrantPermissionClick = {},
             onAddMoreAppsButtonClick = {},
             submitLogs = {},

@@ -9,8 +9,8 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.shared.di.database.ListensSubmissionDatabase
 import org.listenbrainz.shared.model.dao.PendingListensDao
-import org.listenbrainz.shared.permission.AndroidPermissionEnumHandler
-import org.listenbrainz.shared.permission.PermissionHandler
+import org.listenbrainz.shared.permission.AndroidPermissionManager
+import org.listenbrainz.shared.permission.PermissionManager
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.util.ANDROID_LOG_DIR_NAME
 import org.listenbrainz.shared.util.AndroidFileLogWriter
@@ -87,6 +87,6 @@ actual fun provideSharedNotificationManager(): PlatformNotificationManager {
     return AndroidNotificationManager()
 }
 
-actual fun providePermissionHandler(): PermissionHandler {
-    return AndroidPermissionEnumHandler()
+actual fun providePermissionManager(appPreferences: AppPreferences): PermissionManager {
+    return AndroidPermissionManager(appPreferences = appPreferences)
 }
