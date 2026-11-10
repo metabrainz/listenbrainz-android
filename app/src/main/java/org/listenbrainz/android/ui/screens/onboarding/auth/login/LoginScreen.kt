@@ -2,10 +2,18 @@ package org.listenbrainz.android.ui.screens.onboarding.auth.login
 
 import android.content.res.Configuration
 import org.listenbrainz.shared.resources.Res
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +22,12 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +39,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import org.jetbrains.compose.resources.painterResource
@@ -49,8 +61,7 @@ import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.screens.onboarding.auth.AuthPasswordField
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.lb_purple
-import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.shared.resources.ic_arrow_down
 import org.listenbrainz.shared.resources.ic_listenbrainz_logo_icon
 import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginState
 import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginUiState
@@ -148,6 +159,7 @@ private fun TokenCard(
     modifier: Modifier = Modifier
 ) {
     val tokenFocusRequester = remember { FocusRequester() }
+    var isTokenLoginVisible by rememberSaveable { mutableStateOf(false) }
 
     Card(
         modifier = modifier
@@ -169,39 +181,6 @@ private fun TokenCard(
 
             Spacer(Modifier.height(32.dp))
 
-            OnboardingYellowButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Log in with ListenBrainz",
-                isEnabled = !isVerifying,
-                onClick = onWebLoginClick
-            )
-
-            Spacer(Modifier.height(24.dp))
-
-            Text(
-                text = "Or paste your user token",
-                style = MaterialTheme.typography.bodyMedium,
-                color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            AuthPasswordField(
-                password = token,
-                onPasswordChange = onTokenChange,
-                focusRequester = tokenFocusRequester,
-                onDone = onSubmitToken,
-                label = "User token",
-                placeholder = "Paste your ListenBrainz user token"
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            TokenHelpSection()
-
-            Spacer(Modifier.height(24.dp))
-
             if (!error.isNullOrEmpty()) {
                 Text(
                     text = error,
@@ -214,11 +193,85 @@ private fun TokenCard(
 
             OnboardingYellowButton(
                 modifier = Modifier.fillMaxWidth(),
-                text = if (isVerifying) "Verifying..." else "Log in with token",
-                isEnabled = !isVerifying && token.isNotBlank(),
-                onClick = onSubmitToken
+                text = if (isVerifying && !isTokenLoginVisible) "Verifying..." else "Log in with ListenBrainz",
+                isEnabled = !isVerifying,
+                onClick = onWebLoginClick
             )
+
+            Spacer(Modifier.height(16.dp))
+
+            OtherOptionsToggle(
+                isExpanded = isTokenLoginVisible,
+                onClick = { isTokenLoginVisible = !isTokenLoginVisible }
+            )
+
+            AnimatedVisibility(
+                visible = isTokenLoginVisible,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Spacer(Modifier.height(16.dp))
+
+                    AuthPasswordField(
+                        password = token,
+                        onPasswordChange = onTokenChange,
+                        focusRequester = tokenFocusRequester,
+                        onDone = onSubmitToken,
+                        label = "User token",
+                        placeholder = "Paste your ListenBrainz user token"
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    TokenHelpSection()
+
+                    Spacer(Modifier.height(24.dp))
+
+                    OnboardingYellowButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = if (isVerifying) "Verifying..." else "Log in with token",
+                        isEnabled = !isVerifying && token.isNotBlank(),
+                        onClick = onSubmitToken
+                    )
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun OtherOptionsToggle(
+    isExpanded: Boolean,
+    onClick: () -> Unit
+) {
+    val arrowRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "arrowRotation"
+    )
+
+    Row(
+        modifier = Modifier
+            .clip(ListenBrainzTheme.shapes.listenCardSmall)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Other options",
+            style = MaterialTheme.typography.bodyMedium,
+            color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(Modifier.width(4.dp))
+        Icon(
+            painter = painterResource(Res.drawable.ic_arrow_down),
+            contentDescription = null,
+            tint = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
+            modifier = Modifier
+                .size(16.dp)
+                .rotate(arrowRotation)
+        )
     }
 }
 
@@ -240,7 +293,7 @@ private fun TokenHeader() {
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "Sign in on the ListenBrainz website, or use your user token",
+            text = "Sign in with your ListenBrainz account",
             style = MaterialTheme.typography.bodyMedium,
             color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
             fontWeight = FontWeight.Medium,
@@ -251,9 +304,7 @@ private fun TokenHeader() {
 
 @Composable
 private fun TokenHelpSection() {
-    val isLightTheme =  !isSystemInDarkTheme()
-    val linkColor = if (!isLightTheme) lb_purple_night else lb_purple
-
+    val linkColor = ListenBrainzTheme.colorScheme.lbSignature
     Text(
         textAlign = TextAlign.Center,
         style = MaterialTheme.typography.bodyMedium.copy(
