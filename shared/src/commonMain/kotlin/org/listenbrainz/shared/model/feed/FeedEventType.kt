@@ -103,12 +103,15 @@ enum class FeedEventType (
         normalStyle: SpanStyle,
         goToUserPage: (String) -> Unit
     ) {
-    
         val uriHandler = LocalUriHandler.current
-        
-        val (annotatedString, onClick) = remember {
-            getAnnotatedString(event, parentUser, normalStyle, linkStyle, uriHandler, goToUserPage)
-        }
+        val (annotatedString, onClick) = getAnnotatedString(
+            event = event,
+            parentUser = parentUser,
+            normalStyle = normalStyle,
+            linkStyle = linkStyle,
+            uriHandler = uriHandler,
+            goToUserPage = goToUserPage
+        )
         
         // Our main tagline composable
         ClickableText(
