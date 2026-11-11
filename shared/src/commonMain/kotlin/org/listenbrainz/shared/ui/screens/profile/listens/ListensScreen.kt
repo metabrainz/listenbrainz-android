@@ -173,10 +173,7 @@ fun ListensScreen(
 }
 
 
-@OptIn(
-    ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class
-)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ListensScreen(
     scrollRequestState: Boolean,
@@ -301,12 +298,10 @@ fun ListensScreen(
                         }
                     },
                     onDropdownError = { error ->
-                        scope.launch { snackbarState.showSnackbar(error.toast) }
+                        snackbarState.showSnackbar(error.toast)
                     },
                     onDropdownSuccess = { message ->
-                        scope.launch {
-                            snackbarState.showSnackbar(message)
-                        }
+                        snackbarState.showSnackbar(message)
                     },
                     goToArtistPage = goToArtistPage,
                     onClick = {},
