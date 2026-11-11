@@ -3,6 +3,7 @@
 -keepattributes SourceFile,LineNumberTable
 
 -keep class org.listenbrainz.android.model.** { *; }
+-keep class org.listenbrainz.shared.model.** { *; }
 
 #---------------Begin: proguard configuration for Gson  ----------
 # Gson uses generic type information stored in a class file when working with fields. Proguard

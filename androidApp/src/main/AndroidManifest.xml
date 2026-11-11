@@ -78,7 +78,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.screens.main.DonateActivity"
+            android:name="org.listenbrainz.shared.ui.screens.main.DonateActivity"
             android:label="@string/donate_title"
             android:theme="@style/AppTheme"/>
 

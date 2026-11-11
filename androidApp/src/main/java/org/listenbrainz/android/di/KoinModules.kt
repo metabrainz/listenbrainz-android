@@ -26,7 +26,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
+import org.listenbrainz.shared.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
 import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManagerImpl
@@ -37,8 +37,8 @@ import org.listenbrainz.android.service.MutableListenServiceState
 import org.listenbrainz.android.service.createGithubAppUpdatesService
 import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
-import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
-import org.listenbrainz.android.viewmodel.ListeningAppsViewModel
+import org.listenbrainz.shared.viewmodel.AppUpdatesViewModel
+import org.listenbrainz.shared.viewmodel.ListeningAppsViewModel
 import org.listenbrainz.shared.di.IO_DISPATCHER
 import org.listenbrainz.shared.di.platformModule
 import org.listenbrainz.shared.util.BuildInfo

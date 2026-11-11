@@ -1,0 +1,49 @@
+package org.listenbrainz.shared.ui.screens.feed.events
+
+import androidx.compose.ui.tooling.preview.AndroidUiModes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import org.listenbrainz.shared.model.Metadata
+import org.listenbrainz.shared.model.feed.FeedEvent
+import org.listenbrainz.shared.model.feed.FeedEventType
+import org.listenbrainz.shared.ui.screens.feed.BaseFeedLayout
+import org.listenbrainz.shared.util.PreviewSurface
+
+@Composable
+fun FollowFeedLayout(
+    event: FeedEvent,
+    parentUser: String,
+    goToUserPage: (String) -> Unit,
+) {
+    BaseFeedLayout(
+        eventType = FeedEventType.FOLLOW,
+        event = event,
+        parentUser = parentUser,
+        onDeleteOrHide = {},
+        content = {},
+        goToUserPage = goToUserPage
+    )
+}
+
+@Preview
+@Preview(uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
+@Composable
+private fun FollowFeedLayoutPreview() {
+    PreviewSurface {
+        FollowFeedLayout(
+            event = FeedEvent(
+                id = 0,
+                created = 0,
+                type = "like",
+                hidden = false,
+                metadata = Metadata(
+                    user0 = "Jasjeet",
+                    user1 = "JasjeetTest"
+                ),
+                username = "Jasjeet"
+            ),
+            parentUser = "Jasjeet",
+            goToUserPage = {}
+        )
+    }
+}

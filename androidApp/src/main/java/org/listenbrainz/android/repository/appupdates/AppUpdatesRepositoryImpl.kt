@@ -15,14 +15,15 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.InstallSource
-import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
-import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
+import org.listenbrainz.shared.model.githubupdates.GithubUpdatesList
+import org.listenbrainz.shared.model.githubupdates.GithubUpdatesListItem
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils.parseResponse
 
 import kotlin.coroutines.resume
+import org.listenbrainz.shared.repository.appupdates.AppUpdatesRepository
 
 const val TAG = "AppUpdatesRepository"
 

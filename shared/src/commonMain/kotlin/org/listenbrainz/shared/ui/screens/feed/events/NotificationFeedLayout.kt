@@ -1,0 +1,48 @@
+package org.listenbrainz.shared.ui.screens.feed.events
+
+import androidx.compose.ui.tooling.preview.AndroidUiModes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import org.listenbrainz.shared.model.Metadata
+import org.listenbrainz.shared.model.feed.FeedEvent
+import org.listenbrainz.shared.model.feed.FeedEventType
+import org.listenbrainz.shared.ui.screens.feed.BaseFeedLayout
+import org.listenbrainz.shared.util.PreviewSurface
+
+/**
+ * @param isHidden should be a state.*/
+@Composable
+fun NotificationFeedLayout(
+    event: FeedEvent,
+    onDeleteOrHide: () -> Unit,
+    goToUserPage: (String) -> Unit,
+) {
+    BaseFeedLayout(
+        eventType = FeedEventType.NOTIFICATION,
+        event = event,
+        parentUser = "",
+        onDeleteOrHide = onDeleteOrHide,
+        content = {},
+        goToUserPage = goToUserPage
+    )
+}
+
+@Preview
+@Preview(uiMode = AndroidUiModes.UI_MODE_NIGHT_YES)
+@Composable
+private fun NotificationFeedLayoutPreview() {
+    PreviewSurface {
+        NotificationFeedLayout(
+            event = FeedEvent(
+                id = 0,
+                created = 0,
+                type = "notification",
+                hidden = false,
+                metadata = Metadata(),
+                username = "Jasjeet"
+            ),
+            onDeleteOrHide = {},
+            goToUserPage = {}
+        )
+    }
+}

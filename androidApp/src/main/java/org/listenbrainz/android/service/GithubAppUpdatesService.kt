@@ -1,7 +1,7 @@
 package org.listenbrainz.android.service
 
 import de.jensklingenberg.ktorfit.http.GET
-import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
+import org.listenbrainz.shared.model.githubupdates.GithubUpdatesList
 
 interface GithubAppUpdatesService {
 

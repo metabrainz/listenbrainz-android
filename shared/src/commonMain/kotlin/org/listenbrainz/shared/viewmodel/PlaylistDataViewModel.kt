@@ -48,7 +48,6 @@ import org.listenbrainz.shared.resources.track_moved_successfully
 import org.listenbrainz.shared.resources.track_removed_from_playlist_successfully
 import org.listenbrainz.shared.util.Utils
 import org.listenbrainz.shared.util.Utils.isValidMbidFormat
-import org.listenbrainz.shared.viewmodel.BaseViewModel
 import kotlin.time.Duration.Companion.milliseconds
 
 class PlaylistDataViewModel(

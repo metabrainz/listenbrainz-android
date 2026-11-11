@@ -3,7 +3,6 @@ package org.listenbrainz.shared.model.feed
 import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.shared.model.feed.FeedEvent
 
 @Immutable
 @Serializable

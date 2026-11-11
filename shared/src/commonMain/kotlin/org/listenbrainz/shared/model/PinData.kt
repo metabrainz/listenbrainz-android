@@ -2,7 +2,6 @@ package org.listenbrainz.shared.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.shared.model.PinnedRecording
 
 @Serializable
 data class PinData(

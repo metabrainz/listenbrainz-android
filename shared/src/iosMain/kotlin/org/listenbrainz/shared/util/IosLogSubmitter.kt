@@ -6,7 +6,6 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.util.presentShareSheet
 import platform.Foundation.NSFileCoordinator
 import platform.Foundation.NSFileCoordinatorReadingForUploading
 import platform.Foundation.NSFileManager

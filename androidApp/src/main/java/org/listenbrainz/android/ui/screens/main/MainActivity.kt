@@ -13,9 +13,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.service.ListenServiceState
 import org.listenbrainz.android.application.App
 import org.listenbrainz.shared.model.UiMode
-import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
+import org.listenbrainz.shared.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.shared.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.viewmodel.ListeningAppsViewModel
+import org.listenbrainz.shared.viewmodel.ListeningAppsViewModel
+import org.listenbrainz.shared.ui.screens.main.ListenBrainzApp
 
 class MainActivity : ComponentActivity() {
 

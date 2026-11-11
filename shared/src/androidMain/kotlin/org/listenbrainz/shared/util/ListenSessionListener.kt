@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.listenbrainz.shared.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.shared.util.Log
 import java.util.concurrent.ConcurrentHashMap
 
 class ListenSessionListener(

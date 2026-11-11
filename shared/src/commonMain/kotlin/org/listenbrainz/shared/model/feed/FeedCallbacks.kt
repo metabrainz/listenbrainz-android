@@ -1,8 +1,6 @@
 package org.listenbrainz.shared.model.feed
 
 import androidx.compose.runtime.Immutable
-import org.listenbrainz.shared.model.feed.FeedEvent
-import org.listenbrainz.shared.model.feed.ReviewEntityType
 
 @Immutable
 data class FeedCallbacks(
