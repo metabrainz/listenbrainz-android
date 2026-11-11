@@ -1,7 +1,6 @@
 package org.listenbrainz.shared.ui.screens.settings
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -18,7 +17,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import kotlinx.coroutines.Dispatchers
@@ -26,14 +24,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import org.listenbrainz.shared.ui.navigation.TopBarActions
 import org.listenbrainz.shared.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.shared.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.model.PermissionStatus
 import org.listenbrainz.shared.permission.AndroidPermission
 import org.listenbrainz.shared.permission.PermissionManager
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 
 /** The Settings section for submitting listens from other apps' notifications. */
@@ -162,28 +158,5 @@ fun ListenSubmissionSettings(
             getPackageLabel = listensViewModel::getPackageLabel,
             setWhitelist = listensViewModel::setWhitelist,
         ) { showBlacklist = false }
-    }
-}
-
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun SettingsScreenPreview() {
-    ListenBrainzTheme {
-        SettingsScreen(
-            appPreferences = AppPreferencesImpl(LocalContext.current),
-            callbacks = SettingsCallbacks(
-                logout = {},
-                getVersion = { "1.0.0" },
-                onLoginRequest = {},
-                onOnboardingRequest = {},
-                onDonateClick = {},
-                checkForUpdates = suspend { false },
-                onNavigationReorderClick = {}
-            ),
-            topBarActions = TopBarActions(),
-            submitLogs = {},
-            isSubmittingLogs = false
-        )
     }
 }

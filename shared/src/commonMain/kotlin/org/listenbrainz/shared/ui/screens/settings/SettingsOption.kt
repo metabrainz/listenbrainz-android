@@ -1,10 +1,13 @@
 package org.listenbrainz.shared.ui.screens.settings
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import org.listenbrainz.shared.resources.Res
 import org.listenbrainz.shared.resources.link_to
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,9 +15,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,6 +65,68 @@ fun SettingsSwitchOption(
             checked = isChecked,
             onCheckedChange = onCheckedChange,
         )
+    }
+}
+
+@Composable
+fun <T> SettingsDropdownOption(
+    modifier: Modifier = Modifier,
+    title: String,
+    subtitle: String,
+    options: List<T>,
+    selected: T,
+    optionLabel: (T) -> String,
+    onSelect: (T) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { expanded = true }
+            .padding(start = ListenBrainzTheme.paddings.settings),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SettingsText(
+            modifier = Modifier.weight(1f),
+            title = title,
+            subtitle = subtitle,
+            enabled = true
+        )
+
+        Box {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    modifier = Modifier.animateContentSize(),
+                    text = optionLabel(selected),
+                    color = ListenBrainzTheme.colorScheme.hint,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ArrowDropDown,
+                    contentDescription = null,
+                    tint = ListenBrainzTheme.colorScheme.hint
+                )
+            }
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.background(ListenBrainzTheme.colorScheme.background)
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(text = optionLabel(option)) },
+                        onClick = {
+                            expanded = false
+                            onSelect(option)
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 

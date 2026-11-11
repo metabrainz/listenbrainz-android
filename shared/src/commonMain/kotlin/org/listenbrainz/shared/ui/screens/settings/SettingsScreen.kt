@@ -35,6 +35,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.compose.viewmodel.koinViewModel
@@ -42,7 +44,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.UiMode
-import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.ui.navigation.TopBar
 import org.listenbrainz.shared.ui.navigation.TopBarActions
 import org.listenbrainz.shared.ui.theme.ListenBrainzTheme
@@ -61,8 +62,20 @@ fun SettingsScreen(
 ) {
     val settingsUiState by viewModel.uiState.collectAsState()
     val isSubmittingLogs = settingsUiState.isSubmittingLogs
+    val appPreferences = viewModel.appPreferences
+    val scope = rememberCoroutineScope()
+    val uiMode by appPreferences.themePreference.getFlow()
+        .collectAsState(initial = UiMode.FOLLOW_SYSTEM)
+    val isLoggedOut by remember {
+        appPreferences
+            .getLoginStatusFlow()
+            .map { it == Constants.Strings.STATUS_LOGGED_OUT }
+    }.collectAsState(initial = false)
+
     SettingsScreen(
-        appPreferences = viewModel.appPreferences,
+        uiMode = uiMode,
+        onUiModeChange = { scope.launch { appPreferences.themePreference.set(it) } },
+        isLoggedOut = isLoggedOut,
         callbacks = remember {
             SettingsCallbacks(
                 onLoginRequest = callbacks.onLoginRequest,
@@ -85,7 +98,9 @@ fun SettingsScreen(
 
 @Composable
 fun SettingsScreen(
-    appPreferences: AppPreferences,
+    uiMode: UiMode,
+    onUiModeChange: (UiMode) -> Unit,
+    isLoggedOut: Boolean,
     callbacks: SettingsCallbacks,
     topBarActions: TopBarActions,
     submitLogs: () -> Unit,
@@ -94,17 +109,8 @@ fun SettingsScreen(
 ) {
     val uriHandler = LocalUriHandler.current
     var showLogoutDialog by remember { mutableStateOf(false) }
-    val darkTheme = ListenBrainzTheme.uiModeIsDark
     val scope = rememberCoroutineScope()
     var isCheckingForUpdates by remember { mutableStateOf(false) }
-    var darkThemeCheckedState by remember { mutableStateOf(darkTheme) }
-
-    val isLoggedOut by remember {
-        appPreferences
-            .getLoginStatusFlow()
-            .map { it == Constants.Strings.STATUS_LOGGED_OUT }
-    }.collectAsState(initial = false)
-
     Column {
         TopBar(
             modifier = Modifier.statusBarsPadding(),
@@ -135,16 +141,20 @@ fun SettingsScreen(
                 HorizontalDivider()
             }
 
-            SettingsSwitchOption(
-                title = "Dark theme",
-                subtitle = "Enable the dark theme on this device",
-                isChecked = darkThemeCheckedState
-            ) {
-                scope.launch {
-                    appPreferences.themePreference.set(if (darkTheme) UiMode.LIGHT else UiMode.DARK)
-                }
-                darkThemeCheckedState = it
-            }
+            SettingsDropdownOption(
+                title = "Theme",
+                subtitle = "Choose the app's theme on this device",
+                options = UiMode.entries,
+                selected = uiMode,
+                optionLabel = { mode ->
+                    when (mode) {
+                        UiMode.FOLLOW_SYSTEM -> "Follow system"
+                        UiMode.LIGHT -> "Light"
+                        UiMode.DARK -> "Dark"
+                    }
+                },
+                onSelect = onUiModeChange
+            )
 
             HorizontalDivider()
 
@@ -338,5 +348,30 @@ fun SettingsScreen(
                 )
             }
         }
+    }
+}
+
+@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Composable
+fun SettingsScreenPreview() {
+    ListenBrainzTheme {
+        SettingsScreen(
+            uiMode = UiMode.FOLLOW_SYSTEM,
+            onUiModeChange = {},
+            isLoggedOut = false,
+            callbacks = SettingsCallbacks(
+                logout = {},
+                getVersion = { "1.0.0" },
+                onLoginRequest = {},
+                onOnboardingRequest = {},
+                onDonateClick = {},
+                checkForUpdates = suspend { false },
+                onNavigationReorderClick = {}
+            ),
+            topBarActions = TopBarActions(),
+            submitLogs = {},
+            isSubmittingLogs = false
+        )
     }
 }
