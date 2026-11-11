@@ -13,6 +13,8 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import org.koin.compose.viewmodel.koinViewModel
 import org.listenbrainz.shared.navigation.navigationSavedStateConfiguration
@@ -58,6 +60,10 @@ fun App(
     NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeAt(backStack.lastIndex) },
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
         entryProvider = entryProvider { entries(navigator) },
         transitionSpec = {
             slideInHorizontally(initialOffsetX = { it }) togetherWith

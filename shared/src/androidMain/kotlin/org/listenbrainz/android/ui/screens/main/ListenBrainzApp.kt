@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.main
 
+import android.content.Intent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
+import org.listenbrainz.android.ui.screens.settings.ListenSubmissionSettings
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.getActivity
@@ -69,6 +71,7 @@ fun ListenBrainzApp(
                 }
                 entry<NavigationItem.OnboardingScreens.PermissionScreen> {
                     PermissionScreen(
+                        dashBoardViewModel = dashBoardViewModel,
                         onExit = {
                             navigator.onboarding.next()
                         },
@@ -78,6 +81,7 @@ fun ListenBrainzApp(
                 }
                 entry<NavigationItem.OnboardingScreens.ListeningAppScreen> {
                     ListeningAppSelectionScreen(
+                        dashBoardViewModel = dashBoardViewModel,
                         onClickNext = {
                             navigator.onboarding.next()
                         }
@@ -85,6 +89,7 @@ fun ListenBrainzApp(
                 }
                 entry<NavigationItem.HomeScreen> {
                     HomeScreen(
+                        dashBoardViewModel = dashBoardViewModel,
                         settingsCallbacks = SettingsCallbacksToHomeScreen(
                             onLoginRequest = {
                                 navigator.backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
@@ -99,7 +104,11 @@ fun ListenBrainzApp(
                         ),
                         onNewsClick = {
                             navigator.backStack.add(NavigationItem.NewsBrainzScreen)
-                        }
+                        },
+                        onDonateClick = {
+                            activity.startActivity(Intent(activity, DonateActivity::class.java))
+                        },
+                        listenSubmissionSettings = { ListenSubmissionSettings() }
                     )
                 }
                 entry<NavigationItem.NewsBrainzScreen> {

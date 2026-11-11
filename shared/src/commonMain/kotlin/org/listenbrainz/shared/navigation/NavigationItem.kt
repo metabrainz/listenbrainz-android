@@ -28,11 +28,27 @@ sealed interface NavigationItem :NavKey{
     data object NewsBrainzScreen: NavigationItem
 
     @Serializable
+    data object FeedScreen: NavigationItem
+
+    @Serializable
+    data object ExploreScreen: NavigationItem
+
+    /** A null [username] is the logged-in user's profile. */
+    @Serializable
+    data class ProfileScreen(val username: String? = null): NavigationItem
+
+    @Serializable
     data object SettingsScreen: NavigationItem
+
+    @Serializable
+    data object SearchScreen: NavigationItem
 
     @Serializable
     data class ArtistScreen(val mbid: String): NavigationItem
 
     @Serializable
     data class AlbumScreen(val mbid: String): NavigationItem
+
+    @Serializable
+    data class PlaylistScreen(val mbid: String): NavigationItem
 }

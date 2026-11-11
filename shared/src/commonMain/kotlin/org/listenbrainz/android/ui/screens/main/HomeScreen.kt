@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.main
 
-import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
@@ -30,22 +29,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
-import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.platform.LocalWindowInfo
+import org.koin.compose.viewmodel.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.navigation.AdaptiveNavigationBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.NavBarReorderOverlay
 import org.listenbrainz.android.ui.navigation.TopBarActions
+import org.listenbrainz.android.ui.navigation.rememberHomeNavigator
 import org.listenbrainz.android.ui.screens.listeningNow.ListeningNowBackDropScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.viewmodel.DashBoardViewModel
 import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
+import org.listenbrainz.shared.navigation.NavigationItem
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -54,45 +53,34 @@ fun HomeScreen(
     dashBoardViewModel: DashBoardViewModel = koinViewModel(),
     listeningNowViewModel: ListeningNowViewModel = koinViewModel(),
     settingsCallbacks: SettingsCallbacksToHomeScreen,
-    onNewsClick: () -> Unit
+    onNewsClick: () -> Unit,
+    onDonateClick: () -> Unit,
+    listenSubmissionSettings: @Composable () -> Unit = {}
 ) {
     val dashboardUiState by dashBoardViewModel.uiState.collectAsStateWithLifecycle()
-    val navController = rememberNavController()
     val backdropScaffoldState =
         rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
     var scrollToTopState by remember { mutableStateOf(false) }
     val snackbarState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-    val username = dashboardUiState.username
     var showNavReorderOverlay by rememberSaveable { mutableStateOf(false) }
-    val isLandScape =
-        LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val isLandScape = LocalWindowInfo.current.containerSize.let { it.width > it.height }
     val listeningNowUIState by listeningNowViewModel.listeningNowUIState.collectAsStateWithLifecycle()
 
     val isListeningNowOpenedInConcealedState = backdropScaffoldState.targetValue != BackdropValue.Revealed && listeningNowUIState.isListeningNow
 
+    val navOrder = dashboardUiState.navBarOrder
+    val navigator = rememberHomeNavigator(startTab = navOrder?.firstOrNull() ?: AppNavigationItem.Feed)
+
     val topBarActions = TopBarActions(
-        popBackStackInSettingsScreen = {
-            navController.popBackStack()
-        },
+        popBackStackInSettingsScreen = navigator::pop,
         navigateToSettingsScreen = {
-            navController.navigate(AppNavigationItem.Settings.route) {
-                launchSingleTop = true
-                restoreState = true
-            }
+            navigator.navigate(NavigationItem.SettingsScreen)
         },
         activateSearch = {
-            navController.navigate(AppNavigationItem.SearchScreen.route) {
-                launchSingleTop = true
-                restoreState = true
-            }
+            navigator.navigate(NavigationItem.SearchScreen)
         }
     )
-    val navOrder = dashboardUiState.navBarOrder
-
-    val startRoute = navOrder?.firstOrNull()?.route
 
     Scaffold(
         modifier = Modifier
@@ -112,11 +100,10 @@ fun HomeScreen(
             ) {
                 if (!isLandScape) {
                     AdaptiveNavigationBar(
-                        navController = navController,
+                        navigator = navigator,
                         items = navOrder,
                         backdropScaffoldState = backdropScaffoldState,
                         scrollToTop = { scrollToTopState = true },
-                        username = username,
                         isLandscape = false,
                         listeningNowUIState = listeningNowUIState,
                     )
@@ -143,17 +130,16 @@ fun HomeScreen(
         Row {
             if (isLandScape) {
                 AdaptiveNavigationBar(
-                    navController = navController,
+                    navigator = navigator,
                     items = navOrder,
                     backdropScaffoldState = backdropScaffoldState,
                     scrollToTop = { scrollToTopState = true },
-                    username = username,
                     isLandscape = true,
                     listeningNowUIState = listeningNowUIState,
                 )
             }
 //            if (isGrantedPerms == PermissionStatus.GRANTED.name) {
-            if (startRoute != null && navOrder != null) {
+            if (navOrder != null) {
                 ListeningNowBackDropScreen(
                     modifier = Modifier.then(if (!isLandScape && !isListeningNowOpenedInConcealedState) Modifier.navigationBarsPadding() else Modifier),
                     backdropScaffoldState = backdropScaffoldState,
@@ -162,7 +148,7 @@ fun HomeScreen(
                     listeningNowViewModel = listeningNowViewModel
                 ) {
                     AppNavigation(
-                        navController = navController,
+                        navigator = navigator,
                         scrollRequestState = scrollToTopState,
                         onScrollToTop = { scrollToTop ->
                             scope.launch {
@@ -177,8 +163,9 @@ fun HomeScreen(
                         topAppBarActions = topBarActions,
                         settingsCallbacks = settingsCallbacks,
                         onNewsClick = onNewsClick,
-                        startRoute = startRoute,
-                        onNavigationReorderClick = { showNavReorderOverlay = true }
+                        onNavigationReorderClick = { showNavReorderOverlay = true },
+                        onDonateClick = onDonateClick,
+                        listenSubmissionSettings = listenSubmissionSettings
                     )
                 }
             }
@@ -190,6 +177,7 @@ fun HomeScreen(
             items = navOrder,
             isLandscape = isLandScape,
             onDismiss = { newOrder ->
+                navigator.pinCurrentTab()
                 scope.launch {
                     dashBoardViewModel.appPreferences.navBarOrder.set(newOrder)
                     showNavReorderOverlay = false
